@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Wintercon — Schedule & Facility Map</title>
+<style>
+  :root{--bg:#f4f5f7;--ink:#242424;--line:#e4e6ea;--navy:#2F5496;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;font-family:'Helvetica Neue',Arial,sans-serif;color:var(--ink);background:var(--bg);}
+  header{background:var(--navy);color:#fff;padding:12px 18px;}
+  header h1{margin:0;font-size:19px;}
+  header p{margin:3px 0 0;font-size:12px;opacity:.85;}
+  #wrap{display:grid;grid-template-columns:1fr 420px;gap:14px;padding:14px;align-items:start;}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+  /* schedule */
+  .allweek{padding:10px 12px;border-bottom:1px solid var(--line);}
+  .allweek h2,.sec h2{margin:0 0 8px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#8a8f98;}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;}
+  .chip{border:1px solid var(--line);border-left-width:5px;border-radius:16px;padding:5px 11px;font-size:13px;cursor:pointer;background:#fff;}
+  .chip:hover{background:#f6f8fc;}
+  .chip small{color:#888;}
+  .daytabs{display:flex;gap:4px;padding:10px 12px 0;}
+  .daytab{flex:1;text-align:center;padding:8px 6px;border:1px solid var(--line);border-bottom:none;border-radius:8px 8px 0 0;
+    background:#f7f8fa;cursor:pointer;font-size:14px;}
+  .daytab .sub{display:block;font-size:11px;color:#8a8f98;}
+  .daytab.active{background:#fff;font-weight:700;box-shadow:0 -2px 0 var(--navy) inset;}
+  .tthead{display:flex;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:3;}
+  .tthead .g{width:52px;flex:none;}
+  .tthead .rh{flex:1;text-align:center;font-size:12px;font-weight:700;padding:7px 2px;border-left:1px solid var(--line);}
+  .rh .rdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:middle;}
+  .ttbody{max-height:64vh;overflow:auto;}
+  .ttinner{position:relative;display:flex;}
+  .gutter{width:52px;flex:none;position:relative;}
+  .hourlbl{position:absolute;right:6px;font-size:11px;color:#9a9aa0;transform:translatey(-6px);}
+  .roomcol{flex:1;position:relative;border-left:1px solid var(--line);}
+  .ev{position:absolute;border-radius:6px;padding:4px 6px;font-size:12px;line-height:1.2;overflow:hidden;cursor:pointer;
+    border-left:4px solid #999;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.08);}
+  .ev:hover{filter:brightness(.97);}
+  .ev .t{font-weight:600;}
+  .ev .ti{color:#777;font-size:11px;}
+  .ev.sel{outline:2.5px solid #ffb62e;outline-offset:1px;z-index:5;}
+  .ev.dim{opacity:.28;}
+  /* map + detail */
+  #mapwrap{position:sticky;top:14px;}
+  .sec{padding:12px;}
+  svg#plan{width:100%;height:auto;display:block;background:#eef1f4;border-radius:8px;}
+  .room rect{transition:fill .15s,stroke .15s;}
+  .room .fill{fill:#dfe4ea;stroke:#b5bcc6;stroke-width:2;cursor:pointer;}
+  .room .lbl{font-size:13px;fill:#3a3f47;font-weight:600;pointer-events:none;text-anchor:middle;}
+  .room:hover .fill{fill:#d3dae3;}
+  .room.active .fill{fill:#ffe1b0;stroke:#e0a526;stroke-width:3.5;}
+  .truck{fill:#c9d6c4;stroke:#7fa079;stroke-width:1.5;}
+  .mapnote{font-size:11px;fill:#8a8f98;text-anchor:middle;}
+  #mapLabel{font-size:13px;font-weight:700;fill:#7a4a00;paint-order:stroke;stroke:#fff;stroke-width:3px;text-anchor:middle;pointer-events:none;}
+  #detail{border-top:1px solid var(--line);min-height:120px;}
+  #detail .dtitle{font-size:16px;font-weight:700;margin:0 0 6px;}
+  #detail .row{font-size:13px;margin:3px 0;color:#444;}
+  #detail .row b{color:#222;}
+  #detail .pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;background:#eef2fb;color:var(--navy);}
+  #detail .rlist a{display:block;padding:6px 4px;border-bottom:1px solid #f0f1f3;font-size:13px;cursor:pointer;color:#333;text-decoration:none;}
+  #detail .rlist a:hover{background:#f6f8fc;}
+  #detail .muted{color:#9a9aa0;font-size:13px;}
+  .legend{padding:0 12px 12px;font-size:11px;color:#8a8f98;}
+  @media(max-width:900px){#wrap{grid-template-columns:1fr;}#mapwrap{position:static;}}
+</style>
+</head>
+<body>
+<header style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+  <div>
+    <h1>Wintercon (WinCon) — Schedule &amp; Facility Map</h1>
+    <p>Martin Public Library · Martin Event Center — Friday evening · Saturday all day · Sunday morning — click any event to see where it is</p>
+  </div>
+  <a href="index.html" title="Organizing home" style="margin-left:auto;font-size:18px;text-decoration:none;padding:2px 6px;">🏠</a>
+</header>
+
+<div id="wrap">
+  <div class="panel" id="sched">
+    <div class="allweek">
+      <h2>Available all weekend</h2>
+      <div class="chips" id="chips"></div>
+    </div>
+    <div class="daytabs" id="daytabs"></div>
+    <div class="tthead" id="tthead"></div>
+    <div class="ttbody"><div class="ttinner" id="ttinner"></div></div>
+    <div class="legend" id="legend"></div>
+  </div>
+
+  <div id="mapwrap">
+    <div class="panel">
+      <div class="sec">
+        <h2>Facility map</h2>
+        <svg id="plan" viewBox="0 0 600 470" xmlns="http://www.w3.org/2000/svg">
+          <!-- Martin Event Center outer wall -->
+          <text class="mapnote" x="300" y="20" style="font-weight:700;fill:#5a6470;">Martin Event Center — at Martin Public Library</text>
+          <rect x="38" y="28" width="524" height="304" fill="none" stroke="#9aa2ad" stroke-width="3"/>
+          <g class="room" id="room-interior" data-room="interior">
+            <rect class="fill" x="52" y="44" width="256" height="212" rx="4"/>
+            <line x1="180" y1="44" x2="180" y2="256" stroke="#b5bcc6" stroke-width="1.5" stroke-dasharray="6 5" pointer-events="none"/>
+            <text class="lbl" x="180" y="146">Rooms C + D</text>
+            <text class="mapnote" x="180" y="164">main hall — walls open</text>
+          </g>
+          <g class="room" id="room-adjacent" data-room="adjacent">
+            <rect class="fill" x="320" y="44" width="228" height="212" rx="4"/>
+            <line x1="434" y1="44" x2="434" y2="256" stroke="#b5bcc6" stroke-width="1.5" stroke-dasharray="6 5" pointer-events="none"/>
+            <text class="lbl" x="434" y="146">Rooms A + B</text>
+            <text class="mapnote" x="434" y="164">walls open</text>
+          </g>
+          <g class="room" id="room-hallway" data-room="hallway">
+            <rect class="fill" x="52" y="268" width="496" height="52" rx="4"/>
+            <text class="lbl" x="300" y="299">Lobby / Hallway</text>
+          </g>
+          <!-- door gap from lobby to outside -->
+          <rect x="278" y="330" width="44" height="6" fill="#eef1f4"/>
+          <text class="mapnote" x="300" y="349">entrance</text>
+          <g class="room" id="room-outside" data-room="outside">
+            <rect class="fill" x="38" y="356" width="524" height="98" rx="6" style="fill:#e6efe2;stroke:#9cbf95;"/>
+            <text class="lbl" x="300" y="378" style="fill:#3f6b39;">Outside</text>
+            <!-- outdoor stage -->
+            <g>
+              <rect x="72" y="398" width="96" height="40" rx="5" fill="#d8cfa8" stroke="#a89a5f" stroke-width="1.5"/>
+              <text class="mapnote" x="120" y="422" style="fill:#6b5f2c;">Outdoor stage</text>
+            </g>
+            <!-- food trucks -->
+            <g>
+              <rect class="truck" x="256" y="398" width="78" height="34" rx="5"/>
+              <circle cx="272" cy="434" r="6" fill="#5c6b57"/><circle cx="318" cy="434" r="6" fill="#5c6b57"/>
+              <rect class="truck" x="386" y="398" width="78" height="34" rx="5"/>
+              <circle cx="402" cy="434" r="6" fill="#5c6b57"/><circle cx="448" cy="434" r="6" fill="#5c6b57"/>
+              <text class="mapnote" x="360" y="392" style="fill:#3f6b39;">Food trucks</text>
+            </g>
+          </g>
+          <text id="mapLabel" x="0" y="0" style="display:none"></text>
+        </svg>
+        <div class="legend" style="padding:8px 0 0">Schematic only — the Event Center is 3,500 sq ft; Rooms A–D combine into one hall holding 300, with a 3,500 sq ft outdoor stage. Real floor plans (both library floors) requested from the library. Parking is on a separate map. Click a room to see everything happening there.</div>
+      </div>
+      <div class="sec" id="detail">
+        <p class="muted">Select an event from the schedule, or click a room on the map, to see details here.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const ROOMS=[
+  {id:'interior',name:'Rooms C+D (main hall)',color:'#2F5496'},
+  {id:'adjacent',name:'Rooms A+B',color:'#1f7a6d'},
+  {id:'hallway', name:'Lobby / Hallway',color:'#d98a1f'},
+  {id:'outside', name:'Outside (stage & trucks)',color:'#3f9d54'},
+];
+const roomById=Object.fromEntries(ROOMS.map(r=>[r.id,r]));
+const roomCenter={interior:[180,150],adjacent:[434,150],hallway:[300,296],outside:[300,410]};
+const DAYS=[
+  {id:'fri',name:'Friday',sub:'Evening',start:17*60,end:23*60},
+  {id:'sat',name:'Saturday',sub:'All day',start:9*60,end:23*60},
+  {id:'sun',name:'Sunday',sub:'Morning',start:9*60,end:13*60},
+];
+const dayById=Object.fromEntries(DAYS.map(d=>[d.id,d]));
+const T=(h,m)=>h*60+(m||0);
+let EVENTS=[
+  // Friday
+  {title:'Registration & Check-in',day:'fri',room:'hallway',s:T(17),e:T(19),type:'Info'},
+  {title:'Opening Welcome',day:'fri',room:'interior',s:T(18),e:T(18,30),type:'Ceremony'},
+  {title:'Friday Night One-Shots',day:'fri',room:'interior',s:T(19),e:T(23),type:'Game'},
+  {title:'Learn to Play D&D',day:'fri',room:'adjacent',s:T(19),e:T(21),type:'Game'},
+  {title:'Pathfinder Society',day:'fri',room:'adjacent',s:T(21),e:T(23),type:'Game'},
+  {title:'Cosplay Meetup',day:'fri',room:'hallway',s:T(20),e:T(22),type:'Social'},
+  {title:'Food Trucks — Dinner',day:'fri',room:'outside',s:T(17),e:T(21),type:'Food'},
+  // Saturday
+  {title:'Doors Open / Coffee',day:'sat',room:'hallway',s:T(9),e:T(10),type:'Info'},
+  {title:'Battle Interactive: The Siege',day:'sat',room:'interior',s:T(10),e:T(12),type:'Game'},
+  {title:'Intro to Miniature Painting',day:'sat',room:'adjacent',s:T(10),e:T(12),type:'Workshop'},
+  {title:'Food Trucks — Lunch',day:'sat',room:'outside',s:T(11,30),e:T(14),type:'Food'},
+  {title:'MTG Tournament',day:'sat',room:'interior',s:T(13),e:T(17),type:'Tournament'},
+  {title:'Dice Goblin',day:'sat',room:'adjacent',s:T(14),e:T(16),type:'Game',desc:'A chaotic two-hour dungeon crawl. Beginner-friendly, pre-generated characters and dice provided.'},
+  {title:'DM Workshop: Running Combat',day:'sat',room:'adjacent',s:T(16),e:T(18),type:'Workshop'},
+  {title:'Cosplay Contest',day:'sat',room:'hallway',s:T(17),e:T(18),type:'Social'},
+  {title:'Food Trucks — Dinner',day:'sat',room:'outside',s:T(17,30),e:T(20),type:'Food'},
+  {title:'Evening Campaign Marathon',day:'sat',room:'interior',s:T(19),e:T(23),type:'Game'},
+  {title:'One-Shot: Curse of Strahd',day:'sat',room:'adjacent',s:T(19),e:T(23),type:'Game'},
+  // Sunday
+  {title:'Coffee & Bagels',day:'sun',room:'hallway',s:T(9),e:T(10),type:'Info'},
+  {title:'Sunday One-Shots',day:'sun',room:'interior',s:T(10),e:T(12),type:'Game'},
+  {title:'Family D&D',day:'sun',room:'adjacent',s:T(10),e:T(12),type:'Game'},
+  {title:'Food Trucks — Brunch',day:'sun',room:'outside',s:T(10),e:T(12,30),type:'Food'},
+  {title:'Awards & Farewell',day:'sun',room:'interior',s:T(12),e:T(13),type:'Ceremony'},
+  // Continuous (all weekend)
+  {title:'Vendor & Makers Market',room:'hallway',type:'Market',continuous:true},
+  {title:'Board Game Library',room:'adjacent',type:'Open Play',continuous:true},
+  {title:'Food Trucks',room:'outside',type:'Food',continuous:true},
+  {title:'Info & Registration Desk',room:'hallway',type:'Info',continuous:true},
+];
+EVENTS.forEach((e,i)=>e.id='e'+i);
+
+const HOUR=62; // px per hour
+let curDay='sat', selId=null, selRoom=null;
+const fmt=m=>{let h=Math.floor(m/60),mm=m%60,ap=h<12?'a':'p';h=h%12;if(h===0)h=12;return h+(mm?':'+String(mm).padStart(2,'0'):'')+ap;};
+
+function laneAssign(evs){ // greedy lanes to avoid overlap within a room
+  const sorted=[...evs].sort((a,b)=>a.s-b.s||a.e-b.e);
+  const laneEnds=[];
+  sorted.forEach(ev=>{ let placed=false;
+    for(let i=0;i<laneEnds.length;i++){ if(ev.s>=laneEnds[i]){ ev._lane=i; laneEnds[i]=ev.e; placed=true; break; } }
+    if(!placed){ ev._lane=laneEnds.length; laneEnds.push(ev.e); }
+  });
+  return Math.max(1,laneEnds.length);
+}
+
+function buildChips(){
+  const box=document.getElementById('chips'); box.innerHTML='';
+  EVENTS.filter(e=>e.continuous).forEach(e=>{
+    const r=roomById[e.room];
+    const c=document.createElement('div'); c.className='chip'; c.style.borderLeftColor=r.color;
+    c.innerHTML=`${e.title} <small>· ${r.name}</small>`;
+    c.onclick=()=>selectEvent(e.id); box.appendChild(c);
+  });
+}
+function buildTabs(){
+  const box=document.getElementById('daytabs'); box.innerHTML='';
+  DAYS.forEach(d=>{ const t=document.createElement('div'); t.className='daytab'+(d.id===curDay?' active':'');
+    t.innerHTML=`${d.name}<span class="sub">${d.sub}</span>`; t.onclick=()=>{curDay=d.id;render();}; box.appendChild(t); });
+}
+function buildHead(){
+  const h=document.getElementById('tthead'); h.innerHTML='<div class="g"></div>'+
+    ROOMS.map(r=>`<div class="rh"><span class="rdot" style="background:${r.color}"></span>${r.name}</div>`).join('');
+}
+function render(){
+  buildTabs(); buildHead();
+  const d=dayById[curDay]; const inner=document.getElementById('ttinner');
+  const height=(d.end-d.start)/60*HOUR;
+  inner.style.height=height+'px';
+  inner.style.background=`repeating-linear-gradient(#fff 0, #fff ${HOUR-1}px, #eef0f3 ${HOUR-1}px, #eef0f3 ${HOUR}px)`;
+  // gutter
+  let html='<div class="gutter">';
+  for(let m=d.start;m<=d.end;m+=60){ html+=`<div class="hourlbl" style="top:${(m-d.start)/60*HOUR}px">${fmt(m)}</div>`; }
+  html+='</div>';
+  // room columns
+  ROOMS.forEach(r=>{
+    const evs=EVENTS.filter(e=>!e.continuous&&e.day===curDay&&e.room===r.id);
+    const lanes=laneAssign(evs);
+    html+=`<div class="roomcol" data-room="${r.id}">`;
+    evs.forEach(e=>{
+      const top=(e.s-d.start)/60*HOUR, hgt=Math.max(22,(e.e-e.s)/60*HOUR-3);
+      const w=100/lanes, left=e._lane*w;
+      const dim = selRoom&&selRoom!==r.id ? ' dim':'';
+      const sel = selId===e.id ? ' sel':'';
+      html+=`<div class="ev${sel}${dim}" data-id="${e.id}" style="top:${top}px;height:${hgt}px;left:calc(${left}% + 2px);width:calc(${w}% - 4px);border-left-color:${r.color};background:${hexA(r.color,.08)}">
+        <div class="t">${e.title}</div><div class="ti">${fmt(e.s)}–${fmt(e.e)}</div></div>`;
+    });
+    html+='</div>';
+  });
+  inner.innerHTML=html;
+  inner.querySelectorAll('.ev').forEach(el=>el.onclick=()=>selectEvent(el.dataset.id));
+  document.getElementById('legend').textContent='Times are samples — edit the EVENTS list in the file to set your real program.';
+  applyMap();
+}
+function hexA(hex,a){ const n=parseInt(hex.slice(1),16); return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`; }
+
+function selectEvent(id){
+  const e=EVENTS.find(x=>x.id===id); if(!e)return;
+  selId=id; selRoom=null;
+  if(!e.continuous && e.day!==curDay){ curDay=e.day; }
+  render();
+  // scroll into view
+  const el=document.querySelector('.ev.sel'); if(el){ el.scrollIntoView({block:'center',behavior:'smooth'}); }
+  showEventDetail(e);
+  highlightRoom(e.room, e.title);
+}
+function selectRoom(roomId){
+  selRoom=roomId; selId=null; render();
+  highlightRoom(roomId, roomById[roomId].name);
+  showRoomDetail(roomId);
+}
+function highlightRoom(roomId,label){
+  document.querySelectorAll('.room').forEach(r=>r.classList.remove('active'));
+  const g=document.getElementById('room-'+roomId); if(g)g.classList.add('active');
+  const t=document.getElementById('mapLabel'), c=roomCenter[roomId];
+  if(c){ t.setAttribute('x',c[0]); t.setAttribute('y',c[1]+ (roomId==='hallway'?26:34)); t.textContent=label.length>26?label.slice(0,25)+'…':label; t.style.display=''; }
+}
+function applyMap(){ /* keep active room in sync after re-render (map is static DOM) */ }
+
+function showEventDetail(e){
+  const d=document.getElementById('detail'); const r=roomById[e.room];
+  const when = e.continuous ? 'Available all weekend' : `${dayById[e.day].name}, ${fmt(e.s)}–${fmt(e.e)}`;
+  d.innerHTML=`<p class="dtitle">${e.title}</p>
+    <div class="row"><span class="pill">${e.type}</span></div>
+    <div class="row"><b>When:</b> ${when}</div>
+    <div class="row"><b>Where:</b> <span style="color:${r.color};font-weight:700">●</span> ${r.name} <span class="muted">(highlighted on map)</span></div>
+    ${e.desc?`<div class="row">${e.desc}</div>`:''}`;
+}
+function showRoomDetail(roomId){
+  const d=document.getElementById('detail'); const r=roomById[roomId];
+  const evs=EVENTS.filter(e=>e.room===roomId);
+  const cont=evs.filter(e=>e.continuous), sched=evs.filter(e=>!e.continuous)
+    .sort((a,b)=>DAYS.findIndex(x=>x.id===a.day)-DAYS.findIndex(x=>x.id===b.day)||a.s-b.s);
+  let html=`<p class="dtitle"><span style="color:${r.color}">●</span> ${r.name}</p>`;
+  if(cont.length) html+=`<div class="row"><b>Always here:</b> ${cont.map(e=>e.title).join(', ')}</div>`;
+  html+=`<div class="row"><b>Scheduled:</b></div><div class="rlist">`;
+  html+=sched.map(e=>`<a data-id="${e.id}">${dayById[e.day].name.slice(0,3)} ${fmt(e.s)}–${fmt(e.e)} · ${e.title}</a>`).join('')||'<span class="muted">Nothing scheduled here.</span>';
+  html+='</div>';
+  d.innerHTML=html;
+  d.querySelectorAll('.rlist a').forEach(a=>a.onclick=()=>selectEvent(a.dataset.id));
+}
+
+document.querySelectorAll('.room').forEach(g=>g.addEventListener('click',()=>selectRoom(g.dataset.room)));
+
+buildChips(); render();
+</script>
+</body>
+</html>

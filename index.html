@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WinterCon — Organizing Home</title>
+<style>
+  :root{--navy:#2F5496;--teal:#1f7a6d;--gold:#e0a526;--purple:#7a4fb0;--green:#2e8b57;--red:#c0504d;
+        --bg:#f4f5f7;--ink:#242424;--line:#e4e6ea;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;font-family:'Helvetica Neue',Arial,sans-serif;color:var(--ink);background:var(--bg);}
+  header{background:var(--navy);color:#fff;padding:18px 24px;}
+  header h1{margin:0;font-size:23px;letter-spacing:.01em;}
+  header p{margin:5px 0 0;font-size:13px;opacity:.85;}
+  header .tag{display:inline-block;margin-left:10px;font-size:11px;background:rgba(255,255,255,.18);
+              border:1px solid rgba(255,255,255,.35);border-radius:10px;padding:2px 9px;vertical-align:middle;}
+  #wrap{padding:22px 24px;max-width:680px;margin:0 auto;}
+  /* TOC */
+  #toc{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+  #toc h2{margin:0;padding:11px 16px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#fff;background:var(--navy);}
+  #toc .grp{padding:9px 16px 3px;font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:#9aa0a8;}
+  #toc a{display:block;padding:8px 16px;font-size:14px;color:#2a2a2a;text-decoration:none;border-left:4px solid transparent;}
+  #toc a:hover{background:#f3f7ff;border-left-color:var(--navy);}
+  #toc a small{display:block;font-size:11.5px;color:#8a8f98;margin-top:1px;}
+  #toc a .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px;}
+  #toc .soon{opacity:.55;}
+  #toc .soon:hover{background:none;border-left-color:transparent;cursor:default;}
+  footer{padding:14px 24px 26px;font-size:11.5px;color:#9a9aa0;max-width:680px;margin:0 auto;}
+</style>
+</head>
+<body>
+<header>
+  <h1>WinterCon <span class="tag">Organizing site — internal</span></h1>
+  <p>A D&amp;D &amp; tabletop convention in Martin, TN · This is our working headquarters — not the public marketing site (that's a separate build, coming later).</p>
+</header>
+
+<div id="wrap">
+  <!-- ============ TABLE OF CONTENTS ============ -->
+  <nav id="toc">
+    <h2>Table of contents</h2>
+    <div class="grp">Overview</div>
+    <a href="dashboard.html"><span class="dot" style="background:var(--navy)"></span>Dashboard<small>The mission, projected earnings, the five pillars &amp; what's next</small></a>
+    <div class="grp">Plan &amp; ideas</div>
+    <a href="mindmap.html"><span class="dot" style="background:#2a2a2a"></span>Idea Canvas (mind map)<small>Living brainstorm — prizes, logistics, venue, marketing, DMs</small></a>
+    <a href="player_journey.html"><span class="dot" style="background:var(--gold)"></span>Player Journey Map<small>Six player types, first rumor → next year. Organizing + sponsor pitch tool</small></a>
+    <a href="schedule.html"><span class="dot" style="background:var(--teal)"></span>Schedule &amp; Facility Map<small>Fri–Sun program grid + clickable room map of Martin Public Library's Event Center (times are drafts)</small></a>
+    <a href="adventure_quest.html"><span class="dot" style="background:var(--red)"></span>Adventure Quest (3D) <span style="font-size:10px;background:#fdecec;color:#c0504d;border-radius:8px;padding:1px 6px;">prototype</span><small>Walk your hero down a forking 3D path — every choice writes the day's schedule</small></a>
+    <a href="adventure_planner.html"><span class="dot" style="background:var(--red)"></span>Adventure Planner (board) <span style="font-size:10px;background:#fdecec;color:#c0504d;border-radius:8px;padding:1px 6px;">prototype</span><small>The 2D version — avatar builder + tap-to-join timeline with conflicts &amp; meal warnings</small></a>
+    <div class="grp">People &amp; partners</div>
+    <a href="people.html"><span class="dot" style="background:var(--purple)"></span>People<small>Players · con workers · volunteers · allies · sponsors</small></a>
+    <a href="outreach_map.html"><span class="dot" style="background:var(--green)"></span>Outreach Map<small>Game stores, colleges &amp; anyone we add — sponsor, DM, vendor &amp; campus targets</small></a>
+    <a href="WinterCon_Store_Outreach_Tracker.xlsx"><span class="dot" style="background:var(--green)"></span>Store Outreach Tracker <small>Priorities, asks &amp; status per store (Excel)</small></a>
+    <a href="WinterCon_Sponsor_Prospectus.docx"><span class="dot" style="background:var(--red)"></span>Sponsor Prospectus<small>The founding-sponsor pitch &amp; tier menu (Word)</small></a>
+    <div class="grp">Business</div>
+    <a href="WinterCon_Business_Case.docx"><span class="dot" style="background:var(--navy)"></span>Business Case<small>Verdict, comparable cons, the DM constraint (Word)</small></a>
+    <a href="WinterCon_Financial_Model.xlsx"><span class="dot" style="background:var(--navy)"></span>Financial Model<small>3 scenarios, editable assumptions, DM capacity math (Excel)</small></a>
+    <div class="grp">Coming soon</div>
+    <a class="soon"><span class="dot" style="background:#ccc"></span>Venue Floor Plan Map<small>British Museum–style map of Martin Public Library, both floors — awaiting plans from the library</small></a>
+    <a class="soon"><span class="dot" style="background:#ccc"></span>Marketing &amp; Virality Plan<small>Word-of-mouth engine, shareable pieces, campus strategy</small></a>
+    <a class="soon"><span class="dot" style="background:#ccc"></span>Stretch Financial Model<small>The 300-attendee scenario — open budget &amp; the Summer Con fund</small></a>
+    <a class="soon"><span class="dot" style="background:#ccc"></span>Public marketing site<small>The announce / sign-up site attendees will see</small></a>
+  </nav>
+</div>
+<footer>WinterCon organizing site · lives in the WinterCon folder — every page links back here. The public announce/sign-up website is a separate, future project.</footer>
+</body>
+</html>

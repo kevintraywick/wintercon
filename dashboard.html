@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WinterCon — Dashboard</title>
+<style>
+  :root{--navy:#2F5496;--teal:#1f7a6d;--gold:#e0a526;--purple:#7a4fb0;--green:#2e8b57;--red:#c0504d;
+        --bg:#f4f5f7;--ink:#242424;--line:#e4e6ea;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;font-family:'Helvetica Neue',Arial,sans-serif;color:var(--ink);background:var(--bg);}
+  header{background:var(--navy);color:#fff;padding:18px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  header h1{margin:0;font-size:23px;letter-spacing:.01em;}
+  header p{margin:5px 0 0;font-size:13px;opacity:.85;}
+  header .tag{display:inline-block;margin-left:10px;font-size:11px;background:rgba(255,255,255,.18);
+              border:1px solid rgba(255,255,255,.35);border-radius:10px;padding:2px 9px;vertical-align:middle;}
+  header a.home{margin-left:auto;font-size:18px;text-decoration:none;padding:2px 6px;}
+  main{max-width:980px;margin:0 auto;padding:18px 24px;min-width:0;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px 20px;margin-bottom:16px;}
+  .card h2{margin:0 0 10px;font-size:16px;color:var(--navy);}
+  .goals{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:4px 0 2px;}
+  .goal{border:1px solid var(--line);border-radius:10px;padding:12px 14px;text-align:center;}
+  .goal .big{font-size:26px;font-weight:800;color:var(--navy);}
+  .goal .lbl{font-size:12px;color:#777;margin-top:3px;line-height:1.35;}
+  .gapnote{font-size:12.5px;color:#8a6d1a;background:#fff7e2;border-left:4px solid var(--gold);border-radius:7px;padding:8px 12px;margin-top:12px;line-height:1.5;}
+  p.body{font-size:14px;line-height:1.6;margin:8px 0;}
+  ul.next{margin:6px 0 2px;padding-left:20px;font-size:14px;line-height:1.7;}
+  ul.next li b{color:var(--navy);}
+  .pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px;}
+  .pillar{border:1px solid var(--line);border-left:5px solid var(--teal);border-radius:9px;padding:11px 14px;}
+  .pillar h3{margin:0 0 5px;font-size:13.5px;}
+  .pillar p{margin:0;font-size:12.5px;color:#555;line-height:1.5;}
+  footer{padding:10px 24px 26px;font-size:11.5px;color:#9a9aa0;max-width:980px;margin:0 auto;}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>WinterCon Dashboard <span class="tag">rough draft — will evolve</span></h1>
+    <p>The mission, the money story, the five pillars, and where things stand.</p>
+  </div>
+  <a class="home" href="index.html" title="Organizing home">🏠</a>
+</header>
+
+<main>
+    <div class="card">
+      <h2>The mission</h2>
+      <div class="goals">
+        <div class="goal"><div class="big">300</div><div class="lbl">attendees — a packed Martin Public Library</div></div>
+        <div class="goal"><div class="big">★★★★★</div><div class="lbl">player experience — comfortable, oriented, delighted at every moment</div></div>
+        <div class="goal"><div class="big">+1 con</div><div class="lbl">funds raised promote &amp; seed the mid-summer con</div></div>
+        <div class="goal"><div class="big">100%</div><div class="lbl">open books — every dollar raised and spent, published</div></div>
+      </div>
+
+      <h3 style="margin:18px 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:#8a8f98;">Projected earnings — and where the surplus goes</h3>
+      <svg viewBox="0 0 1000 128" style="width:100%;height:auto;display:block;" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Projected earnings scale from zero to ten thousand dollars">
+        <!-- Summer Con funding band -->
+        <rect x="316" y="50" width="276" height="20" rx="4" fill="#eef7f3"/>
+        <text x="454" y="44" font-size="11.5" fill="#1f7a6d" text-anchor="middle" font-weight="700">GOAL: Summer Con promoted &amp; funded</text>
+        <!-- baseline -->
+        <line x1="40" y1="60" x2="960" y2="60" stroke="#c9cdd4" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- axis ticks $0 / $5k / $10k -->
+        <line x1="40" y1="54" x2="40" y2="66" stroke="#c9cdd4" stroke-width="2"/>
+        <text x="40" y="82" font-size="11" fill="#9a9aa0" text-anchor="middle">$0</text>
+        <line x1="500" y1="55" x2="500" y2="65" stroke="#c9cdd4" stroke-width="1.5"/>
+        <text x="500" y="82" font-size="11" fill="#9a9aa0" text-anchor="middle">$5k</text>
+        <!-- model markers (recalculated July 2026 for Martin Event Center venue rates) -->
+        <circle cx="121" cy="60" r="7" fill="#2F5496" stroke="#fff" stroke-width="2"/>
+        <text x="121" y="102" font-size="11" fill="#555" text-anchor="middle">$882</text>
+        <text x="121" y="115" font-size="10.5" fill="#9a9aa0" text-anchor="middle">1-day pilot</text>
+        <circle cx="253" cy="60" r="7" fill="#2F5496" stroke="#fff" stroke-width="2"/>
+        <text x="253" y="30" font-size="11" fill="#555" text-anchor="middle">$2,312</text>
+        <text x="253" y="43" font-size="10.5" fill="#9a9aa0" text-anchor="middle">base (current model)</text>
+        <circle cx="330" cy="60" r="7" fill="#1f7a6d" stroke="#fff" stroke-width="2"/>
+        <text x="330" y="102" font-size="11" fill="#555" text-anchor="middle">$3,156</text>
+        <text x="330" y="115" font-size="10.5" fill="#9a9aa0" text-anchor="middle">optimistic</text>
+        <!-- stretch stretch -->
+        <line x1="960" y1="48" x2="960" y2="72" stroke="#e0a526" stroke-width="3" stroke-linecap="round"/>
+        <text x="948" y="30" font-size="13" fill="#9a6b00" text-anchor="end" font-weight="800">$10,000 ★</text>
+        <text x="948" y="43" font-size="10.5" fill="#9a6b00" text-anchor="end">the stretch-stretch goal</text>
+      </svg>
+      <div class="gapnote"><b>How to read this — and how we talk about money:</b> badges stay cheap, the books stay open. Costs come first
+        (venue, insurance, feeding the DMs, prizes, printing), and every dollar raised and spent gets published. Whatever remains is
+        <b>earmarked to promote and seed the mid-summer con</b> — that band is the real goal. The current 100–200-attendee model projects
+        $900–$3,200 of surplus (updated for Martin Event Center venue rates): proof of concept, but not yet a funded Summer Con. Getting there takes a ~3× stronger engine —
+        bigger sponsorships, real word-of-mouth marketing, deep community buy-in, ~20+ DMs. $10,000 stays on the chart as the
+        stretch-stretch marker, not the mission.</div>
+    </div>
+
+    <div class="card">
+      <h2>How we get there — the five pillars</h2>
+      <div class="pillars">
+        <div class="pillar" style="border-left-color:var(--gold)"><h3>Player experience first</h3>
+          <p>The Player Journey Map is the spine: every attendee always comfortable, always knowing what's next and what not to miss. A magical year one is the marketing plan for year two.</p></div>
+        <div class="pillar" style="border-left-color:var(--green)"><h3>DMs are the engine</h3>
+          <p>Every DM ≈ 5 paying seats. 300 attendees needs ~20+ DMs plus zero-DM content (tournaments, board-game library, cosplay, vendors). DM Academy turns players into next year's capacity.</p></div>
+        <div class="pillar" style="border-left-color:var(--purple)"><h3>Community buy-in</h3>
+          <p>One Frequency Games as co-host, the Public Library as home base, UTM student orgs as campus allies, stores within 100 miles as partners, a charity angle for the town. People support what they helped build.</p></div>
+        <div class="pillar" style="border-left-color:var(--red)"><h3>Word-of-mouth &amp; virality</h3>
+          <p>Shareable pieces made to travel: hype video, cosplay reels, the meme-able poster, store sign-up nights, campus champions. Every happy attendee is a broadcaster — design for it.</p></div>
+        <div class="pillar" style="border-left-color:var(--navy)"><h3>Money around the ticket — open books</h3>
+          <p>Keep badges cheap ($20–30). The budget is carried by sponsors ($500–$1,000+ tiers), vendors, food partners, add-ons, and merch. Every dollar is published, and the surplus promotes the Summer Con.</p></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Where things stand · what's next</h2>
+      <p class="body"><b>Status:</b> prototyping &amp; brainstorming. Business case, financial model (small-scale), sponsor prospectus, store targets, draft schedule, and idea canvas exist. Goals upgraded July 2026 to the mission above — 300 attendees, open books, and a funded Summer Con. <b>Venue decided July 2026: Martin Public Library</b> (two stories, downtown) and its Martin Event Center — a 3,500 sq ft hall that splits into Rooms A–D or opens into one space holding 300, plus a 3,500 sq ft outdoor stage.</p>
+      <ul class="next">
+        <li><b>Venue:</b> get the Martin Public Library / Event Center booking in writing — city room rates are modest ($40–$500/room/day) and nonprofit groups may request free use. Ask the library for floor plans of both floors (none are published) so we can build the con map.</li>
+        <li><b>Keystone partner:</b> court One Frequency Games as co-host — everything hinges here. Then Dragons and Mages.</li>
+        <li><b>People:</b> start filling the <a href="people.html">People doc</a> — every name we meet goes in, from day one.</li>
+        <li><b>Journey:</b> pressure-test the <a href="player_journey.html">Player Journey</a> — fix every step scoring ≤2 for any player type.</li>
+        <li><b>Scale math:</b> build the stretch financial model — what do 300 attendees and a fully funded Summer Con require in sponsors, DMs, and marketing?</li>
+        <li><b>Marketing:</b> draft the virality plan — the 2–3 shareable pieces and the campus/store distribution machine.</li>
+      </ul>
+    </div>
+</main>
+<footer>WinterCon organizing site · <a href="index.html">back to the table of contents</a> · Dashboard is a rough draft — layout and content will evolve.</footer>
+</body>
+</html>
