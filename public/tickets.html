@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WinterCon — How to Get Tickets</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%232F5496'/%3E%3Cpath d='M32 10l5 12 13 1-10 9 3 13-11-7-11 7 3-13-10-9 13-1z' fill='%23fff'/%3E%3C/svg%3E"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{--navy:#2F5496;--teal:#1f7a6d;--gold:#e0a526;--red:#c0504d;
+        --bg:#f4f5f7;--ink:#242424;--line:#e4e6ea;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;font-family:'Helvetica Neue',Arial,sans-serif;color:var(--ink);background:var(--bg);}
+  header{background:linear-gradient(150deg,#22406f,#2F5496);color:#fff;padding:34px 24px 30px;text-align:center;position:relative;}
+  #homeBtn{position:absolute;top:14px;right:16px;font-size:20px;text-decoration:none;
+           background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.35);
+           border-radius:8px;padding:4px 9px;line-height:1;}
+  header h1{margin:0;font-size:clamp(30px,7vw,42px);letter-spacing:.01em;font-weight:800;}
+  header .sub{margin:8px 0 0;font-size:15px;opacity:.9;}
+  header .when{display:inline-block;margin-top:14px;font-size:13px;background:rgba(255,255,255,.14);
+               border:1px solid rgba(255,255,255,.3);border-radius:14px;padding:5px 14px;}
+  #wrap{padding:24px;max-width:640px;margin:0 auto;}
+  .lead{font-size:14.5px;color:#5b6169;line-height:1.55;margin:0 0 18px;text-align:center;}
+
+  /* ---- fold-out ticket cards ---- */
+  .ticket{background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:14px;overflow:hidden;}
+  .tkt-head{display:flex;align-items:center;gap:14px;width:100%;padding:16px 18px;background:none;border:none;
+            cursor:pointer;font:inherit;color:inherit;text-align:left;}
+  .stub{min-width:74px;text-align:center;border-right:2px dashed var(--line);padding-right:14px;}
+  .stub .price{display:block;font-size:24px;font-weight:800;}
+  .stub .cur{font-size:12px;color:#8a909a;letter-spacing:.06em;}
+  .tkt-title{flex:1;}
+  .tkt-title b{display:block;font-size:17.5px;}
+  .tkt-title span{display:block;font-size:13px;color:#6c727c;margin-top:2px;line-height:1.4;}
+  .plus{font-size:24px;color:#aeb4bd;font-weight:300;transition:transform .25s;line-height:1;}
+  .ticket.open .plus{transform:rotate(45deg);}
+  .tkt-body{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+  .tkt-inner{display:flex;gap:18px;padding:2px 18px 18px;border-top:2px dashed var(--line);
+             margin:0 18px;padding-left:0;padding-right:0;flex-wrap:wrap;}
+  .perks{flex:1;min-width:220px;padding-top:14px;}
+  .perks ul{margin:0;padding-left:19px;font-size:14px;line-height:1.65;}
+  .perks .whofor{font-size:12.5px;color:#6c727c;margin-top:10px;line-height:1.5;}
+  .buy{width:132px;text-align:center;padding-top:14px;}
+  .qr{width:96px;height:96px;margin:0 auto;background:#fff;padding:4px;border:1px solid var(--line);border-radius:6px;}
+  .qr img,.qr canvas{width:100%!important;height:100%!important;}
+  .buy .soon{display:block;font-size:11px;color:#8a909a;margin-top:7px;line-height:1.45;}
+  .buy .btn{display:inline-block;margin-top:9px;font-size:13px;font-weight:700;color:#fff;background:#aeb4bd;
+            border-radius:8px;padding:8px 14px;text-decoration:none;pointer-events:none;}
+  .ticket.live .buy .btn{background:var(--navy);pointer-events:auto;}
+
+  .note{background:#fff;border:1px solid var(--line);border-left:5px solid var(--gold);border-radius:12px;
+        padding:14px 18px;font-size:13.5px;color:#5b6169;line-height:1.6;margin-top:20px;}
+  footer{text-align:center;font-size:12px;color:#9a9aa0;padding:16px 24px 30px;line-height:1.6;}
+  @media (max-width:430px){ .buy{width:100%;} }
+</style>
+</head>
+<body>
+<header>
+  <a id="homeBtn" href="index.html" title="Home">🏠</a>
+  <h1>How to Get Tickets</h1>
+  <p class="sub">One ticket covers the whole weekend, Friday evening through Sunday.</p>
+  <span class="when">January 2027 · Martin Event Center, 89 Central St</span>
+</header>
+
+<div id="wrap">
+  <p class="lead">Tap a ticket to see what it gets you. Online sales open soon — every QR code will go straight to checkout.</p>
+
+  <!-- PLAYER -->
+  <div class="ticket" id="player" style="border-left:5px solid var(--navy)">
+    <button class="tkt-head" aria-expanded="false">
+      <span class="stub"><span class="price">$25</span><span class="cur">USD</span></span>
+      <span class="tkt-title"><b>Player Ticket</b><span>The full con — a seat at the table, all weekend.</span></span>
+      <span class="plus">+</span>
+    </button>
+    <div class="tkt-body"><div class="tkt-inner">
+      <div class="perks">
+        <ul>
+          <li>Play in DM-run D&amp;D sessions all weekend</li>
+          <li>Plan your day with the 3D Adventure Quest</li>
+          <li>Battle interactives &amp; main-stage events</li>
+          <li>Board game library, makers market &amp; vendor hall</li>
+        </ul>
+        <p class="whofor">For anyone coming to play. If you're a student or driving 50+ miles, scroll down — you get a discount.</p>
+      </div>
+      <div class="buy"><div class="qr" data-pay="player"></div><span class="soon">QR links to checkout when sales open</span><a class="btn" href="#">Sales open soon</a></div>
+    </div></div>
+  </div>
+
+  <!-- STUDENT -->
+  <div class="ticket" id="student" style="border-left:5px solid var(--teal)">
+    <button class="tkt-head" aria-expanded="false">
+      <span class="stub"><span class="price">$10</span><span class="cur">USD</span></span>
+      <span class="tkt-title"><b>Student Ticket</b><span>Full player access with a student ID.</span></span>
+      <span class="plus">+</span>
+    </button>
+    <div class="tkt-body"><div class="tkt-inner">
+      <div class="perks">
+        <ul>
+          <li>Everything the Player Ticket includes — playing too</li>
+          <li>Any school, college, or university student</li>
+          <li>Show a current student ID at the door</li>
+        </ul>
+        <p class="whofor">We want students at the table — UT Martin, Dyersburg State, high schoolers, everybody. This is the cheapest way in, on purpose.</p>
+      </div>
+      <div class="buy"><div class="qr" data-pay="student"></div><span class="soon">QR links to checkout when sales open</span><a class="btn" href="#">Sales open soon</a></div>
+    </div></div>
+  </div>
+
+  <!-- VISITOR -->
+  <div class="ticket" id="visitor" style="border-left:5px solid var(--gold)">
+    <button class="tkt-head" aria-expanded="false">
+      <span class="stub"><span class="price">$15</span><span class="cur">USD</span></span>
+      <span class="tkt-title"><b>Visitor Ticket</b><span>Non-player pass — come see everything.</span></span>
+      <span class="plus">+</span>
+    </button>
+    <div class="tkt-body"><div class="tkt-inner">
+      <div class="perks">
+        <ul>
+          <li>Makers market, vendor hall &amp; board game library</li>
+          <li>Watch battle interactives, cosplay &amp; main-stage events</li>
+          <li>All weekend, come and go as you like</li>
+          <li>Does not include a seat in D&amp;D game sessions</li>
+        </ul>
+        <p class="whofor">For friends, family, and the curious — everything but a spot at the gaming table.</p>
+      </div>
+      <div class="buy"><div class="qr" data-pay="visitor"></div><span class="soon">QR links to checkout when sales open</span><a class="btn" href="#">Sales open soon</a></div>
+    </div></div>
+  </div>
+
+  <!-- LONG DISTANCE -->
+  <div class="ticket" id="longdistance" style="border-left:5px solid var(--red)">
+    <button class="tkt-head" aria-expanded="false">
+      <span class="stub"><span class="price">$15</span><span class="cur">USD</span></span>
+      <span class="tkt-title"><b>Long Distance Ticket</b><span>Driving 50+ miles? Full player access, discounted.</span></span>
+      <span class="plus">+</span>
+    </button>
+    <div class="tkt-body"><div class="tkt-inner">
+      <div class="perks">
+        <ul>
+          <li>Everything the Player Ticket includes — playing too</li>
+          <li>For anyone traveling 50+ miles to Martin</li>
+          <li>Tell us your hometown when you check in</li>
+        </ul>
+        <p class="whofor">If you're driving that far to roll dice with us, the discount is our thank-you for making the trip.</p>
+      </div>
+      <div class="buy"><div class="qr" data-pay="longdistance"></div><span class="soon">QR links to checkout when sales open</span><a class="btn" href="#">Sales open soon</a></div>
+    </div></div>
+  </div>
+
+  <div class="note"><b>At the door:</b> all tickets will also be available at the registration desk, cash or card.
+  Kids under a certain age may come free with a ticketed adult — final family policy is being worked out and will be posted here.</div>
+</div>
+
+<footer>WinterCon is run with open books — every dollar raised and spent is published, costs come first,<br/>and the surplus seeds our mid-summer con.</footer>
+
+<script>
+// When online sales open, point these at the real checkout links and add
+// class "live" to each .ticket — the QR codes and buttons follow automatically.
+const PAY_URLS = {
+  player:       'https://wintercon.kevintraywick.com/public/tickets.html#player',
+  student:      'https://wintercon.kevintraywick.com/public/tickets.html#student',
+  visitor:      'https://wintercon.kevintraywick.com/public/tickets.html#visitor',
+  longdistance: 'https://wintercon.kevintraywick.com/public/tickets.html#longdistance',
+};
+
+// fold-out behavior: one open at a time, instant reveal of what you get
+document.querySelectorAll('.tkt-head').forEach(head => {
+  head.addEventListener('click', () => {
+    const card = head.closest('.ticket');
+    const body = card.querySelector('.tkt-body');
+    const isOpen = card.classList.contains('open');
+    document.querySelectorAll('.ticket.open').forEach(c => {
+      const b = c.querySelector('.tkt-body');
+      if (b.style.maxHeight === 'none') { b.style.maxHeight = b.scrollHeight + 'px'; void b.offsetHeight; }
+      c.classList.remove('open');
+      b.style.maxHeight = '0';
+      c.querySelector('.tkt-head').setAttribute('aria-expanded','false');
+    });
+    if (!isOpen) {
+      card.classList.add('open');
+      body.style.maxHeight = body.scrollHeight + 'px';
+      head.setAttribute('aria-expanded','true');
+      body.addEventListener('transitionend', function unlock(e) {
+        if (card.classList.contains('open')) body.style.maxHeight = 'none';
+        body.removeEventListener('transitionend', unlock);
+      });
+    }
+  });
+});
+
+// QR codes (graceful if the CDN script didn't load)
+if (window.QRCode) {
+  document.querySelectorAll('.qr').forEach(el => {
+    new QRCode(el, { text: PAY_URLS[el.dataset.pay], width: 88, height: 88,
+                     correctLevel: QRCode.CorrectLevel.M });
+  });
+}
+
+// deep links: /tickets.html#student opens that ticket
+if (location.hash) {
+  const t = document.querySelector(location.hash + ' .tkt-head');
+  if (t) setTimeout(() => t.click(), 150);
+}
+</script>
+</body>
+</html>
