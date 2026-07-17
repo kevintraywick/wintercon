@@ -29,6 +29,11 @@
   li.done .txt{color:#9aa0a8;text-decoration:line-through;}
   .del{border:none;background:none;color:#c9ced6;font-size:17px;cursor:pointer;padding:2px 6px;}
   .del:hover{color:#c0504d;}
+  .own{border:1px dashed #b9c2d0;background:none;color:#8a8f98;font-size:12px;border-radius:12px;
+       padding:3px 10px;cursor:pointer;white-space:nowrap;}
+  .own:hover{border-color:var(--navy);color:var(--navy);}
+  .own.has{border:1px solid #dbe4f5;background:#eef3fc;color:var(--navy);font-weight:600;}
+  li.done .own{opacity:.55;}
   #addRow{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--line);background:#fafbfc;}
   #addRow input{flex:1;font-size:14.5px;padding:9px 12px;border:1px solid #ccd2db;border-radius:8px;}
   #addRow button{font-size:14px;padding:9px 16px;border:none;border-radius:8px;background:var(--navy);color:#fff;cursor:pointer;}
@@ -83,10 +88,20 @@ function render(){
     c.onclick=()=>{it.done=!it.done;save(items);render();};
     const t=document.createElement('div');
     t.className='txt';t.textContent=it.txt;
+    const o=document.createElement('button');
+    o.className='own'+(it.owner?' has':'');
+    o.textContent=it.owner?it.owner:'＋ own this';
+    o.title=it.owner?'Tap to change or release (leave blank to release)':'Take ownership';
+    o.onclick=()=>{
+      const v=prompt(it.owner?'Owner (clear to release):':'Your name:',it.owner||'');
+      if(v===null)return;
+      it.owner=v.trim();
+      save(items);render();
+    };
     const d=document.createElement('button');
     d.className='del';d.innerHTML='✕';d.title='Remove';
     d.onclick=()=>{if(confirm('Remove "'+it.txt+'"?')){items=items.filter(x=>x.id!==it.id);save(items);render();}};
-    li.append(c,t,d);
+    li.append(c,t,o,d);
     ul.appendChild(li);
   });
 }
