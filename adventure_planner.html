@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WinterCon — Plan Your Adventure</title>
+<style>
+  :root{--navy:#2F5496;--teal:#1f7a6d;--gold:#e0a526;--purple:#7a4fb0;--red:#c0504d;
+        --bg:#f4f5f7;--ink:#242424;--line:#e4e6ea;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;font-family:'Helvetica Neue',Arial,sans-serif;color:var(--ink);background:var(--bg);}
+  header{background:linear-gradient(120deg,#233c6b,#2F5496 60%,#3c67b3);color:#fff;padding:14px 20px;position:relative;}
+  header h1{margin:0;font-size:21px;}
+  header p{margin:4px 0 0;font-size:12.5px;opacity:.9;max-width:820px;}
+  a.homeicon{position:absolute;top:12px;right:14px;font-size:18px;text-decoration:none;padding:2px 6px;}
+  /* ---------- hero builder ---------- */
+  #builder{background:#fff;border-bottom:1px solid var(--line);padding:12px 20px;display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start;}
+  #avwrap{flex:none;text-align:center;width:150px;}
+  #avatarbox{width:132px;height:158px;margin:0 auto;background:radial-gradient(circle at 50% 30%,#eef3fb,#dfe6f2);border:2px solid var(--line);border-radius:14px;display:flex;align-items:center;justify-content:center;}
+  #heroname{margin-top:7px;font-weight:800;font-size:15px;color:var(--navy);min-height:18px;}
+  #herosub{font-size:11.5px;color:#8a8f98;}
+  .pick{flex:1;min-width:260px;}
+  .pick h3{margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:#8a8f98;}
+  .pick input[type=text]{font:inherit;font-size:15px;padding:8px 11px;border:1px solid var(--line);border-radius:8px;width:min(340px,100%);}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;}
+  .chip{border:1.5px solid var(--line);background:#fbfbfa;border-radius:15px;padding:5px 11px;font-size:13px;cursor:pointer;user-select:none;}
+  .chip:hover{background:#f0f4fc;}
+  .chip.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:700;}
+  .warn{font-size:11.5px;color:#8a6d1a;background:#fff7e2;border-left:3px solid var(--gold);border-radius:6px;padding:6px 9px;margin-top:10px;max-width:560px;}
+  /* ---------- day tabs + board ---------- */
+  #daybar{display:flex;gap:6px;align-items:center;padding:10px 20px 0;}
+  .dtab{border:1px solid var(--line);border-bottom:none;border-radius:9px 9px 0 0;background:#eceef2;padding:8px 16px;font-size:14px;cursor:pointer;}
+  .dtab.on{background:#fff;font-weight:800;box-shadow:0 -3px 0 var(--navy) inset;}
+  .dtab small{display:block;font-size:10.5px;color:#8a8f98;}
+  #resetbtn{margin-left:auto;font:inherit;font-weight:800;font-size:14px;background:var(--red);color:#fff;border:none;border-radius:10px;padding:10px 20px;cursor:pointer;box-shadow:0 2px 5px rgba(0,0,0,.18);}
+  #resetbtn:hover{filter:brightness(1.08);}
+  #layout{display:grid;grid-template-columns:1fr 330px;gap:14px;padding:0 20px 40px;align-items:start;}
+  #boardcard{background:#fff;border:1px solid var(--line);border-radius:0 10px 10px 10px;overflow:hidden;}
+  #boardscroll{overflow-x:auto;}
+  #board{position:relative;}
+  /* sky */
+  #sky{position:relative;height:64px;background:linear-gradient(#bcd9f5,#e9f3fd);border-bottom:1px solid var(--line);overflow:hidden;}
+  #sky.evening{background:linear-gradient(#f6c98a,#fbe6c4);}
+  #sky.night{background:linear-gradient(#31406b,#5a6a99);}
+  #sun{position:absolute;font-size:26px;transition:left 1s cubic-bezier(.4,0,.2,1),top 1s;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25));}
+  .skylbl{position:absolute;bottom:4px;font-size:10px;color:rgba(40,60,90,.55);}
+  #sky.night .skylbl{color:rgba(255,255,255,.55);}
+  /* lanes */
+  .lane{position:relative;border-bottom:1px solid #f0f1f3;}
+  .lane .lname{position:sticky;left:0;z-index:5;display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;color:#fff;padding:2px 9px;border-radius:0 8px 8px 0;margin-top:4px;}
+  .hourgrid{position:absolute;inset:0;pointer-events:none;}
+  .hourgrid div{position:absolute;top:0;bottom:0;border-left:1px dashed #eef0f3;}
+  .hourgrid span{position:absolute;top:2px;font-size:9px;color:#c2c6cc;transform:translateX(3px);}
+  .ev{position:absolute;border-radius:8px;border:2px solid transparent;border-left-width:5px;background:#fff;
+      box-shadow:0 1px 3px rgba(0,0,0,.1);padding:4px 7px;font-size:12px;line-height:1.2;cursor:pointer;overflow:hidden;}
+  .ev .t{font-weight:700;}
+  .ev .ti{font-size:10.5px;color:#888;}
+  .ev:hover{filter:brightness(.97);}
+  .ev.sel{border-color:var(--gold);background:#fff8e4;box-shadow:0 2px 6px rgba(224,165,38,.35);}
+  .ev.sel .t::after{content:' ✓';color:#9a6b00;}
+  .ev.blocked{opacity:.32;background:repeating-linear-gradient(45deg,#fff,#fff 6px,#f4f4f4 6px,#f4f4f4 12px);}
+  .ev.food{border-style:dashed;}
+  /* path + token */
+  #pathsvg{position:absolute;left:0;top:0;pointer-events:none;z-index:6;}
+  #token{position:absolute;z-index:8;transition:left .9s cubic-bezier(.5,0,.3,1),top .9s cubic-bezier(.5,0,.3,1);pointer-events:none;
+         filter:drop-shadow(0 2px 3px rgba(0,0,0,.3));}
+  #token .bounce{animation:walk .9s ease;}
+  @keyframes walk{0%,100%{transform:translateY(0)}25%{transform:translateY(-7px)}50%{transform:translateY(0)}75%{transform:translateY(-4px)}}
+  /* always-open strip */
+  #always{padding:8px 12px;border-top:1px solid var(--line);background:#fafbfc;font-size:12px;color:#666;}
+  #always b{color:#444;}
+  /* ---------- right panel ---------- */
+  #side{display:flex;flex-direction:column;gap:12px;position:sticky;top:12px;}
+  .scard{background:#fff;border:1px solid var(--line);border-radius:10px;padding:13px 15px;}
+  .scard h3{margin:0 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:#8a8f98;}
+  #detail .dt{font-size:16px;font-weight:800;margin:0 0 3px;}
+  #detail .dm{font-size:12.5px;color:#666;margin:2px 0;}
+  #detail .dd{font-size:13.5px;line-height:1.55;margin:8px 0;}
+  #detail .inv{font-size:12.5px;line-height:1.5;background:#f2f6ff;border-left:4px solid var(--navy);border-radius:6px;padding:7px 10px;}
+  #detail .why{font-size:12.5px;color:#9a3b38;background:#fdf1f0;border-left:4px solid var(--red);border-radius:6px;padding:7px 10px;margin-top:8px;}
+  #detail button{font:inherit;font-size:13.5px;font-weight:700;border:none;border-radius:8px;padding:8px 16px;cursor:pointer;margin-top:10px;color:#fff;background:var(--teal);}
+  #detail button.leave{background:var(--red);}
+  #detail button:disabled{background:#c6c9ce;cursor:not-allowed;}
+  #itin .item{display:flex;gap:8px;align-items:center;font-size:13px;padding:5px 0;border-bottom:1px solid #f2f3f5;}
+  #itin .item .tm{color:#888;font-size:11.5px;white-space:nowrap;width:86px;flex:none;}
+  #itin .item .x{margin-left:auto;border:none;background:none;color:#c0504d;cursor:pointer;font-size:13px;}
+  #itin .none{color:#aaa;font-size:13px;font-style:italic;}
+  .meal{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;padding:6px 9px;border-radius:7px;margin-top:6px;}
+  .meal.ok{background:#eef7f3;color:#25654f;}
+  .meal.bad{background:#fdf1e6;color:#9a5b00;border-left:4px solid var(--gold);}
+  @media(max-width:900px){#layout{grid-template-columns:1fr;}#side{position:static;}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Plan Your Adventure</h1>
+  <p>Name your hero, pick a look, then walk them through the day — tap events to join, watch the sun cross the sky, and don’t let your hero forget to eat.</p>
+  <a class="homeicon" href="index.html" title="Organizing home">🏠</a>
+</header>
+
+<!-- ================= HERO BUILDER ================= -->
+<div id="builder">
+  <div id="avwrap">
+    <div id="avatarbox"></div>
+    <div id="heroname"></div>
+    <div id="herosub"></div>
+  </div>
+  <div class="pick" style="max-width:640px;">
+    <h3>Adventurer name</h3>
+    <input type="text" id="nameinput" placeholder="Your name or handle…" maxlength="24"/>
+    <h3 style="margin-top:12px;">Species</h3>
+    <div class="chips" id="speciesChips"></div>
+    <h3 style="margin-top:12px;">Class</h3>
+    <div class="chips" id="classChips"></div>
+    <div class="warn">⚠️ <b>Just for fun!</b> Your avatar here is only your planner buddy — it does <b>not</b> create, register, or reserve a character or class for any WinterCon game. Bring whoever you like to the table.</div>
+  </div>
+</div>
+
+<!-- ================= DAY TABS ================= -->
+<div id="daybar">
+  <div id="tabs" style="display:flex;gap:6px;"></div>
+  <button id="resetbtn" title="Clear this day and walk it again">↺ Reset my day</button>
+</div>
+
+<!-- ================= BOARD + SIDE ================= -->
+<div id="layout">
+  <div id="boardcard">
+    <div id="boardscroll">
+      <div id="board">
+        <div id="sky"><div id="sun">☀️</div></div>
+        <div id="lanes"></div>
+        <svg id="pathsvg"></svg>
+        <div id="token"></div>
+      </div>
+    </div>
+    <div id="always"></div>
+  </div>
+  <div id="side">
+    <div class="scard" id="detail"><h3>Event details</h3><p style="font-size:13px;color:#aaa;font-style:italic;">Tap any event on the board to see what it is and what’s involved — then join it.</p></div>
+    <div class="scard"><h3>Your day so far</h3><div id="itin"></div><div id="meals"></div></div>
+  </div>
+</div>
+
+<script>
+/* ================= AVATAR ================= */
+const SPECIES=[
+ {id:'human',n:'Human',skin:'#f2c79a',hair:'#5b4632'},
+ {id:'elf',n:'Elf',skin:'#f7ddb4',hair:'#d8b25a'},
+ {id:'dwarf',n:'Dwarf',skin:'#eab887',hair:'#a04b2e',scale:.84},
+ {id:'halfling',n:'Halfling',skin:'#f2c79a',hair:'#6b4423',scale:.78},
+ {id:'gnome',n:'Gnome',skin:'#f6cfa4',hair:'#c9c9c9',scale:.74},
+ {id:'orc',n:'Orc',skin:'#7ba05b',hair:'#2f3a28'},
+ {id:'goliath',n:'Goliath',skin:'#a8b0b8',hair:null,scale:1.12},
+ {id:'dragonborn',n:'Dragonborn',skin:'#b0413e',hair:null},
+ {id:'tiefling',n:'Tiefling',skin:'#c94f4f',hair:'#2a2a35'},
+ {id:'aasimar',n:'Aasimar',skin:'#f7e0c0',hair:'#e8d9a0'},
+];
+const CLASSES=[
+ {id:'barbarian',n:'Barbarian',c:'#b3552e',prop:'🪓'},
+ {id:'bard',n:'Bard',c:'#c2559e',prop:'🪕'},
+ {id:'cleric',n:'Cleric',c:'#cfc7a8',prop:'📿'},
+ {id:'druid',n:'Druid',c:'#4e8d4e',prop:'🌿'},
+ {id:'fighter',n:'Fighter',c:'#6b7b8c',prop:'⚔️'},
+ {id:'monk',n:'Monk',c:'#d98a1f',prop:'🥋'},
+ {id:'paladin',n:'Paladin',c:'#c8a428',prop:'🛡️'},
+ {id:'ranger',n:'Ranger',c:'#3e6b3e',prop:'🏹'},
+ {id:'rogue',n:'Rogue',c:'#4a4a55',prop:'🗡️'},
+ {id:'sorcerer',n:'Sorcerer',c:'#c0392b',prop:'🔥'},
+ {id:'warlock',n:'Warlock',c:'#6a3fa0',prop:'🔮'},
+ {id:'wizard',n:'Wizard',c:'#3f51b5',prop:'🪄'},
+];
+
+function avatarSVG(spId,clId,w){
+  const sp=SPECIES.find(s=>s.id===spId)||SPECIES[0];
+  const cl=CLASSES.find(c=>c.id===clId)||CLASSES[4];
+  const s=sp.scale||1, skin=sp.skin, tunic=cl.c;
+  const hooded=(clId==='ranger'||clId==='rogue');
+  let g='';
+  /* legs */
+  g+=`<rect x="48" y="108" width="10" height="26" rx="5" fill="#5b4a3f"/><rect x="62" y="108" width="10" height="26" rx="5" fill="#5b4a3f"/>`;
+  g+=`<ellipse cx="53" cy="136" rx="8" ry="4.5" fill="#3c332c"/><ellipse cx="67" cy="136" rx="8" ry="4.5" fill="#3c332c"/>`;
+  /* body */
+  g+=`<rect x="40" y="76" width="40" height="38" rx="12" fill="${tunic}"/>`;
+  g+=`<rect x="40" y="98" width="40" height="6" fill="rgba(0,0,0,.22)"/>`; /* belt */
+  /* arms */
+  g+=`<rect x="30" y="80" width="11" height="26" rx="5.5" fill="${tunic}" transform="rotate(8 35 80)"/>`;
+  g+=`<rect x="79" y="80" width="11" height="26" rx="5.5" fill="${tunic}" transform="rotate(-8 85 80)"/>`;
+  g+=`<circle cx="33" cy="107" r="5.5" fill="${skin}"/><circle cx="87" cy="107" r="5.5" fill="${skin}"/>`;
+  /* tail (tiefling) */
+  if(spId==='tiefling') g+=`<path d="M78 110 q 22 6 18 -18" stroke="${skin}" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+  /* head */
+  g+=`<circle cx="60" cy="50" r="24" fill="${skin}"/>`;
+  /* ears */
+  if(spId==='elf'||spId==='gnome') g+=`<path d="M36 48 l-9 -6 5 11 z" fill="${skin}"/><path d="M84 48 l9 -6 -5 11 z" fill="${skin}"/>`;
+  /* dragonborn snout + horns */
+  if(spId==='dragonborn'){ g+=`<ellipse cx="60" cy="58" rx="13" ry="8" fill="#c9605c"/><circle cx="56" cy="56" r="1.6" fill="#5b1f1d"/><circle cx="64" cy="56" r="1.6" fill="#5b1f1d"/>`;
+    g+=`<path d="M44 32 q -6 -10 2 -14 q 2 8 4 11 z" fill="#e6d9c4"/><path d="M76 32 q 6 -10 -2 -14 q -2 8 -4 11 z" fill="#e6d9c4"/>`; }
+  /* tiefling horns */
+  if(spId==='tiefling') g+=`<path d="M45 32 q -8 -6 -6 -16 q 8 4 10 12 z" fill="#7a3b38"/><path d="M75 32 q 8 -6 6 -16 q -8 4 -10 12 z" fill="#7a3b38"/>`;
+  /* hair */
+  if(sp.hair && !hooded && clId!=='wizard'){
+    if(spId==='halfling') g+=`<path d="M38 44 q 2 -20 22 -20 q 20 0 22 20 q -6 -8 -12 -6 q -4 -6 -10 -4 q -6 -2 -10 4 q -8 -2 -12 6 z" fill="${sp.hair}"/>`;
+    else g+=`<path d="M37 46 q 0 -22 23 -22 q 23 0 23 22 q -8 -10 -23 -10 q -15 0 -23 10 z" fill="${sp.hair}"/>`;
+  }
+  /* dwarf beard */
+  if(spId==='dwarf') g+=`<path d="M42 54 q 0 22 18 22 q 18 0 18 -22 q -8 6 -18 6 q -10 0 -18 -6 z" fill="${sp.hair}"/>`;
+  /* orc tusks */
+  if(spId==='orc') g+=`<path d="M50 62 l -2 -7 5 3 z" fill="#f4f0e2"/><path d="M70 62 l 2 -7 -5 3 z" fill="#f4f0e2"/>`;
+  /* face */
+  const eyeY = spId==='dragonborn'?46:50;
+  g+=`<circle cx="51" cy="${eyeY}" r="2.6" fill="#2a2a2a"/><circle cx="69" cy="${eyeY}" r="2.6" fill="#2a2a2a"/>`;
+  if(spId!=='dragonborn') g+=`<path d="M52 60 q 8 6 16 0" stroke="#8a5a3a" stroke-width="2.2" fill="none" stroke-linecap="round"/>`;
+  if(spId==='gnome') g+=`<circle cx="60" cy="55" r="4" fill="#e8ac74"/>`;
+  /* headgear */
+  if(clId==='wizard') g+=`<path d="M60 2 L 82 38 Q 60 30 38 38 Z" fill="#3f51b5"/><ellipse cx="60" cy="38" rx="26" ry="6" fill="#35459c"/><circle cx="70" cy="18" r="2.5" fill="#ffd76e"/>`;
+  if(hooded) g+=`<path d="M34 52 q -4 -30 26 -30 q 30 0 26 30 q -4 -16 -26 -16 q -22 0 -26 16 z" fill="${clId==='rogue'?'#3a3a44':'#2f5430'}"/>`;
+  if(clId==='monk') g+=`<rect x="38" y="38" width="44" height="7" rx="3.5" fill="#a33b1f"/>`;
+  if(clId==='paladin') g+=`<path d="M38 40 q 0 -18 22 -18 q 22 0 22 18 l -6 0 q -2 -12 -16 -12 q -14 0 -16 12 z" fill="#b8bec6"/><rect x="56" y="16" width="8" height="10" rx="3" fill="#d4af37"/>`;
+  if(clId==='bard') g+=`<path d="M40 36 q 4 -12 20 -12 q 16 0 20 12 l -8 2 q -4 -8 -12 -8 q -8 0 -12 8 z" fill="#8e3d72"/><path d="M74 26 q 10 -8 14 -2 q -8 2 -10 8 z" fill="#e0a526"/>`;
+  /* halo */
+  if(spId==='aasimar') g+=`<ellipse cx="60" cy="16" rx="17" ry="5" fill="none" stroke="#ffd76e" stroke-width="3.5"/>`;
+  /* prop */
+  g+=`<text x="88" y="96" font-size="24" text-anchor="middle">${cl.prop}</text>`;
+  const H=150*s, yOff=150-150*s;
+  return `<svg viewBox="0 0 120 150" width="${w}" height="${w*1.25}" xmlns="http://www.w3.org/2000/svg">
+    <g transform="translate(${60-60*s} ${yOff}) scale(${s})">${g}</g></svg>`;
+}
+
+/* ================= EVENTS ================= */
+const ROOMS=[
+ {id:'interior',name:'Interior Room',color:'#2F5496'},
+ {id:'adjacent',name:'Adjacent Room',color:'#1f7a6d'},
+ {id:'hallway', name:'Hallway',      color:'#d98a1f'},
+ {id:'outside', name:'Outside',      color:'#3f9d54'},
+];
+const DAYS=[
+ {id:'fri',name:'Friday',sub:'Evening',start:17*60,end:23*60,
+  meals:[{n:'dinner',win:[17*60,21*60]}]},
+ {id:'sat',name:'Saturday',sub:'All day',start:9*60,end:23*60,
+  meals:[{n:'lunch',win:[11*60+30,14*60]},{n:'dinner',win:[17*60+30,20*60]}]},
+ {id:'sun',name:'Sunday',sub:'Morning',start:9*60,end:13*60,
+  meals:[{n:'brunch',win:[10*60,12*60+30]}]},
+];
+const T=(h,m)=>h*60+(m||0);
+const EVENTS=[
+ // ---- Friday ----
+ {title:'Registration & Check-in',day:'fri',room:'hallway',s:T(17),e:T(19),type:'Info',
+  desc:'Grab your badge, lanyard, program, and facility map. First con? Tell the greeter — we have a table with your name on it.',
+  involve:'Bring your confirmation (phone is fine). Takes about five minutes; then you’re free to roam.'},
+ {title:'Opening Welcome',day:'fri',room:'interior',s:T(18),e:T(18,30),type:'Ceremony',
+  desc:'A short, loud, happy kickoff: what’s where, what not to miss, and the weekend’s one rule — everyone plays.',
+  involve:'Just show up and cheer. 30 minutes, then straight into the evening games.'},
+ {title:'Friday Night One-Shots',day:'fri',room:'interior',s:T(19),e:T(23),type:'Game',
+  desc:'Four hours, one table, one complete adventure. Multiple tables and tones — heroic, spooky, or ridiculous.',
+  involve:'Pre-generated characters and dice provided. Seats are first-come; arrive by 6:50 to pick your table.'},
+ {title:'Learn to Play D&D',day:'fri',room:'adjacent',s:T(19),e:T(21),type:'Game',
+  desc:'Never rolled a d20? Perfect. A patient DM walks you from “what’s a d20” to slaying your first goblin in two hours.',
+  involve:'Absolutely nothing required. Characters, dice, and courage provided.'},
+ {title:'Pathfinder Society',day:'fri',room:'adjacent',s:T(21),e:T(23),type:'Game',
+  desc:'Organized-play Pathfinder for the 2e faithful and the curious. A sanctioned scenario with table credit.',
+  involve:'Bring a legal PFS character if you have one; pregens on hand if you don’t.'},
+ {title:'Cosplay Meetup',day:'fri',room:'hallway',s:T(20),e:T(22),type:'Social',
+  desc:'Costumes assemble! Meet the other makers, plan Saturday’s contest entrances, get photos while everything is still pristine.',
+  involve:'Costume optional tonight — half the fun is seeing everyone else’s.'},
+ {title:'Food Trucks — Dinner',day:'fri',room:'outside',s:T(17),e:T(21),type:'Food',food:true,
+  desc:'The trucks are lit and the night is young. Fuel up before or between games.',
+  involve:'Cash and cards accepted. Communal tables outside — sit with strangers, leave with friends.'},
+ // ---- Saturday ----
+ {title:'Doors Open / Coffee',day:'sat',room:'hallway',s:T(9),e:T(10),type:'Info',food:true,
+  desc:'Coffee, day-two badge pickup, and the “changes since printing” board. Ease into the big day.',
+  involve:'Nothing required. Caffeine strongly implied.'},
+ {title:'Battle Interactive: The Siege',day:'sat',room:'interior',s:T(10),e:T(12),type:'Game',
+  desc:'THE signature event: every table fights the same siege, and what your table does changes what happens at the others. One story, one army, dozens of heroes.',
+  involve:'Pregens provided or bring a level-5 character. Runs exactly 10–12; table captains keep it moving.'},
+ {title:'Intro to Miniature Painting',day:'sat',room:'adjacent',s:T(10),e:T(12),type:'Workshop',
+  desc:'Paint your first mini with real techniques — base, wash, drybrush — and take it home.',
+  involve:'All supplies provided, including the mini. Wear something paint-friendly. Limited seats.'},
+ {title:'Food Trucks — Lunch',day:'sat',room:'outside',s:T(11,30),e:T(14),type:'Food',food:true,
+  desc:'Lunch rush! Tacos, burgers, and at least one thing a picky kid will eat.',
+  involve:'Order by 12:40 if you have a 1pm event. Water station inside is free all day.'},
+ {title:'MTG Tournament',day:'sat',room:'interior',s:T(13),e:T(17),type:'Tournament',
+  desc:'The main Magic event with a real judge, posted standings, and prize support from our partner stores.',
+  involve:'Bring your deck (format on the tournament page). Check in by 12:45. Entry fee applies; prizes to Top 8.'},
+ {title:'Dice Goblin',day:'sat',room:'adjacent',s:T(14),e:T(16),type:'Game',
+  desc:'A chaotic two-hour dungeon crawl where the loot is dice and the dice are cursed (in a fun way). Beginner-friendly and extremely silly.',
+  involve:'Pre-generated characters and dice provided. Expect laughing; bring none of your dignity.'},
+ {title:'LARP Demonstration',day:'sat',room:'hallway',s:T(14),e:T(15),type:'Demo',
+  desc:'Foam swords, real drama. A local LARP troupe shows how live-action roleplay works — then hands YOU the sword.',
+  involve:'Watch from the hallway or step in for the last 20 minutes. Waivers at the table for participants.'},
+ {title:'DM Workshop: Running Combat',day:'sat',room:'adjacent',s:T(16),e:T(18),type:'Workshop',
+  desc:'For current and future Dungeon Masters: pacing combat, managing initiative, and keeping six people on the edge of their seats.',
+  involve:'Bring questions and horror stories. This is also the on-ramp to DMing at next year’s con.'},
+ {title:'Cosplay Contest',day:'sat',room:'hallway',s:T(17),e:T(18),type:'Social',
+  desc:'The social peak of the weekend: staged walk, real MC, judge panel, and prizes handed over in front of everyone.',
+  involve:'Contestants: staging area opens 4:15. Everyone else: come cheer — it’s the best crowd of the day.'},
+ {title:'Food Trucks — Dinner',day:'sat',room:'outside',s:T(17,30),e:T(20),type:'Food',food:true,
+  desc:'Dinner under the string lights before the evening marathon.',
+  involve:'Cosplay-friendly options available (food on sticks, drinks with straws).'},
+ {title:'Evening Campaign Marathon',day:'sat',room:'interior',s:T(19),e:T(23),type:'Game',
+  desc:'Four uninterrupted hours of deep, connected play with a hand-picked DM. The session people talk about all year.',
+  involve:'Reserved-seat holders get priority; open seats posted at 6:45. Level-5 pregens or bring your own.'},
+ {title:'One-Shot: Curse of Strahd',day:'sat',room:'adjacent',s:T(19),e:T(23),type:'Game',
+  desc:'One night in Barovia. Gothic horror, candlelight, and a DM who does the voice. You will not all survive, and that’s the point.',
+  involve:'Pregens provided. Recommended 13+. The room is kept dim — and yes, that’s intentional.'},
+ // ---- Sunday ----
+ {title:'Coffee & Bagels',day:'sun',room:'hallway',s:T(9),e:T(10),type:'Info',food:true,
+  desc:'Gentle start. Coffee, bagels, and quiet tales of Saturday night’s natural 20s.',
+  involve:'Nothing required. Bring your stories.'},
+ {title:'Sunday One-Shots',day:'sun',room:'interior',s:T(10),e:T(12),type:'Game',
+  desc:'Short, punchy two-hour adventures — one last quest before the road home.',
+  involve:'Pregens and dice provided. Perfect if you’re easing out or squeezing in one more game.'},
+ {title:'Family D&D',day:'sun',room:'adjacent',s:T(10),e:T(12),type:'Game',
+  desc:'Kid-first tables (8+) with DMs who are great with young heroes. Parents can play or cheer from one seat away.',
+  involve:'Everything provided. Two hours, snack break in the middle, group photo at the end.'},
+ {title:'Food Trucks — Brunch',day:'sun',room:'outside',s:T(10),e:T(12,30),type:'Food',food:true,
+  desc:'Brunch truck! Breakfast tacos and the last chance at con food until next year.',
+  involve:'Runs until 12:30 sharp — the trucks roll before Awards ends.'},
+ {title:'Awards & Farewell',day:'sun',room:'interior',s:T(12),e:T(13),type:'Ceremony',
+  desc:'Prizes, thank-yous to every DM and sponsor by name, next year’s date reveal, and one last cheer.',
+  involve:'Just be there. If you won anything all weekend, this is where you collect it.'},
+];
+EVENTS.forEach((e,i)=>e.id='e'+i);
+const ALWAYS=['Vendor & Makers Market (Hallway)','Board Game Library (Adjacent Room)','Info Desk (Hallway)'];
+
+/* ================= STATE ================= */
+const K='wincon_adventure';
+let state={name:'',species:'human',klass:'fighter',sel:{fri:[],sat:[],sun:[]},day:'sat'};
+try{ const s=JSON.parse(localStorage.getItem(K)||'null'); if(s&&s.sel)state=Object.assign(state,s); }catch(e){}
+function save(){ try{ localStorage.setItem(K,JSON.stringify(state)); }catch(e){} }
+const byId=id=>EVENTS.find(e=>e.id===id);
+const dayObj=()=>DAYS.find(d=>d.id===state.day);
+const selEvents=()=>state.sel[state.day].map(byId).filter(Boolean).sort((a,b)=>a.s-b.s);
+let detailId=null;
+
+/* ================= BUILDER UI ================= */
+function chipRow(el,items,cur,fn){
+  el.innerHTML='';
+  items.forEach(it=>{ const c=document.createElement('div'); c.className='chip'+(it.id===cur?' on':'');
+    c.textContent=it.n; c.onclick=()=>fn(it.id); el.appendChild(c); });
+}
+function renderBuilder(){
+  chipRow(document.getElementById('speciesChips'),SPECIES,state.species,id=>{state.species=id;save();renderBuilder();placeToken(true);});
+  chipRow(document.getElementById('classChips'),CLASSES,state.klass,id=>{state.klass=id;save();renderBuilder();placeToken(true);});
+  document.getElementById('avatarbox').innerHTML=avatarSVG(state.species,state.klass,104);
+  const sp=SPECIES.find(s=>s.id===state.species).n, cl=CLASSES.find(c=>c.id===state.klass).n;
+  document.getElementById('heroname').textContent=state.name||'Unnamed Hero';
+  document.getElementById('herosub').textContent=sp+' '+cl;
+}
+const nameinput=document.getElementById('nameinput');
+nameinput.value=state.name;
+nameinput.addEventListener('input',()=>{state.name=nameinput.value;save();
+  document.getElementById('heroname').textContent=state.name||'Unnamed Hero';});
+
+/* ================= BOARD ================= */
+const PXM=1.7;                 // pixels per minute
+const LANEH=62, SKYH=64, LABELW=0;
+const fmt=m=>{let h=Math.floor(m/60),mm=m%60,ap=h<12?'a':'p';h=h%12;if(h===0)h=12;return h+(mm?':'+String(mm).padStart(2,'0'):'')+ap;};
+const x=t=>Math.round((t-dayObj().start)*PXM)+14;
+function overlaps(a,b){ return a.s<b.e && b.s<a.e; }
+function conflictWith(ev){ return selEvents().find(s=>s.id!==ev.id && overlaps(s,ev)); }
+
+function renderTabs(){
+  const box=document.getElementById('tabs'); box.innerHTML='';
+  DAYS.forEach(d=>{ const t=document.createElement('div'); t.className='dtab'+(d.id===state.day?' on':'');
+    t.innerHTML=`${d.name}<small>${d.sub} · ${state.sel[d.id].length} joined</small>`;
+    t.onclick=()=>{state.day=d.id;detailId=null;save();renderBoard();renderSide();}; box.appendChild(t); });
+}
+function renderBoard(){
+  renderTabs();
+  const d=dayObj(), W=x(d.end)+30;
+  const board=document.getElementById('board'); board.style.width=W+'px';
+  // sky
+  const sky=document.getElementById('sky'); sky.style.width=W+'px';
+  // hour labels in sky
+  [...sky.querySelectorAll('.skylbl')].forEach(e=>e.remove());
+  for(let t=d.start;t<=d.end;t+=60){ const s=document.createElement('span'); s.className='skylbl'; s.style.left=x(t)+'px'; s.textContent=fmt(t); sky.appendChild(s); }
+  // lanes
+  const lanes=document.getElementById('lanes'); lanes.innerHTML='';
+  ROOMS.forEach(r=>{
+    const lane=document.createElement('div'); lane.className='lane'; lane.style.height=LANEH+'px'; lane.style.width=W+'px';
+    let grid='<div class="hourgrid">';
+    for(let t=d.start;t<=d.end;t+=60) grid+=`<div style="left:${x(t)}px"></div>`;
+    grid+='</div>';
+    lane.innerHTML=grid+`<span class="lname" style="background:${r.color}">${r.name}</span>`;
+    EVENTS.filter(e=>e.day===state.day&&e.room===r.id).forEach(e=>{
+      const sel=state.sel[state.day].includes(e.id);
+      const blocked=!sel&&!!conflictWith(e);
+      const el=document.createElement('div');
+      el.className='ev'+(sel?' sel':'')+(blocked?' blocked':'')+(e.food?' food':'');
+      el.style.left=x(e.s)+'px'; el.style.width=Math.max(58,(e.e-e.s)*PXM-6)+'px';
+      el.style.top='24px'; el.style.height=(LANEH-30)+'px';
+      el.style.borderLeftColor=r.color;
+      el.innerHTML=`<div class="t">${e.title}</div><div class="ti">${fmt(e.s)}–${fmt(e.e)}</div>`;
+      el.onclick=()=>{detailId=e.id;renderSide();flashDetail();};
+      lane.appendChild(el);
+    });
+    lanes.appendChild(lane);
+  });
+  document.getElementById('always').innerHTML='<b>Open all weekend, drop in anytime:</b> '+ALWAYS.join(' · ');
+  placeToken(false); drawPath(); placeSun();
+}
+function currentTimePos(){
+  const sel=selEvents(); const d=dayObj();
+  if(!sel.length) return {t:d.start, room:null};
+  const last=sel[sel.length-1];
+  return {t:last.e, room:last.room, lastEv:last};
+}
+function placeSun(){
+  const d=dayObj(); const {t}=currentTimePos();
+  const frac=(t-d.start)/(d.end-d.start);
+  const sun=document.getElementById('sun'); const sky=document.getElementById('sky');
+  const W=x(d.end)+30;
+  sun.style.left=Math.min(W-40,Math.max(6,x(t)-13))+'px';
+  sun.style.top=(38-30*Math.sin(Math.PI*Math.min(1,Math.max(0,( t-6*60 )/(21*60-6*60)))))+'px';
+  const hr=t/60;
+  sun.textContent = hr<10?'🌅' : hr<17?'☀️' : hr<19.5?'🌇' : '🌙';
+  sky.className = hr<17?'' : hr<19.5?'evening' : 'night';
+}
+function laneY(roomId){ return SKYH + ROOMS.findIndex(r=>r.id===roomId)*LANEH; }
+function placeToken(bounce){
+  const tk=document.getElementById('token');
+  tk.innerHTML=`<div class="${bounce?'bounce':''}">${avatarSVG(state.species,state.klass,44)}</div>`;
+  const {t,room}=currentTimePos();
+  tk.style.left=(x(t)-18)+'px';
+  tk.style.top=(room?laneY(room)+2:SKYH+4)+'px';
+}
+function drawPath(){
+  const svg=document.getElementById('pathsvg');
+  const d=dayObj(); const W=x(d.end)+30, H=SKYH+ROOMS.length*LANEH;
+  svg.setAttribute('width',W); svg.setAttribute('height',H);
+  svg.style.width=W+'px'; svg.style.height=H+'px';
+  const sel=selEvents();
+  if(sel.length<1){svg.innerHTML='';return;}
+  let pts=[[x(d.start), SKYH+18]];
+  sel.forEach(e=>{ const y=laneY(e.room)+LANEH/2+6; pts.push([x(e.s)+6,y]); pts.push([x(e.e)-6,y]); });
+  let path='M '+pts.map(p=>p.join(' ')).join(' L ');
+  svg.innerHTML=`<path d="${path}" fill="none" stroke="#e0a526" stroke-width="3.5" stroke-dasharray="1 9" stroke-linecap="round" opacity=".9"/>`;
+}
+
+/* ================= SIDE PANEL ================= */
+function flashDetail(){ const el=document.getElementById('detail'); el.style.boxShadow='0 0 0 3px #ffd76e'; setTimeout(()=>el.style.boxShadow='',450); }
+function renderDetail(){
+  const box=document.getElementById('detail');
+  if(!detailId){ box.innerHTML='<h3>Event details</h3><p style="font-size:13px;color:#aaa;font-style:italic;">Tap any event on the board to see what it is and what’s involved — then join it.</p>'; return; }
+  const e=byId(detailId); const r=ROOMS.find(r=>r.id===e.room);
+  const sel=state.sel[state.day].includes(e.id);
+  const conf=!sel&&conflictWith(e);
+  box.innerHTML=`<h3>Event details</h3>
+    <p class="dt">${e.title}</p>
+    <div class="dm"><b style="color:${r.color}">●</b> ${r.name} · ${dayObj().name} ${fmt(e.s)}–${fmt(e.e)} · ${e.type}</div>
+    <div class="dd">${e.desc||''}</div>
+    <div class="inv"><b>What’s involved:</b> ${e.involve||'Details coming soon.'}</div>
+    ${conf?`<div class="why">🚫 Your hero is busy: <b>${conf.title}</b> (${fmt(conf.s)}–${fmt(conf.e)}) overlaps this. Leave it first if you’d rather do this instead.</div>`:''}
+    <button id="joinbtn" class="${sel?'leave':''}" ${conf?'disabled':''}>${sel?'✕ Leave this event':'＋ Join this event'}</button>`;
+  document.getElementById('joinbtn').onclick=()=>{
+    if(sel){ state.sel[state.day]=state.sel[state.day].filter(id=>id!==e.id); }
+    else if(!conflictWith(e)){ state.sel[state.day].push(e.id); }
+    save(); renderBoard(); renderSide(); placeToken(true);
+  };
+}
+function renderItin(){
+  const box=document.getElementById('itin'); const sel=selEvents();
+  if(!sel.length){ box.innerHTML='<div class="none">Nothing yet — your hero is standing at the door, full of potential.</div>'; return; }
+  box.innerHTML='';
+  sel.forEach(e=>{ const r=ROOMS.find(r=>r.id===e.room);
+    const d=document.createElement('div'); d.className='item';
+    d.innerHTML=`<span class="tm">${fmt(e.s)}–${fmt(e.e)}</span><b style="color:${r.color}">●</b> ${e.title}
+      <button class="x" title="Leave">✕</button>`;
+    d.querySelector('.x').onclick=()=>{ state.sel[state.day]=state.sel[state.day].filter(id=>id!==e.id); save(); renderBoard(); renderSide(); placeToken(true); };
+    d.onclick=ev=>{ if(ev.target.classList.contains('x'))return; detailId=e.id; renderDetail(); };
+    box.appendChild(d);
+  });
+}
+function renderMeals(){
+  const box=document.getElementById('meals'); box.innerHTML='';
+  const d=dayObj(); const sel=selEvents();
+  d.meals.forEach(meal=>{
+    const [w0,w1]=meal.win;
+    // fed if a selected food event overlaps the window
+    const ate=sel.some(e=>e.food&&overlaps(e,{s:w0,e:w1}));
+    // or a free gap >= 30 min inside the window
+    let free=0;
+    if(!ate){
+      const busy=sel.filter(e=>overlaps(e,{s:w0,e:w1})).map(e=>[Math.max(e.s,w0),Math.min(e.e,w1)]).sort((a,b)=>a[0]-b[0]);
+      let cur=w0;
+      busy.forEach(([bs,be])=>{ free=Math.max(free,bs-cur); cur=Math.max(cur,be); });
+      free=Math.max(free,w1-cur);
+    }
+    const ok=ate||free>=30;
+    const div=document.createElement('div'); div.className='meal '+(ok?'ok':'bad');
+    if(ate) div.innerHTML=`🍔 <span><b>${cap(meal.n)}:</b> covered — you joined the food trucks. Your hero is well fed.</span>`;
+    else if(ok) div.innerHTML=`🍽️ <span><b>${cap(meal.n)}:</b> you have a ${free>=60?'comfortable':'quick'} ${Math.round(free)}-minute window to grab food (${fmt(w0)}–${fmt(w1)}).</span>`;
+    else div.innerHTML=`⚠️ <span><b>Your hero forgot to eat ${meal.n}!</b> You're booked solid ${fmt(w0)}–${fmt(w1)}. Even barbarians need snacks — consider leaving one event.</span>`;
+    box.appendChild(div);
+  });
+}
+const cap=s=>s[0].toUpperCase()+s.slice(1);
+function renderSide(){ renderDetail(); renderItin(); renderMeals(); }
+
+/* ================= RESET ================= */
+document.getElementById('resetbtn').onclick=()=>{
+  if(confirm('Reset '+dayObj().name+'? Your hero walks back to the door and the day starts fresh.')){
+    state.sel[state.day]=[]; detailId=null; save(); renderBoard(); renderSide(); placeToken(true);
+  }
+};
+
+renderBuilder(); renderBoard(); renderSide();
+</script>
+</body>
+</html>

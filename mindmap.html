@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Wintercon — Idea Canvas</title>
+<style>
+  :root{--bg:#f3f2ee;--ink:#2a2a2a;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;font-family:'Helvetica Neue',Arial,sans-serif;color:var(--ink);overflow:hidden;background:var(--bg);}
+  #toolbar{position:fixed;top:0;left:0;right:0;height:48px;background:#fff;border-bottom:1px solid #e2e2df;
+    display:flex;align-items:center;gap:8px;padding:0 12px;z-index:20;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+  #toolbar .title{font-weight:700;margin-right:8px;font-size:15px;color:#2F5496;}
+  button{font:inherit;font-size:13px;border:1px solid #d5d5d2;background:#fbfbfa;border-radius:7px;padding:6px 10px;cursor:pointer;}
+  button:hover{background:#f0f0ee;}
+  button.primary{background:#2F5496;color:#fff;border-color:#2F5496;}
+  .hint{margin-left:auto;font-size:12px;color:#999;}
+  #stage{position:absolute;inset:48px 0 0 0;cursor:grab;overflow:hidden;}
+  #stage.panning{cursor:grabbing;}
+  #links{position:absolute;inset:0;pointer-events:none;overflow:visible;}
+  .node{position:absolute;left:0;top:0;transform-origin:center center;user-select:none;cursor:grab;
+    background:#fff;border:2px solid #bbb;border-radius:22px;padding:9px 15px;min-width:56px;max-width:190px;
+    text-align:center;font-size:15px;line-height:1.25;box-shadow:0 2px 6px rgba(0,0,0,.10);white-space:normal;}
+  .node.hub{font-weight:700;font-size:17px;color:#fff;border:none;padding:12px 20px;border-radius:26px;box-shadow:0 3px 10px rgba(0,0,0,.18);}
+  .node.center{font-weight:800;font-size:19px;background:#2a2a2a;color:#fff;border:none;padding:14px 22px;}
+  .node.selected{outline:3px solid #ffb62e;outline-offset:2px;}
+  .node[contenteditable=true]{cursor:text;box-shadow:0 0 0 3px #ffdf9e;}
+  #help{position:fixed;bottom:12px;left:12px;background:rgba(255,255,255,.92);border:1px solid #e2e2df;border-radius:8px;
+    padding:9px 12px;font-size:12px;color:#555;line-height:1.6;z-index:15;max-width:250px;}
+  #help b{color:#333;}
+  #panel{position:fixed;top:48px;right:0;bottom:0;width:340px;background:#fff;border-left:1px solid #e2e2df;
+    z-index:18;display:none;flex-direction:column;box-shadow:-2px 0 10px rgba(0,0,0,.06);}
+  #panel.open{display:flex;}
+  #panel .phead{padding:12px 14px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:8px;}
+  #panel .swatch{width:13px;height:13px;border-radius:50%;flex:none;}
+  #panel .ptitle{flex:1;font-size:15px;font-weight:700;border:1px solid transparent;outline:none;padding:4px 6px;border-radius:6px;background:#f7f7f6;}
+  #panel .ptitle:focus{background:#fff;border-color:#cdd7ea;}
+  #panel .pclose{border:none;background:none;font-size:20px;cursor:pointer;color:#999;padding:0 4px;line-height:1;}
+  #panel .pmeta{padding:7px 14px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#9a9a9a;border-bottom:1px solid #f2f2f2;}
+  #panel textarea{flex:1;border:none;outline:none;resize:none;padding:14px;font:inherit;font-size:14px;line-height:1.55;color:#333;}
+  .node.has-notes::after{content:'';position:absolute;top:-4px;right:-4px;width:11px;height:11px;border-radius:50%;
+    background:#ff8c42;border:2px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,.25);}
+  body.panel-open #stage{right:340px;}
+  body.panel-open #help{display:none;}
+  button.active{background:#2F5496;color:#fff;border-color:#2F5496;}
+  #links .linkhit{stroke:transparent;stroke-width:16;fill:none;pointer-events:stroke;cursor:pointer;}
+  #links .link{fill:none;pointer-events:none;}
+  #links .handle{pointer-events:all;cursor:grab;}
+  #links .handle:hover{fill:#ffe6c7;}
+  .node.linktarget{outline:3px solid #1f9e5a;outline-offset:3px;}
+  .node.linksrc{outline:3px dashed #2F5496;outline-offset:3px;}
+  #linkTip{position:fixed;z-index:19;transform:translate(-50%,-50%);background:#e23b3b;color:#fff;border:none;
+    border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.28);display:none;white-space:nowrap;}
+  #linkTip:hover{background:#c62f2f;}
+</style>
+</head>
+<body>
+<div id="toolbar">
+  <span class="title">Wintercon (WinCon) — Idea Canvas</span>
+  <button class="primary" id="addChild">+ Child</button>
+  <button id="addIdea">+ Idea</button>
+  <button id="connect">Connect</button>
+  <button id="del">Delete</button>
+  <button id="fit">Fit</button>
+  <button id="reset">Reset to sketch</button>
+  <button id="exp">Export</button>
+  <button id="imp">Import</button>
+  <input type="file" id="file" accept="application/json" style="display:none"/>
+  <span class="hint">Drag nodes · scroll to zoom · drag canvas to pan · double-click to edit</span>
+  <a href="index.html" title="Organizing home" style="font-size:18px;text-decoration:none;padding:2px 6px;">🏠</a>
+</div>
+<div id="stage">
+  <svg id="links"></svg>
+</div>
+<div id="help">
+  <b>Click</b> a node to open its notes · <b>Double-click</b> to rename.<br>
+  Drag to move · <b>Shift+drag</b> moves a node with its children.<br>
+  <b>Connect:</b> click the button, then click two nodes to link them.<br>
+  <b>Click a line</b> to select it → delete it, or <b>drag a red endpoint</b> onto another node to re-route. Autosaves.
+</div>
+
+<div id="panel">
+  <div class="phead">
+    <span class="swatch" id="pSwatch"></span>
+    <input class="ptitle" id="pTitle" />
+    <button class="pclose" id="pClose" title="Close">&times;</button>
+  </div>
+  <div class="pmeta" id="pMeta">Notes</div>
+  <textarea id="pNotes" placeholder="Add notes, links, to-dos for this idea…"></textarea>
+</div>
+
+<button id="linkTip">&times; Delete connection</button>
+
+<script>
+const GROUPS={
+  center:{c:'#2a2a2a'}, prizes:{c:'#e0a526'}, logistics:{c:'#1f7a6d'},
+  venue:{c:'#2F5496'}, marketing:{c:'#7a4fb0'}, dms:{c:'#2e8b57'}, loose:{c:'#8a8f98'}
+};
+
+function buildDefault(){
+  const nodes=[], links=[]; let id=0;
+  const N=(text,x,y,group,cls)=>{const n={id:'n'+(id++),text,x,y,group,cls};nodes.push(n);return n;};
+  const center=N('Wintercon',0,0,'center','center');
+  const spec=[
+    {hub:'Prizes',group:'prizes',ang:-150,kids:['Painted minis','T-shirts','Minis','Prepped adventures','?']},
+    {hub:'Logistics (?)',group:'logistics',ang:-95,kids:['Seats & tables','Food','Player packets','Lodging','Payment','Badges']},
+    {hub:'Venue',group:'venue',ang:-15,kids:['Decorations','Seats & tables','Facility','Parking','Sound','Lighting','Stage','Music / AV (?)']},
+    {hub:'Marketing',group:'marketing',ang:55,kids:['UTM','Website','Radio','Reddit','Instagram (?)',"Murphy's (?)",'?']},
+    {hub:'DMs',group:'dms',ang:120,kids:['Badges','DM prepped packet','Ideas & titles','DM green room']},
+  ];
+  const R=360, r=210, hubs={};
+  spec.forEach(s=>{
+    const a=s.ang*Math.PI/180;
+    const hx=R*Math.cos(a), hy=R*Math.sin(a);
+    const hub=N(s.hub,hx,hy,s.group,'hub'); hubs[s.group]=hub;
+    links.push({a:center.id,b:hub.id});
+    const n=s.kids.length, spread=Math.PI*1.05, start=a-spread/2;
+    s.kids.forEach((k,i)=>{
+      const ka=n>1?start+spread*(i/(n-1)):a;
+      const kx=hx+r*Math.cos(ka), ky=hy+r*Math.sin(ka);
+      const kn=N(k,kx,ky,s.group,''); links.push({a:hub.id,b:kn.id});
+    });
+  });
+  // cross-link: logistics prizes branch -> prizes hub
+  links.push({a:hubs.logistics.id,b:hubs.prizes.id,dashed:true});
+  // loose idea
+  const loc=N('Location (?)',-560,430,'loose','');
+  return {nodes,links,view:null};
+}
+
+let state=load()||buildDefault();
+let sel=null, panelNode=null, selLink=null, linkMode=false, linkSource=null, dragLink=null;
+const mouseWorld={x:0,y:0};
+function byId(id){return state.nodes.find(n=>n.id===id);}
+function descendants(id){ const set=new Set(); const frontier=[id];
+  while(frontier.length){ const cur=frontier.pop();
+    state.links.forEach(l=>{ if(l.a===cur && !l.dashed && !set.has(l.b)){ set.add(l.b); frontier.push(l.b); } }); }
+  return set; }
+const view={panX:0,panY:0,scale:1};
+const stage=document.getElementById('stage');
+const svg=document.getElementById('links');
+const nodeEls={};
+
+function save(){try{localStorage.setItem('wincon_mindmap',JSON.stringify({nodes:state.nodes,links:state.links}));}catch(e){}}
+function load(){try{const s=localStorage.getItem('wincon_mindmap')||localStorage.getItem('dndcon_mindmap');if(s){const d=JSON.parse(s);if(d.nodes&&d.nodes.length){d.nodes.forEach(n=>{if(n.text==='Mini D&D Con')n.text='Wintercon';});return d;}}}catch(e){}return null;}
+
+function toScreen(x,y){return{sx:x*view.scale+view.panX, sy:y*view.scale+view.panY};}
+
+function buildNodes(){
+  Object.values(nodeEls).forEach(e=>e.remove());
+  for(const k in nodeEls)delete nodeEls[k];
+  state.nodes.forEach(n=>{
+    const el=document.createElement('div');
+    el.className='node '+(n.cls||'')+(n.group?' g-'+n.group:'');
+    el.textContent=n.text;
+    if(n.notes&&n.notes.trim())el.classList.add('has-notes');
+    if(n.cls==='hub'||n.cls==='center'){el.style.background=GROUPS[n.group].c;}
+    else{el.style.borderColor=GROUPS[n.group].c;}
+    el.dataset.id=n.id;
+    stage.appendChild(el);
+    nodeEls[n.id]=el;
+    attachNode(el,n);
+  });
+}
+
+function render(){
+  // nodes
+  state.nodes.forEach(n=>{
+    const el=nodeEls[n.id]; if(!el)return;
+    const {sx,sy}=toScreen(n.x,n.y);
+    el.style.transform=`translate(${sx}px,${sy}px) translate(-50%,-50%) scale(${view.scale})`;
+    el.classList.toggle('selected',sel===n.id);
+    el.classList.toggle('linksrc', linkMode&&linkSource===n.id);
+  });
+  // links
+  let paths='';
+  const map=Object.fromEntries(state.nodes.map(n=>[n.id,n]));
+  state.links.forEach((l,i)=>{
+    const a=map[l.a], b=map[l.b]; if(!a||!b)return;
+    let p=toScreen(a.x,a.y), q=toScreen(b.x,b.y);
+    if(dragLink&&dragLink.li===i){ const m=toScreen(mouseWorld.x,mouseWorld.y); if(dragLink.end==='a')p=m; else q=m; }
+    const mx=(p.sx+q.sx)/2, my=(p.sy+q.sy)/2;
+    const col=GROUPS[b.group]?GROUPS[b.group].c:'#bbb';
+    const d=`M ${p.sx} ${p.sy} Q ${mx} ${my} ${q.sx} ${q.sy}`;
+    const on=selLink===i||(dragLink&&dragLink.li===i);
+    paths+=`<path class="linkhit" data-li="${i}" d="${d}"/>`;
+    paths+=`<path class="link${on?' sel':''}" d="${d}" stroke="${on?'#e23b3b':col}" stroke-width="${(on?4:2.2)*view.scale}" opacity="${l.dashed?0.55:0.85}" ${l.dashed?`stroke-dasharray="${6*view.scale} ${5*view.scale}"`:''}/>`;
+  });
+  if(linkMode&&linkSource&&map[linkSource]){
+    const p=toScreen(map[linkSource].x,map[linkSource].y), q=toScreen(mouseWorld.x,mouseWorld.y);
+    paths+=`<path class="link" d="M ${p.sx} ${p.sy} L ${q.sx} ${q.sy}" stroke="#2F5496" stroke-width="${2*view.scale}" stroke-dasharray="${5*view.scale} ${4*view.scale}" opacity="0.75"/>`;
+  }
+  // endpoint handles on the selected connection (hidden while dragging one)
+  if(selLink!=null && state.links[selLink] && !dragLink){
+    const l=state.links[selLink], a=map[l.a], b=map[l.b];
+    if(a&&b){ const p=toScreen(a.x,a.y), q=toScreen(b.x,b.y);
+      const dist=Math.hypot(q.sx-p.sx,q.sy-p.sy)||1, t=Math.min(0.4,32/dist);
+      const ha={x:p.sx+(q.sx-p.sx)*t, y:p.sy+(q.sy-p.sy)*t};
+      const hb={x:q.sx+(p.sx-q.sx)*t, y:q.sy+(p.sy-q.sy)*t};
+      paths+=`<circle class="handle" data-li="${selLink}" data-end="a" cx="${ha.x}" cy="${ha.y}" r="7" fill="#fff" stroke="#e23b3b" stroke-width="2.5"/>`;
+      paths+=`<circle class="handle" data-li="${selLink}" data-end="b" cx="${hb.x}" cy="${hb.y}" r="7" fill="#fff" stroke="#e23b3b" stroke-width="2.5"/>`;
+    }
+  }
+  svg.innerHTML=paths;
+  // link delete tip
+  const tip=document.getElementById('linkTip'), r=stage.getBoundingClientRect();
+  if(selLink!=null && state.links[selLink] && !dragLink){
+    const l=state.links[selLink], a=map[l.a], b=map[l.b];
+    if(a&&b){ const p=toScreen(a.x,a.y), q=toScreen(b.x,b.y);
+      tip.style.left=((p.sx+q.sx)/2+r.left)+'px'; tip.style.top=((p.sy+q.sy)/2+r.top)+'px'; tip.style.display='block'; }
+    else tip.style.display='none';
+  } else tip.style.display='none';
+}
+
+// ---- interactions ----
+function attachNode(el,n){
+  let moved=false,down=false,ox,oy,subtree=null,starts=null;
+  el.addEventListener('mousedown',e=>{
+    if(el.getAttribute('contenteditable')==='true')return;
+    if(linkMode){ e.stopPropagation(); pickLink(n); return; }
+    e.stopPropagation(); down=true; moved=false; sel=n.id; selLink=null;
+    const {sx,sy}=toScreen(n.x,n.y); ox=e.clientX-sx; oy=e.clientY-sy;
+    if(e.shiftKey){ subtree=[...descendants(n.id)]; starts={}; starts[n.id]={x:n.x,y:n.y};
+      subtree.forEach(id=>{const nn=byId(id);starts[id]={x:nn.x,y:nn.y};}); }
+    else{ subtree=null; }
+    el.style.cursor='grabbing'; render();
+    const mm=ev=>{ if(!down)return; moved=true;
+      const nx=(ev.clientX-ox-view.panX)/view.scale, ny=(ev.clientY-oy-view.panY)/view.scale;
+      if(subtree){ const dx=nx-starts[n.id].x, dy=ny-starts[n.id].y;
+        subtree.forEach(id=>{const st=starts[id],nn=byId(id);nn.x=st.x+dx;nn.y=st.y+dy;}); }
+      n.x=nx; n.y=ny; render(); };
+    const mu=()=>{ down=false; el.style.cursor='grab';
+      document.removeEventListener('mousemove',mm); document.removeEventListener('mouseup',mu);
+      if(moved){save();} else {openPanel(n);} };
+    document.addEventListener('mousemove',mm); document.addEventListener('mouseup',mu);
+  });
+  el.addEventListener('dblclick',e=>{ e.stopPropagation(); edit(el,n); });
+}
+
+function openPanel(n){
+  panelNode=n; sel=n.id;
+  document.getElementById('pSwatch').style.background=GROUPS[n.group]?GROUPS[n.group].c:'#bbb';
+  document.getElementById('pTitle').value=n.text;
+  document.getElementById('pMeta').textContent = n.cls==='center'?'Central topic':(n.cls==='hub'?'Branch · notes':'Idea · notes');
+  document.getElementById('pNotes').value=n.notes||'';
+  document.getElementById('panel').classList.add('open');
+  document.body.classList.add('panel-open');
+  render();
+}
+function closePanel(){ panelNode=null; document.getElementById('panel').classList.remove('open'); document.body.classList.remove('panel-open'); render(); }
+document.getElementById('pClose').onclick=()=>{ closePanel(); };
+document.getElementById('pTitle').addEventListener('input',e=>{ if(!panelNode)return; panelNode.text=e.target.value; const el=nodeEls[panelNode.id]; if(el)el.textContent=panelNode.text; if(panelNode.notes&&panelNode.notes.trim())el&&el.classList.add('has-notes'); save(); });
+document.getElementById('pTitle').addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();document.getElementById('pNotes').focus();} });
+document.getElementById('pNotes').addEventListener('input',e=>{ if(!panelNode)return; panelNode.notes=e.target.value; const el=nodeEls[panelNode.id]; if(el)el.classList.toggle('has-notes',!!panelNode.notes.trim()); save(); });
+
+// ---- connection editing ----
+function setLinkMode(on){ linkMode=on; linkSource=null; selLink=null;
+  document.getElementById('connect').classList.toggle('active',on);
+  stage.style.cursor=on?'crosshair':'grab';
+  if(on){ sel=null; closePanel(); } render(); }
+function pickLink(n){
+  if(!linkSource){ linkSource=n.id; }
+  else{ if(n.id!==linkSource) addLink(linkSource,n.id); linkSource=null; }
+  render();
+}
+function addLink(a,b){
+  const dup=state.links.some(l=>(l.a===a&&l.b===b)||(l.a===b&&l.b===a));
+  if(dup){ return; }
+  state.links.push({a,b}); save();
+}
+function delLink(){ if(selLink==null)return; state.links.splice(selLink,1); selLink=null; render(); save(); }
+document.getElementById('connect').onclick=()=>setLinkMode(!linkMode);
+document.getElementById('linkTip').onclick=delLink;
+// select a connection by clicking the line (capture phase so it beats panning)
+stage.addEventListener('mousedown',e=>{
+  if(e.target.classList && e.target.classList.contains('linkhit')){
+    e.stopPropagation();
+    if(linkMode){ return; }
+    selLink=+e.target.dataset.li; sel=null; panelNode&&closePanel(); render();
+  }
+},true);
+// drag a connection's endpoint from one node to another (re-route)
+stage.addEventListener('mousedown',e=>{
+  const t=e.target;
+  if(!(t.classList && t.classList.contains('handle')))return;
+  e.stopPropagation();
+  const li=+t.dataset.li, end=t.dataset.end; dragLink={li,end};
+  const r=stage.getBoundingClientRect();
+  let hoverEl=null;
+  const setHover=el=>{ if(hoverEl&&hoverEl!==el)hoverEl.classList.remove('linktarget'); hoverEl=el; if(el)el.classList.add('linktarget'); };
+  const mm=ev=>{
+    mouseWorld.x=(ev.clientX-r.left-view.panX)/view.scale;
+    mouseWorld.y=(ev.clientY-r.top-view.panY)/view.scale;
+    const under=document.elementFromPoint(ev.clientX,ev.clientY);
+    const node=under&&under.closest?under.closest('.node'):null;
+    setHover(node); render();
+  };
+  const mu=ev=>{
+    document.removeEventListener('mousemove',mm); document.removeEventListener('mouseup',mu);
+    setHover(null);
+    const under=document.elementFromPoint(ev.clientX,ev.clientY);
+    const node=under&&under.closest?under.closest('.node'):null;
+    const l=state.links[li];
+    if(node&&l){
+      const nid=node.dataset.id, other=end==='a'?l.b:l.a;
+      const cand=end==='a'?{a:nid,b:l.b}:{a:l.a,b:nid};
+      const dup=state.links.some((x,idx)=>idx!==li&&((x.a===cand.a&&x.b===cand.b)||(x.a===cand.b&&x.b===cand.a)));
+      if(nid&&nid!==other&&!dup){ if(end==='a')l.a=nid; else l.b=nid; save(); }
+    }
+    dragLink=null; render();
+  };
+  document.addEventListener('mousemove',mm); document.addEventListener('mouseup',mu);
+},true);
+// track cursor for the rubber-band line
+stage.addEventListener('mousemove',e=>{
+  if(!(linkMode&&linkSource))return;
+  const r=stage.getBoundingClientRect();
+  mouseWorld.x=(e.clientX-r.left-view.panX)/view.scale;
+  mouseWorld.y=(e.clientY-r.top-view.panY)/view.scale;
+  render();
+});
+function edit(el,n){
+  el.setAttribute('contenteditable','true'); el.focus();
+  const rng=document.createRange(); rng.selectNodeContents(el);
+  const s=window.getSelection(); s.removeAllRanges(); s.addRange(rng);
+  const done=()=>{ el.removeAttribute('contenteditable'); n.text=el.textContent.trim()||'…'; el.textContent=n.text; if(n.notes&&n.notes.trim())el.classList.add('has-notes'); if(panelNode===n)document.getElementById('pTitle').value=n.text; save(); render(); el.removeEventListener('blur',done); };
+  el.addEventListener('blur',done);
+  el.addEventListener('keydown',ev=>{ if(ev.key==='Enter'&&!ev.shiftKey){ev.preventDefault();el.blur();} });
+}
+
+// pan + zoom
+let panning=false,psx,psy;
+stage.addEventListener('mousedown',e=>{ if(e.target!==stage&&e.target!==svg)return; panning=true; sel=null; selLink=null; if(linkMode)linkSource=null; closePanel(); psx=e.clientX-view.panX; psy=e.clientY-view.panY; stage.classList.add('panning'); });
+document.addEventListener('mousemove',e=>{ if(!panning)return; view.panX=e.clientX-psx; view.panY=e.clientY-psy; render(); });
+document.addEventListener('mouseup',()=>{ panning=false; stage.classList.remove('panning'); });
+stage.addEventListener('wheel',e=>{ e.preventDefault();
+  const r=stage.getBoundingClientRect(); const mx=e.clientX-r.left, my=e.clientY-r.top;
+  const wx=(mx-view.panX)/view.scale, wy=(my-view.panY)/view.scale;
+  const f=e.deltaY<0?1.12:1/1.12; view.scale=Math.max(0.2,Math.min(3,view.scale*f));
+  view.panX=mx-wx*view.scale; view.panY=my-wy*view.scale; render();
+},{passive:false});
+
+// buttons
+function addChild(){
+  if(!sel){alert('Select a node first.');return;}
+  const p=state.nodes.find(n=>n.id===sel);
+  const nid='n'+Date.now();
+  const nn={id:nid,text:'New idea',x:p.x+150+Math.random()*40,y:p.y+90+Math.random()*40,group:p.group,cls:''};
+  state.nodes.push(nn); state.links.push({a:p.id,b:nid}); sel=nid;
+  buildNodes(); render(); save();
+  const el=nodeEls[nid]; edit(el,nn);
+}
+function addIdea(){
+  const c=toScreen(0,0);
+  const nid='n'+Date.now();
+  const nn={id:nid,text:'New idea',x:(window.innerWidth/2-view.panX)/view.scale,y:(window.innerHeight/2-view.panY)/view.scale,group:'loose',cls:''};
+  state.nodes.push(nn); sel=nid; buildNodes(); render(); save(); edit(nodeEls[nid],nn);
+}
+function delNode(){
+  if(!sel){return;}
+  const kill=new Set([sel]); let grew=true;
+  while(grew){ grew=false; state.links.forEach(l=>{ if(!l.dashed&&kill.has(l.a)&&!kill.has(l.b)){kill.add(l.b);grew=true;} }); }
+  if(panelNode&&kill.has(panelNode.id))closePanel();
+  state.nodes=state.nodes.filter(n=>!kill.has(n.id));
+  state.links=state.links.filter(l=>!kill.has(l.a)&&!kill.has(l.b));
+  sel=null; selLink=null; buildNodes(); render(); save();
+}
+function fit(){
+  if(!state.nodes.length)return;
+  const xs=state.nodes.map(n=>n.x), ys=state.nodes.map(n=>n.y);
+  const minx=Math.min(...xs)-140,maxx=Math.max(...xs)+140,miny=Math.min(...ys)-90,maxy=Math.max(...ys)+90;
+  const w=stage.clientWidth,h=stage.clientHeight;
+  view.scale=Math.min(3,Math.max(0.2,Math.min(w/(maxx-minx),h/(maxy-miny))*0.92));
+  view.panX=w/2-((minx+maxx)/2)*view.scale; view.panY=h/2-((miny+maxy)/2)*view.scale; render();
+}
+document.getElementById('addChild').onclick=addChild;
+document.getElementById('addIdea').onclick=addIdea;
+document.getElementById('del').onclick=delNode;
+document.getElementById('fit').onclick=fit;
+document.getElementById('reset').onclick=()=>{ if(confirm('Reset canvas to the original transcribed sketch? (Your notes and changes will be lost.)')){localStorage.removeItem('wincon_mindmap');localStorage.removeItem('dndcon_mindmap');state=buildDefault();sel=null;closePanel();buildNodes();fit();save();} };
+document.getElementById('exp').onclick=()=>{
+  const blob=new Blob([JSON.stringify({nodes:state.nodes,links:state.links},null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='wincon_mindmap.json'; a.click();
+};
+document.getElementById('imp').onclick=()=>document.getElementById('file').click();
+document.getElementById('file').onchange=e=>{ const f=e.target.files[0]; if(!f)return; const rd=new FileReader();
+  rd.onload=()=>{ try{const d=JSON.parse(rd.result); if(d.nodes){state=d;sel=null;closePanel();buildNodes();fit();save();} }catch(err){alert('Could not read file.');} }; rd.readAsText(f); };
+document.addEventListener('keydown',e=>{
+  if(/INPUT|TEXTAREA/.test(e.target.tagName))return;
+  if(e.target.getAttribute && e.target.getAttribute('contenteditable')==='true')return;
+  if(e.key==='Delete'||e.key==='Backspace'){ if(selLink!=null){e.preventDefault();delLink();} else if(sel){e.preventDefault();delNode();} }
+  if(e.key==='Tab'&&sel){e.preventDefault();addChild();}
+  if(e.key==='Escape'){ if(linkMode){setLinkMode(false);} else if(selLink!=null){selLink=null;render();} else if(sel){sel=null;render();} }
+});
+
+buildNodes(); fit();
+window.addEventListener('resize',render);
+</script>
+</body>
+</html>

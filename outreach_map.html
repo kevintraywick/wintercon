@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Outreach Map — WinterCon</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<style>
+  :root{ --navy:#2F5496; --teal:#1f7a6d; --gold:#e0a526; --purple:#7a4fb0; --grey:#8a8f98; --bg:#f5f6f8; }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; height:100%; font-family:'Helvetica Neue',Arial,sans-serif; color:#222; }
+  #app{ display:flex; height:100vh; }
+  #sidebar{ width:350px; min-width:350px; background:#fff; border-right:1px solid #e2e4e8; display:flex; flex-direction:column; }
+  #sidebar header{ padding:14px 18px; background:var(--navy); color:#fff; }
+  #sidebar header h1{ margin:0 0 4px; font-size:18px; }
+  #sidebar header p{ margin:0; font-size:12px; opacity:.85; }
+  #sidebar header a.home{ display:inline-block; margin-top:8px; color:#fff; opacity:.85; font-size:12px; text-decoration:none;
+    border:1px solid rgba(255,255,255,.4); border-radius:6px; padding:3px 9px; }
+  #sidebar header a.home:hover{ opacity:1; }
+  .filters{ padding:10px 18px; border-bottom:1px solid #eee; font-size:13px; display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; }
+  .filters label{ display:flex; align-items:center; gap:6px; cursor:pointer; }
+  .filters button{ font:inherit; font-size:12.5px; border:1px dashed #b9c4d8; background:#f6f8fc; color:var(--navy);
+    border-radius:7px; padding:4px 10px; cursor:pointer; }
+  .filters button:hover{ background:#eaf0fa; }
+  .filters button.arm{ background:var(--navy); color:#fff; border-style:solid; }
+  #addbanner{ display:none; padding:8px 18px; background:#fff7e2; border-bottom:1px solid #f0e2b8; font-size:12.5px; color:#8a6d1a; }
+  .list{ overflow-y:auto; flex:1; }
+  .band{ padding:8px 18px 4px; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#8a8f98; background:#fafbfc; border-bottom:1px solid #f0f1f3; }
+  .store{ padding:9px 18px; border-bottom:1px solid #f2f3f5; cursor:pointer; }
+  .store:hover{ background:#f3f7ff; }
+  .store .nm{ font-weight:600; font-size:14px; display:flex; align-items:center; gap:7px; }
+  .store .meta{ font-size:12px; color:#666; margin-top:2px; }
+  .dot{ display:inline-block; width:10px; height:10px; border-radius:50%; flex:none; }
+  .em{ font-size:14px; flex:none; width:16px; text-align:center; }
+  #map{ flex:1; }
+  .legend{ background:#fff; padding:8px 10px; line-height:1.7; font-size:12px; box-shadow:0 1px 4px rgba(0,0,0,.2); border-radius:6px; }
+  .legend .dot{ width:11px; height:11px; vertical-align:middle; margin-right:5px; }
+  .popup h3{ margin:0 0 4px; font-size:15px; }
+  .popup .f{ font-size:12px; color:#555; margin:2px 0; }
+  .popup a{ color:var(--navy); }
+  .popup button.rm{ margin-top:6px; font:inherit; font-size:11.5px; border:1px solid #e0b6b4; color:#c0504d; background:#fff5f5; border-radius:6px; padding:3px 9px; cursor:pointer; }
+  .badge{ display:inline-block; font-size:10px; padding:1px 6px; border-radius:8px; background:#eef2fb; color:var(--navy); margin-left:4px; }
+  .addform{ font-size:13px; }
+  .addform input,.addform select{ font:inherit; font-size:13px; width:200px; margin:3px 0; padding:5px 7px; border:1px solid #d5d8de; border-radius:6px; display:block; }
+  .addform button{ font:inherit; font-size:13px; margin-top:6px; border:none; background:var(--navy); color:#fff; border-radius:6px; padding:6px 12px; cursor:pointer; }
+  .cicon{ background:#fff; border:2.5px solid var(--purple); border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:15px; box-shadow:0 1px 3px rgba(0,0,0,.35); }
+  .cicon.custom{ border-color:var(--gold); }
+  @media(max-width:720px){ #app{ flex-direction:column; } #sidebar{ width:100%; min-width:0; height:46%; } #map{ height:54%; } }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="sidebar">
+    <header>
+      <h1>Outreach Map</h1>
+      <p><span id="count"></span> targets · game stores, colleges &amp; anyone we add — sponsors, DM sources, vendors, campus allies</p>
+    </header>
+    <div class="filters">
+      <label><input type="checkbox" id="fstores" checked> Stores ≤100 mi</label>
+      <label><input type="checkbox" id="fmem" checked> Memphis metro</label>
+      <label><input type="checkbox" id="fcol" checked> Colleges</label>
+      <label><input type="checkbox" id="fcust" checked> My additions</label>
+      <label><input type="checkbox" id="frings" checked> Rings</label>
+      <button id="addbtn">+ Add a place</button>
+    </div>
+    <div id="addbanner">Click the map where the new place goes — then fill in its details. (Click “+ Add a place” again to cancel.)</div>
+    <div class="list" id="list"></div>
+  </div>
+  <div id="map"></div>
+  <a href="index.html" title="Organizing home" style="position:fixed;top:10px;right:10px;z-index:1200;font-size:17px;text-decoration:none;background:#fff;border:1px solid #c9cdd4;border-radius:8px;padding:4px 8px;box-shadow:0 1px 4px rgba(0,0,0,.2);">🏠</a>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+const MARTIN=[36.3434,-88.8503];
+
+// ---------------- GAME STORES ----------------
+const stores=[
+ {n:"One Frequency Games",city:"Martin, TN",addr:"Martin, TN 38237",lat:36.3428,lng:-88.8508,focus:"TCG (MTG, Pokémon, Yu-Gi-Oh), tabletop community",dist:"In Martin",url:"https://www.facebook.com/OneFrequencyGames",host:true,within:true},
+ {n:"Dragons and Mages",city:"Union City, TN",addr:"218 S 1st St, Union City, TN 38261",lat:36.4240,lng:-89.0505,focus:"MTG, TCG, board games, RPG",dist:"~13 mi / 20 min",url:"https://www.facebook.com/pages/Dragons-and-Mages/329937110463623",within:true},
+ {n:"A & J Comics, Cards & Collectibles",city:"Union City, TN",addr:"411 S 3rd St, Union City, TN 38261",lat:36.4210,lng:-89.0530,focus:"Comics, sports cards, TCG",dist:"~13 mi / 20 min",url:"https://www.facebook.com/p/A-J-Comics-Cards-and-Collectibles-100066994112968",within:true},
+ {n:"Hobby Dungeon",city:"Fulton, KY",addr:"605 Wells Ave, Fulton, KY 42041",lat:36.5060,lng:-88.8720,focus:"Games, TCG, collectibles",dist:"~19 mi / 25 min",url:"https://hobbydungeonusa.com",within:true,note:"Verify hours by phone"},
+ {n:"Epic Gamers",city:"Fulton, KY",addr:"502 W Highland Dr, Ste B, Fulton, KY 42041",lat:36.5085,lng:-88.8840,focus:"Video games, TCG, arcade",dist:"~19 mi / 25 min",url:"https://www.facebook.com/EpicGamersKy",within:true},
+ {n:"Collector's Connection",city:"Dyersburg, TN",addr:"1663 US-51 Byp N, Dyersburg, TN 38024",lat:36.0580,lng:-89.3820,focus:"TCG (Pokémon/MTG), comics, collectibles",dist:"~34 mi / 45 min",url:"",within:true},
+ {n:"Battle City Gaming",city:"Paris, TN",addr:"407 N Market St, Paris, TN 38242",lat:36.3060,lng:-88.3270,focus:"TCG, board games, collectibles (guildhall & academy)",dist:"~37 mi / 45 min",url:"https://www.facebook.com/p/Battle-City-Gaming-61559509917890",within:true},
+ {n:"Enchanted Gaming Emporium",city:"Murray, KY",addr:"808 Chestnut St, Ste C, Murray, KY 42071",lat:36.6155,lng:-88.3230,focus:"MTG, Pokémon, Yu-Gi-Oh, tournaments",dist:"~44 mi / 55 min",url:"https://www.facebook.com/EnchantedGamingEmporium",within:true},
+ {n:"Nerdvana",city:"Jackson, TN",addr:"1923 Emporium Dr, Ste F, Jackson, TN 38305",lat:35.6585,lng:-88.8505,focus:"Video games, MTG, TCG, board games, events",dist:"~48 mi / 50 min",url:"https://nerdvana.com",within:true},
+ {n:"Canada's Collectible Games",city:"Jackson, TN",addr:"33-B Carriage House Dr, Jackson, TN 38305",lat:35.6660,lng:-88.8480,focus:"Tabletop, TCG, board games, RPG",dist:"~48 mi / 50 min",url:"https://www.facebook.com/p/Canadas-Collectible-Games-100070439466596",within:true},
+ {n:"Hall of Heroes",city:"Ripley, TN",addr:"126 N Jefferson St, Ripley, TN 38063",lat:35.7480,lng:-89.5340,focus:"TCG, D&D, comics, minis, 3D printing",dist:"~50 mi / 1 hr",url:"https://hallofheroestn.com",within:true},
+ {n:"Wooden Ogre Games",city:"Paducah, KY",addr:"5101 Hinkleville Rd, Ste 160, Paducah, KY 42001",lat:37.0782,lng:-88.6790,focus:"TCG, Warhammer/minis, board games, hobby",dist:"~62 mi / 1 hr 10",url:"https://woodenogregames.com",within:true},
+ {n:"Game X Change (Paducah)",city:"Paducah, KY",addr:"5194 Hinkleville Rd, Ste 104, Paducah, KY 42001",lat:37.0787,lng:-88.6810,focus:"TCG, video games, comics, collectibles",dist:"~62 mi / 1 hr 10",url:"https://gogamexchange.com/stores/kentucky/paducah",within:true},
+ {n:"Infinite Collectibles",city:"Paducah, KY",addr:"3215 Irvin Cobb Dr, #103, Paducah, KY 42003",lat:37.0548,lng:-88.5985,focus:"Comics, TCG (MTG/Pokémon/One Piece), video games",dist:"~66 mi / 1 hr 15",url:"https://infinitecomicsandcollectibles.com",within:true},
+ {n:"Off Meta Gaming",city:"Cape Girardeau, MO",addr:"2104 William St, Cape Girardeau, MO 63703",lat:37.2905,lng:-89.5595,focus:"TCG (official MTG WPN store), hobby",dist:"~90 mi / 1 hr 45",url:"https://www.facebook.com/p/Off-Meta-Gaming-61579627653873",within:true},
+ {n:"Gaming Grounds",city:"Cape Girardeau, MO",addr:"709 Broadway St, Cape Girardeau, MO 63701",lat:37.3060,lng:-89.5180,focus:"TCG, games & hobby, retro/modern",dist:"~90 mi / 1 hr 45",url:"https://www.facebook.com/CapeGGrounds",within:true},
+ {n:"Blackwater Marsh Airsoft & Hobbies",city:"Munford, TN",addr:"14 N Tipton St, Munford, TN 38058",lat:35.4480,lng:-89.8115,focus:"Board games, TCG, D&D, Warhammer, airsoft",dist:"~95 mi / 1 hr 50",url:"https://blackwatermarsh.com",within:true},
+ {n:"Centerpoint Toys & Games",city:"Millington, TN",addr:"4792 Navy Rd, Millington, TN 38053",lat:35.3400,lng:-89.8970,focus:"Toys, board games, TCG, Pokémon/FAB events",dist:"~100 mi / 1 hr 55",url:"https://centerpointtoys.shop",within:true},
+ {n:"Game X Change (Bartlett)",city:"Bartlett, TN",addr:"6832 Stage Rd, Bartlett, TN 38134",lat:35.2258,lng:-89.8280,focus:"TCG, video games, comics, collectibles",dist:"~113 mi / 2 hr",url:"https://www.facebook.com/GXCBartlett",within:false},
+ {n:"The Cellar Tabletop Games & Comics",city:"Memphis, TN",addr:"2737 Bartlett Blvd, Memphis, TN 38134",lat:35.2040,lng:-89.8090,focus:"MTG (WPN), board games, comics, game nights",dist:"~115 mi / 2 hr",url:"https://comiccellaronline.com",within:false},
+ {n:"War Room Hobbies",city:"Cordova, TN",addr:"823 Exocet Dr, Ste 107, Cordova, TN 38018",lat:35.1520,lng:-89.7930,focus:"Warhammer/minis, MTG, tabletop wargaming",dist:"~118 mi / 2 hr",url:"https://warroomhobbies.com",within:false},
+ {n:"901 Games",city:"Memphis, TN",addr:"2491 Broad Ave, Memphis, TN 38112",lat:35.1548,lng:-89.9840,focus:"Board games, TCG, video games, events",dist:"~128 mi / 2 hr 10",url:"https://901games.mysiteengine.com",within:false},
+ {n:"Games Workshop (Memphis)",city:"Memphis, TN",addr:"6211 E Holmes Rd, Ste 101, Memphis, TN 38141",lat:35.0170,lng:-89.8830,focus:"Warhammer / Games Workshop miniatures (limited retail hrs)",dist:"~135 mi / 2 hr 20",url:"https://www.wargames.com/store/759/memphis/games-workshop",within:false},
+];
+
+// ---------------- COLLEGES & UNIVERSITIES ----------------
+const colleges=[
+ {n:"Martin Public Library / Martin Event Center",city:"Martin, TN",addr:"410 S Lindell St, Martin, TN 38237",lat:36.3395,lng:-88.8531,
+  focus:"THE VENUE — two-story library; Event Center holds 300 (Rooms A–D + 3,500 sq ft outdoor stage). Nonprofit free-use possible; floor plans requested",
+  dist:"The venue",url:"https://www.martinpubliclibrary.org",host:true},
+ {n:"UT Martin",city:"Martin, TN",addr:"Boling University Center, Martin, TN 38238",lat:36.3434,lng:-88.8503,
+  focus:"KEY CAMPUS ALLY — student orgs, gaming club, dorm & club marketing, student DMs. Campus is the base of the 300",
+  dist:"Host campus",url:"https://www.utm.edu",host:true},
+ {n:"Dyersburg State Community College",city:"Dyersburg, TN",addr:"1510 Lake Rd, Dyersburg, TN 38024",lat:36.0625,lng:-89.4110,
+  focus:"Student life office, gaming/anime clubs, flyers & campus paper, van-pool potential",
+  dist:"~34 mi / 45 min",url:"https://www.dscc.edu"},
+ {n:"Austin Peay State University",city:"Clarksville, TN",addr:"601 College St, Clarksville, TN 37044",lat:36.5350,lng:-87.3535,
+  focus:"Large student body, esports & tabletop clubs, Govs organizations — regional draw from the east",
+  dist:"~115 mi / 2 hr",url:"https://www.apsu.edu"},
+];
+
+// ---------------- MY ADDITIONS (saved in this browser) ----------------
+let custom=[];
+try{ custom=JSON.parse(localStorage.getItem('wincon_outreach_custom')||'[]'); }catch(e){ custom=[]; }
+function saveCustom(){ try{ localStorage.setItem('wincon_outreach_custom',JSON.stringify(custom)); }catch(e){} }
+
+const map=L.map('map',{scrollWheelZoom:true}).setView([36.15,-88.8],8);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  maxZoom:19, attribution:'&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+// distance rings (miles -> meters)
+const M=1609.34;
+const ringLayer=L.layerGroup().addTo(map);
+[[25,'#bcd'],[50,'#9ab'],[100,'#2F5496']].forEach(([mi,col])=>{
+  L.circle(MARTIN,{radius:mi*M,color:col,weight:mi===100?2:1,fill:false,dashArray:mi===100?null:'4 5',opacity:.7}).addTo(ringLayer);
+});
+
+// icons
+const starIcon=L.divIcon({className:'',html:'<div style="font-size:26px;line-height:26px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))">⭐</div>',iconSize:[26,26],iconAnchor:[13,13]});
+const colIcon =L.divIcon({className:'',html:'<div class="cicon" style="width:26px;height:26px;">🎓</div>',iconSize:[26,26],iconAnchor:[13,13]});
+const custIcons={
+  college:L.divIcon({className:'',html:'<div class="cicon custom" style="width:26px;height:26px;">🎓</div>',iconSize:[26,26],iconAnchor:[13,13]}),
+  store:  L.divIcon({className:'',html:'<div class="cicon custom" style="width:26px;height:26px;">🎲</div>',iconSize:[26,26],iconAnchor:[13,13]}),
+  other:  L.divIcon({className:'',html:'<div class="cicon custom" style="width:26px;height:26px;">📍</div>',iconSize:[26,26],iconAnchor:[13,13]}),
+};
+
+function storeColor(s){ return s.host? '#e0a526' : s.within? '#1f7a6d' : '#8a8f98'; }
+function popupHTML(o,extra){
+  const link=o.url?`<div class="f"><a href="${o.url}" target="_blank" rel="noopener">Website / page ↗</a></div>`:'';
+  const note=o.note?`<div class="f" style="color:#b26a00">⚠ ${o.note}</div>`:'';
+  return `<div class="popup"><h3>${o.n}${o.host?'<span class="badge">HOST</span>':''}</h3>
+    <div class="f">${o.addr||''}</div><div class="f">${o.focus||''}</div>
+    <div class="f"><b>${o.dist||''}</b>${o.dist?' from Martin':''}</div>${note}${link}${extra||''}</div>`;
+}
+
+// build markers
+const storeMk={}, colMk={}, custLayer=L.layerGroup().addTo(map);
+stores.forEach((s,i)=>{
+  const m=L.circleMarker([s.lat,s.lng],{radius:s.host?9:7,color:'#fff',weight:1.5,fillColor:storeColor(s),fillOpacity:.95});
+  m.bindPopup(popupHTML(s)); storeMk[i]=m; m.addTo(map);
+});
+colleges.forEach((c,i)=>{
+  const m=L.marker([c.lat,c.lng],{icon:c.host?starIcon:colIcon,zIndexOffset:c.host?1000:500});
+  m.bindPopup(popupHTML(c)); colMk[i]=m; m.addTo(map);
+});
+function rebuildCustom(){
+  custLayer.clearLayers();
+  custom.forEach((c,i)=>{
+    const m=L.marker([c.lat,c.lng],{icon:custIcons[c.cat]||custIcons.other,zIndexOffset:400});
+    m.bindPopup(popupHTML(c,`<button class="rm" onclick="delCustom(${i})">✕ Remove this place</button>`));
+    c._m=m; m.addTo(custLayer);
+  });
+}
+window.delCustom=function(i){ if(confirm('Remove "'+(custom[i]&&custom[i].n)+'"?')){ custom.splice(i,1); saveCustom(); rebuildCustom(); render(); } };
+rebuildCustom();
+
+// ---------------- add-a-place mode ----------------
+let addMode=false;
+const addbtn=document.getElementById('addbtn');
+addbtn.onclick=()=>{ addMode=!addMode; addbtn.classList.toggle('arm',addMode);
+  document.getElementById('addbanner').style.display=addMode?'block':'none';
+  document.getElementById('map').style.cursor=addMode?'crosshair':''; };
+map.on('click',e=>{
+  if(!addMode)return;
+  const {lat,lng}=e.latlng;
+  const div=document.createElement('div'); div.className='addform';
+  div.innerHTML=`<b>New outreach target</b>
+    <input id="af_n" placeholder="Name" />
+    <select id="af_c"><option value="other">Other / ally</option><option value="store">Game store</option><option value="college">College / school</option></select>
+    <input id="af_f" placeholder="Why they matter (focus, ask…)" />
+    <button id="af_ok">Add to map</button>`;
+  const pop=L.popup({closeOnClick:false,autoClose:true}).setLatLng(e.latlng).setContent(div).openOn(map);
+  div.querySelector('#af_ok').onclick=()=>{
+    const n=div.querySelector('#af_n').value.trim(); if(!n){div.querySelector('#af_n').focus();return;}
+    custom.push({n,cat:div.querySelector('#af_c').value,focus:div.querySelector('#af_f').value.trim(),
+      addr:'',dist:'',url:'',lat:+lat.toFixed(5),lng:+lng.toFixed(5)});
+    saveCustom(); rebuildCustom(); render(); map.closePopup(pop);
+    addMode=false; addbtn.classList.remove('arm');
+    document.getElementById('addbanner').style.display='none';
+    document.getElementById('map').style.cursor='';
+  };
+  setTimeout(()=>div.querySelector('#af_n').focus(),50);
+});
+
+// ---------------- sidebar ----------------
+function parseDist(s){ const m=(s.dist||'').match(/(\d+)/); return (s.host||/In Martin|Host/.test(s.dist||''))?0:(m?+m[1]:999); }
+const bands=[
+ {label:'Host campus & town', items:()=>[...colleges.filter(c=>c.host).map((c,)=>({o:c,kind:'college',idx:colleges.indexOf(c)})),
+                                          ...stores.map((s,i)=>({o:s,kind:'store',idx:i})).filter(x=>x.o.host)]},
+ {label:'Colleges & universities', items:()=>colleges.map((c,i)=>({o:c,kind:'college',idx:i})).filter(x=>!x.o.host)},
+ {label:'Stores within ~30 miles', items:()=>stores.map((s,i)=>({o:s,kind:'store',idx:i})).filter(x=>!x.o.host&&x.o.within&&parseDist(x.o)<=30)},
+ {label:'Stores 30–70 miles', items:()=>stores.map((s,i)=>({o:s,kind:'store',idx:i})).filter(x=>x.o.within&&parseDist(x.o)>30&&parseDist(x.o)<=70)},
+ {label:'Stores 70–100 miles', items:()=>stores.map((s,i)=>({o:s,kind:'store',idx:i})).filter(x=>x.o.within&&!x.o.host&&parseDist(x.o)>70)},
+ {label:'Memphis metro (100+ miles)', items:()=>stores.map((s,i)=>({o:s,kind:'store',idx:i})).filter(x=>!x.o.within)},
+ {label:'My additions', items:()=>custom.map((c,i)=>({o:c,kind:'custom',idx:i}))},
+];
+function visible(x){
+  const st=document.getElementById('fstores').checked, mem=document.getElementById('fmem').checked,
+        co=document.getElementById('fcol').checked, cu=document.getElementById('fcust').checked;
+  if(x.kind==='college')return co;
+  if(x.kind==='custom')return cu;
+  return x.o.within?st:mem;
+}
+function iconFor(x){
+  if(x.kind==='college')return x.o.host?'⭐':'🎓';
+  if(x.kind==='custom')return {college:'🎓',store:'🎲'}[x.o.cat]||'📍';
+  return null;
+}
+function focusItem(x){
+  map.setView([x.o.lat,x.o.lng], x.kind==='store'?11:10, {animate:true});
+  const m=x.kind==='store'?storeMk[x.idx]:x.kind==='college'?colMk[x.idx]:x.o._m;
+  if(m)m.openPopup();
+}
+function render(){
+  const list=document.getElementById('list'); list.innerHTML='';
+  let shown=0;
+  bands.forEach(b=>{
+    const vis=b.items().filter(visible);
+    if(!vis.length)return;
+    const h=document.createElement('div'); h.className='band'; h.textContent=b.label; list.appendChild(h);
+    vis.forEach(x=>{
+      shown++;
+      const d=document.createElement('div'); d.className='store';
+      const ic=iconFor(x);
+      const lead=ic?`<span class="em">${ic}</span>`:`<span class="dot" style="background:${storeColor(x.o)}"></span>`;
+      d.innerHTML=`<div class="nm">${lead}${x.o.n}</div>
+        <div class="meta">${x.o.city||'added by you'}${x.o.dist?' · '+x.o.dist:''}${x.o.focus?' · '+String(x.o.focus).split(/[,(—]/)[0].trim():''}</div>`;
+      d.onclick=()=>focusItem(x);
+      list.appendChild(d);
+    });
+  });
+  // marker visibility
+  stores.forEach((s,i)=>{ const on=visible({kind:'store',o:s}); if(on)storeMk[i].addTo(map); else map.removeLayer(storeMk[i]); });
+  colleges.forEach((c,i)=>{ const on=document.getElementById('fcol').checked; if(on)colMk[i].addTo(map); else map.removeLayer(colMk[i]); });
+  if(document.getElementById('fcust').checked){ custLayer.addTo(map);} else { map.removeLayer(custLayer); }
+  document.getElementById('count').textContent=shown;
+}
+['fstores','fmem','fcol','fcust'].forEach(id=>document.getElementById(id).onchange=render);
+document.getElementById('frings').onchange=e=>{ if(e.target.checked)ringLayer.addTo(map); else map.removeLayer(ringLayer); };
+
+const legend=L.control({position:'bottomright'});
+legend.onAdd=function(){ const d=L.DomUtil.create('div','legend');
+  d.innerHTML=`<div>⭐ Martin Public Library — the venue · UT Martin — host campus</div>
+  <div>🎓 College / university</div>
+  <div><span class="dot" style="background:#e0a526"></span> Host-town store</div>
+  <div><span class="dot" style="background:#1f7a6d"></span> Store within 100 mi</div>
+  <div><span class="dot" style="background:#8a8f98"></span> Memphis metro (100+ mi)</div>
+  <div>🎲/📍 My additions</div>
+  <div style="margin-top:4px;color:#777">Rings: 25 / 50 / 100 mi</div>`; return d; };
+legend.addTo(map);
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WinterCon Operations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FFFFFF; --panel:#FFFFFF; --ink:#1D4E7C; --slate:#5680A6;
+  --line:#D7E5F1; --accent:#2F6DA4; --accent-soft:#E7F0F8;
+  --flame:#E8952F; --red:#C0453F; --red-soft:#FBEDEC;
+  --green:#2F7D5C; --green-soft:#E9F4EF;
+  --night1:#0F1B2A; --night2:#182B41;
+  --radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Public Sans',system-ui,sans-serif;background:var(--paper);color:var(--ink);font-size:15px;line-height:1.5}
+button{font-family:inherit;cursor:pointer}
+select,input,textarea{font-family:inherit;font-size:14px}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---------- Header / night ridge ---------- */
+header{background:linear-gradient(180deg,var(--night1),var(--night2));color:#EAF1F8;padding:16px 24px 0}
+.countstrip{text-align:center;padding:4px 0 14px;border-bottom:1px solid #24384E;margin-bottom:14px}
+.countstrip .countdown{justify-content:center}
+.topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.topbar h1{font-family:'Archivo',sans-serif;font-weight:800;font-size:21px;letter-spacing:.3px}
+.topbar .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8FA6BC;display:block;font-weight:600}
+.topbar .spacer{flex:1}
+.homeicon{color:#EAF1F8;text-decoration:none;font-size:18px;opacity:.85}
+.homeicon:hover{opacity:1}
+.userpick{display:flex;align-items:center;gap:10px;font-size:13px;color:#B9C9D8;flex-wrap:wrap}
+.uplabel{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.uchips{display:flex;gap:6px;flex-wrap:wrap}
+.uchip{background:#22384F;color:#C7D6E4;border:1px solid #33506C;border-radius:16px;padding:5px 13px;font-size:13px;font-weight:600}
+.uchip:hover{border-color:#5B7893;color:#fff}
+.uchip.me{background:#EAF1F8;color:var(--night1);border-color:#EAF1F8}
+.uchip.staff::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--flame);margin-right:6px;vertical-align:1px}
+.hdr-btn{background:transparent;border:1px solid #33506C;color:#B9C9D8;border-radius:6px;padding:5px 10px;font-size:12.5px}
+.hdr-btn:hover{border-color:#5B7893;color:#fff}
+
+.hero{display:flex;gap:32px;align-items:flex-end;flex-wrap:wrap;padding:22px 0 6px}
+.count-label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8FA6BC;font-weight:600;margin-bottom:4px}
+.countdown{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:clamp(30px,5vw,46px);letter-spacing:.5px;display:flex;gap:6px;align-items:baseline}
+.countdown .unit{font-size:12px;color:#8FA6BC;font-family:'Public Sans',sans-serif;font-weight:600;letter-spacing:.08em;margin-right:8px}
+.condate{font-size:12.5px;color:#8FA6BC;margin-top:4px}
+.condate button{background:none;border:none;color:#9FC0DD;text-decoration:underline;font-size:12.5px;padding:0}
+.readiness{min-width:230px;flex:1;max-width:380px}
+.readiness .num{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:26px}
+.bar{height:8px;background:#22384F;border-radius:4px;overflow:hidden;margin-top:6px}
+.bar>div{height:100%;background:linear-gradient(90deg,#3E7FB8,#6FB1E0);border-radius:4px;transition:width .5s}
+.readiness .sub{font-size:12px;color:#8FA6BC;margin-top:5px}
+
+/* beacon ridge */
+.ridge{display:flex;gap:4px;align-items:flex-end;justify-content:space-between;padding:18px 4px 0;overflow-x:auto}
+.beacon{background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:86px;padding:6px 4px 14px;border-radius:8px;color:#8FA6BC}
+.beacon:hover{background:rgba(255,255,255,.05)}
+.beacon svg{display:block}
+.beacon .blabel{font-size:11px;line-height:1.25;text-align:center;max-width:96px}
+.beacon.lit .blabel{color:#F5D9A8;font-weight:600}
+.beacon .bdate{font-size:10px;color:#6E869C}
+.flame{transform-origin:50% 100%;animation:flick 1.1s ease-in-out infinite alternate}
+@keyframes flick{from{transform:scaleY(1) scaleX(1)}to{transform:scaleY(1.18) scaleX(.92)}}
+@media (prefers-reduced-motion:reduce){.flame{animation:none}}
+.glow{filter:drop-shadow(0 0 6px rgba(240,170,60,.8))}
+
+/* ---------- Main layout ---------- */
+main{max-width:1180px;margin:0 auto;padding:22px 24px 60px;display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:22px}
+@media (max-width:960px){main{grid-template-columns:1fr}}
+section{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 2px rgba(22,34,47,.04)}
+h2{font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;letter-spacing:.2px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+   margin:-18px -20px 14px;padding:11px 20px;background:#F2F8FC;border-bottom:1px solid var(--line);border-radius:var(--radius) var(--radius) 0 0}
+.side section h2{margin:-16px -18px 12px;padding:10px 18px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.seg button{background:var(--panel);border:none;padding:4px 11px;font-size:12.5px;color:var(--slate);border-right:1px solid var(--line)}
+.seg button:last-child{border-right:none}
+.seg button.on{background:var(--ink);color:#fff}
+.seg button.on.done{background:var(--green)}
+.gchips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.gchip{border:1px solid var(--line);background:var(--panel);border-radius:16px;padding:4px 11px;font-size:12px;color:var(--slate);font-weight:600}
+.gchip.on{background:var(--accent-soft);color:var(--accent);border-color:#BFD6E8}
+h2 .hint{font-weight:400;font-family:'Public Sans',sans-serif;font-size:12px;color:var(--slate)}
+.small-btn{background:var(--accent-soft);color:var(--accent);border:none;border-radius:6px;padding:5px 10px;font-size:12.5px;font-weight:600}
+.small-btn:hover{background:#D8E7F4}
+.ghost-btn{background:none;border:1px solid var(--line);border-radius:6px;padding:5px 10px;font-size:12.5px;color:var(--slate)}
+.ghost-btn:hover{border-color:var(--slate)}
+
+/* timeline */
+.tl-wrap{overflow-x:auto;padding-bottom:6px}
+.tl{position:relative;height:118px;min-width:640px;margin-top:8px}
+.tl .track{position:absolute;left:0;right:0;top:58px;height:3px;background:var(--line);border-radius:2px}
+.tl .today{position:absolute;top:34px;bottom:6px;width:2px;background:var(--accent)}
+.tl .today span{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:10.5px;font-weight:700;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.wp{position:absolute;top:0;width:120px;transform:translateX(-50%);text-align:center}
+.wp .dot{width:12px;height:12px;border-radius:50%;background:var(--panel);border:3px solid var(--accent);margin:52px auto 6px;position:relative;z-index:2}
+.wp.past .dot{background:var(--accent)}
+.wp.overdue .dot{border-color:var(--red);background:var(--red-soft)}
+.wp .wlabel{font-size:11.5px;line-height:1.25;font-weight:600}
+.wp .wdate{font-size:10.5px;color:var(--slate);font-family:'IBM Plex Mono',monospace}
+.wp.overdue .wlabel{color:var(--red)}
+.wp:nth-child(odd) .wlabel-top{position:absolute;bottom:72px;left:0;right:0}
+.legend{font-size:11.5px;color:var(--slate);margin-top:4px}
+
+/* task board */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tab{border:1px solid var(--line);background:var(--panel);border-radius:20px;padding:5px 13px;font-size:13px;color:var(--slate);font-weight:500}
+.tab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tab .n{font-family:'IBM Plex Mono',monospace;font-size:11px;margin-left:4px;opacity:.75}
+.task{border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:10px;background:#FBFCFE}
+.task.done{opacity:.55}
+.task.escalated{border-color:var(--red);background:var(--red-soft)}
+.task .trow{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.task .ttitle{font-weight:600;flex:1;min-width:200px}
+.task .ttitle .prio{color:var(--flame);font-size:12px;margin-right:4px}
+.badge{font-size:11px;font-weight:600;border-radius:5px;padding:2px 7px;white-space:nowrap}
+.badge.group{background:var(--accent-soft);color:var(--accent)}
+.badge.due{background:#F1F4F7;color:var(--slate);font-family:'IBM Plex Mono',monospace}
+.badge.due.over{background:var(--red-soft);color:var(--red)}
+.badge.skill{background:#F1F4F7;color:var(--slate)}
+.badge.hrs{background:#F7F2E8;color:#8A6A2F}
+.task .meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.task .owner{font-size:12.5px;color:var(--slate)}
+.task .owner b{color:var(--ink)}
+.task .actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.task select.status{border:1px solid var(--line);border-radius:6px;padding:4px 6px;font-size:12.5px}
+.claim{background:var(--green-soft);color:var(--green);border:none;border-radius:6px;padding:5px 11px;font-size:12.5px;font-weight:700}
+.claim:hover{background:#DCEEE5}
+.escbtn{background:none;border:1px solid var(--line);border-radius:6px;padding:4px 9px;font-size:12px;color:var(--slate)}
+.escbtn:hover{border-color:var(--red);color:var(--red)}
+.notes{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}
+.note{font-size:12.5px;margin-bottom:5px;color:#3C4B5A}
+.note b{font-weight:600}
+.note .ts{color:var(--slate);font-size:11px;margin-left:6px}
+.noteadd{display:flex;gap:6px;margin-top:6px}
+.noteadd input{flex:1;border:1px solid var(--line);border-radius:6px;padding:5px 8px}
+.escnote{font-size:12.5px;color:var(--red);font-weight:600;margin-top:8px}
+.addtask{display:grid;grid-template-columns:2fr 1fr auto;gap:8px;margin-top:14px}
+.addtask input,.addtask select{border:1px solid var(--line);border-radius:6px;padding:7px 9px}
+@media (max-width:700px){.addtask{grid-template-columns:1fr 1fr}}
+
+/* my plate */
+.plate-empty{color:var(--slate);font-size:13.5px}
+.plate-task{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px;flex-wrap:wrap}
+.plate-task:last-child{border-bottom:none}
+.avail{display:flex;gap:6px;margin-top:10px;align-items:center;flex-wrap:wrap;font-size:13px}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:16px;padding:4px 12px;font-size:12.5px;font-weight:600;color:var(--slate)}
+.chip.on{background:var(--green-soft);color:var(--green);border-color:#BCDCCB}
+
+/* side column */
+.side section{padding:16px 18px}
+.item{padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.item:last-child{border-bottom:none}
+.item .ts{font-size:11px;color:var(--slate);font-family:'IBM Plex Mono',monospace}
+.dec-add{display:flex;gap:6px;margin-top:10px}
+.dec-add input{flex:1;border:1px solid var(--line);border-radius:6px;padding:6px 8px}
+.blocker{border-left:3px solid var(--red);padding:6px 0 6px 10px;margin-bottom:8px;font-size:13.5px}
+.blocker .who{font-size:12px;color:var(--slate)}
+.blocker button{margin-top:4px}
+.dm-bars{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.dm-row{display:flex;align-items:center;gap:8px;font-size:12.5px}
+.dm-row .lbl{width:86px;color:var(--slate)}
+.dm-row .track2{flex:1;height:8px;background:#EEF2F6;border-radius:4px;overflow:hidden}
+.dm-row .track2>div{height:100%;background:var(--accent);border-radius:4px}
+.dm-row .val{font-family:'IBM Plex Mono',monospace;font-size:12px;width:26px;text-align:right}
+.dm-goal{font-size:12px;color:var(--slate);margin-top:8px}
+.dir-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px}
+.dir-row:last-of-type{border-bottom:none}
+.dir-row .role{color:var(--slate)}
+.dir-head{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--slate);padding-bottom:4px;border-bottom:1px solid var(--line)}
+.rn{background:none;border:none;color:var(--slate);font-size:12px;padding:0 2px}
+.rn:hover{color:var(--accent)}
+.dir-add{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.dir-add input{flex:1;min-width:120px;border:1px solid var(--line);border-radius:6px;padding:6px 8px}
+
+/* modal */
+.modal-bg{position:fixed;inset:0;background:rgba(15,27,42,.55);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+.modal-bg.open{display:flex}
+.modal{background:var(--panel);border-radius:12px;max-width:560px;width:100%;max-height:80vh;overflow:auto;padding:22px}
+.modal h3{font-family:'Archivo',sans-serif;margin-bottom:10px}
+.modal pre{white-space:pre-wrap;font-family:'IBM Plex Mono',monospace;font-size:12.5px;background:#F4F7FA;border:1px solid var(--line);border-radius:8px;padding:14px;line-height:1.6}
+.modal .mrow{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+
+footer{max-width:1180px;margin:0 auto;padding:0 24px 40px;font-size:12px;color:var(--slate)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="countstrip">
+    <div class="count-label">Time to WinterCon</div>
+    <div class="countdown" id="countdown" aria-live="off"></div>
+    <div class="condate" id="condate"></div>
+  </div>
+
+  <div class="topbar">
+    <div>
+      <span class="eyebrow">Internal · Operations</span>
+      <h1>WinterCon Operations</h1>
+    </div>
+    <div class="spacer"></div>
+    <div class="userpick">
+      <span class="uplabel">Viewing as</span>
+      <div id="userChips" class="uchips" role="group" aria-label="Choose who you are"></div>
+    </div>
+    <button class="hdr-btn" onclick="App.exportJSON()">Export</button>
+    <button class="hdr-btn" onclick="document.getElementById('importFile').click()">Import</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="App.importJSON(this)">
+    <a class="homeicon" href="index.html" title="Home">🏠</a>
+  </div>
+
+  <div class="hero">
+    <div class="readiness">
+      <div class="count-label">Overall readiness</div>
+      <div class="num" id="readyNum">0%</div>
+      <div class="bar"><div id="readyBar" style="width:0%"></div></div>
+      <div class="sub" id="readySub"></div>
+    </div>
+  </div>
+
+  <div class="ridge" id="ridge" role="list" aria-label="Milestone beacons"></div>
+</header>
+
+<main>
+  <div class="colmain">
+
+    <section>
+      <h2>This week <span class="hint">the short list — everything else can wait</span></h2>
+      <div id="thisWeek"></div>
+    </section>
+
+    <section>
+      <h2>Deadline timeline</h2>
+      <div class="tl-wrap"><div class="tl" id="timeline"></div></div>
+      <div class="legend">● passed &nbsp;·&nbsp; <span style="color:var(--red)">●</span> overdue &nbsp;·&nbsp; ○ upcoming — dates are working placeholders until confirmed</div>
+    </section>
+
+    <section id="myPlate">
+      <h2>My plate <span class="hint">what's yours, at a glance</span>
+        <span style="flex:1"></span>
+        <button class="small-btn" onclick="App.showDigest()">Preview my weekly digest</button>
+      </h2>
+      <div id="plateBody"></div>
+    </section>
+
+    <section>
+      <h2>Task board</h2>
+      <div class="tabs" id="tabs"></div>
+      <div id="taskList"></div>
+      <div class="addtask">
+        <input id="ntTitle" placeholder="New task…">
+        <input id="ntDue" type="date" title="Due date">
+        <button class="small-btn" onclick="App.addTask()">Add</button>
+      </div>
+      <div class="gchips" id="ntGroups" style="margin-top:8px"><span style="font-size:12px;color:var(--slate)">Group:</span></div>
+    </section>
+
+  </div>
+
+  <div class="side">
+
+    <section>
+      <h2>Blockers <span class="hint">raised hands land here</span></h2>
+      <div id="blockers"></div>
+    </section>
+
+    <section>
+      <h2>DM pipeline <span class="hint">the binding constraint</span></h2>
+      <div class="dm-bars" id="dmBars"></div>
+      <div class="dm-goal" id="dmGoal"></div>
+    </section>
+
+    <section>
+      <h2>Decision log</h2>
+      <div id="decisions"></div>
+      <div class="dec-add"><input id="decInput" placeholder="Record a decision…"><button class="small-btn" onclick="App.addDecision()">Add</button></div>
+    </section>
+
+    <section>
+      <h2>Directory <span class="hint">who does what</span></h2>
+      <div id="directory"></div>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  Prototype — data lives in this browser (localStorage) with JSON export/import. The <code>Store</code> object in the source is the single read/write point: swap its two methods for <code>fetch()</code> calls against the Railway API and everything above keeps working.
+</footer>
+
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this)App.closeModal()">
+  <div class="modal" role="dialog" aria-modal="true">
+    <h3 id="modalTitle"></h3>
+    <div id="modalBody"></div>
+    <div class="mrow">
+      <button class="ghost-btn" onclick="App.closeModal()">Close</button>
+      <button class="small-btn" id="modalCopy" onclick="App.copyDigest()">Copy text</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   Data layer — the ONLY place that touches storage.
+   For Railway/Postgres: replace load() with GET /api/state
+   (or per-entity endpoints) and save() with POST/PATCH calls.
+   ========================================================= */
+const Store = {
+  KEY: 'wincon_ops_v2',
+  async load(){ const raw = localStorage.getItem(this.KEY); return raw ? JSON.parse(raw) : null; },
+  async save(state){ localStorage.setItem(this.KEY, JSON.stringify(state)); }
+};
+
+const GROUPS = ["Organizers","Venue & Logistics","DMs","Marketing","Sponsors & Finance","Volunteers"];
+
+function seed(){
+  const y = (d)=>d; // date helper passthrough for readability
+  return {
+    conDate: "2027-01-16T09:00", conDatePlaceholder: true,
+    currentUser: "u1",
+    users: [
+      {id:"u1",  name:"Kevin",       role:"Staff",     group:"Organizers", lead:true},
+      {id:"u2",  name:"Staff 2",     role:"Staff",     group:"Organizers", lead:false},
+      {id:"u3",  name:"Staff 3",     role:"Staff",     group:"Organizers", lead:false},
+      {id:"u4",  name:"Coordinator", role:"Volunteer", group:"Volunteers", lead:true},
+      {id:"u5",  name:"Vol 1",       role:"Volunteer", group:"Volunteers", lead:false},
+      {id:"u6",  name:"Vol 2",       role:"Volunteer", group:"Volunteers", lead:false},
+      {id:"u7",  name:"Vol 3",       role:"Volunteer", group:"Volunteers", lead:false},
+      {id:"u8",  name:"Vol 4",       role:"Volunteer", group:"Volunteers", lead:false},
+      {id:"u9",  name:"Vol 5",       role:"Volunteer", group:"Volunteers", lead:false},
+      {id:"u10", name:"Vol 6",       role:"Volunteer", group:"Volunteers", lead:false}
+    ],
+    milestones: [
+      {id:"m1", label:"Venue signed",        lit:false, date:null},
+      {id:"m2", label:"Co-host secured",     lit:false, date:null},
+      {id:"m3", label:"Sponsors at goal",    lit:false, date:null},
+      {id:"m4", label:"20 DMs committed",    lit:false, date:null},
+      {id:"m5", label:"Tickets live",        lit:false, date:null},
+      {id:"m6", label:"Schedule locked",     lit:false, date:null},
+      {id:"m7", label:"Print deadline",      lit:false, date:null},
+      {id:"m8", label:"Load-in ready",       lit:false, date:null}
+    ],
+    waypoints: [
+      {id:"w1", label:"Booking in writing",     date:y("2026-08-03")},
+      {id:"w2", label:"Prospectus to stores",   date:y("2026-08-17")},
+      {id:"w3", label:"Ticket launch",          date:y("2026-10-01")},
+      {id:"w4", label:"DM Academy",             date:y("2026-12-05")},
+      {id:"w5", label:"Program to print",       date:y("2026-12-20")},
+      {id:"w6", label:"Load-in",                date:y("2027-01-15")}
+    ],
+    tasks: [
+      {id:"t1", title:"Get Library / Event Center booking in writing (ask nonprofit free use + floor plans, both floors)",
+       group:"Venue & Logistics", owner:"u1", due:"2026-08-03", status:"progress", priority:true, hours:3, skills:["phone/email"], runbook:"", notes:[{by:"Kevin",text:"Called 7/14 — waiting on director callback.",ts:"2026-07-14"}], escalated:null},
+      {id:"t2", title:"Court One Frequency Games as co-host", group:"Sponsors & Finance", owner:"u1", due:"2026-08-10", status:"progress", priority:true, hours:4, skills:["pitching"], runbook:"WinterCon_Sponsor_Prospectus.docx", notes:[], escalated:null},
+      {id:"t3", title:"Draft marketing & virality plan", group:"Marketing", owner:"u2", due:"2026-08-21", status:"open", priority:true, hours:6, skills:["writing"], runbook:"", notes:[], escalated:null},
+      {id:"t4", title:"Build stretch financial model (path to $10k chart marker)", group:"Sponsors & Finance", owner:null, due:"2026-08-28", status:"open", priority:false, hours:5, skills:["spreadsheets"], runbook:"WinterCon_Financial_Model.xlsx", notes:[], escalated:null},
+      {id:"t5", title:"Pressure-test player journey — fix every step scoring ≤2", group:"Organizers", owner:null, due:"2026-09-04", status:"open", priority:false, hours:4, skills:["UX thinking"], runbook:"player_journey.html", notes:[], escalated:null},
+      {id:"t6", title:"Build British Museum–style venue floor plan map", group:"Venue & Logistics", owner:"u3", due:"2026-09-11", status:"open", priority:false, hours:8, skills:["design"], runbook:"", notes:[],
+       escalated:{by:"Staff 3", msg:"Blocked — library hasn't sent floor plans yet.", ts:"2026-07-15"}},
+      {id:"t7", title:"Outreach: Dragons and Mages (Union City) — sponsor + store DMs", group:"Sponsors & Finance", owner:null, due:"2026-08-14", status:"open", priority:false, hours:2, skills:["phone/email"], runbook:"WinterCon_Store_Outreach_Tracker.xlsx", notes:[], escalated:null},
+      {id:"t8", title:"UT Martin ally outreach — gaming club, student orgs, dorm channels", group:"Marketing", owner:null, due:"2026-09-01", status:"open", priority:false, hours:3, skills:["campus contacts"], runbook:"", notes:[], escalated:null},
+      {id:"t9", title:"Draft volunteer role descriptions (registration, floaters, room hosts)", group:"Volunteers", owner:"u4", due:"2026-09-18", status:"open", priority:false, hours:3, skills:["writing"], runbook:"", notes:[], escalated:null},
+      {id:"t10", title:"Migrate people.html roster into shared database", group:"Organizers", owner:null, due:"2026-09-25", status:"open", priority:false, hours:2, skills:[], runbook:"people.html", notes:[], escalated:null}
+    ],
+    dmPipeline: {prospect:9, contacted:4, committed:2, trained:0, goal:20},
+    decisions: [
+      {text:"Venue: Martin Event Center; UT Martin becomes campus ally only", date:"2026-07-16"},
+      {text:"Money framing: open books, costs first, surplus seeds Summer Con; $10k only as chart stretch-stretch marker", date:"2026-07-10"},
+      {text:"Attendance target raised to 300", date:"2026-07-10"}
+    ],
+    availability: {} // userId -> {fri:bool, sat:bool, sun:bool}
+  };
+}
+
+/* ============================ App ============================ */
+const App = {
+  s: null, tab: "All",
+
+  async init(){
+    this.s = await Store.load() || seed();
+    await Store.save(this.s);
+    this.renderAll();
+    setInterval(()=>this.tickCountdown(), 1000);
+  },
+  async save(){ await Store.save(this.s); },
+  user(){ return this.s.users.find(u=>u.id===this.s.currentUser) || null; },
+  uname(id){ const u=this.s.users.find(u=>u.id===id); return u?u.name:"—"; },
+  esc(t){ return String(t).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); },
+  fmt(d){ if(!d) return "—"; const dt=new Date(d+"T00:00"); return dt.toLocaleDateString(undefined,{month:'short',day:'numeric'}); },
+  today(){ const t=new Date(); t.setHours(0,0,0,0); return t; },
+
+  renderAll(){
+    this.renderUsers(); this.tickCountdown(); this.renderReadiness();
+    this.renderBeacons(); this.renderTimeline(); this.renderWeek();
+    this.renderPlate(); this.renderTabs(); this.renderTasks();
+    this.renderBlockers(); this.renderDM();
+    this.renderDecisions(); this.renderDirectory();
+  },
+
+  /* ---- header ---- */
+  renderUsers(){
+    const order=[...this.s.users].sort((a,b)=>(a.role==='Staff'?0:a.lead?1:2)-(b.role==='Staff'?0:b.lead?1:2));
+    document.getElementById('userChips').innerHTML=order.map(u=>
+      `<button class="uchip ${u.id===this.s.currentUser?'me':''} ${u.role==='Staff'?'staff':''}" onclick="App.setUser('${u.id}')" title="${u.role}${u.lead?(u.role==='Staff'?' · lead':' · volunteer coordinator'):''}" aria-pressed="${u.id===this.s.currentUser}">${this.esc(u.name)}</button>`).join('');
+  },
+  setUser(id){ this.s.currentUser=id; this.save(); this.renderUsers(); this.renderPlate(); this.renderTasks(); },
+
+  tickCountdown(){
+    const el=document.getElementById('countdown');
+    const target=new Date(this.s.conDate);
+    let diff=target-new Date();
+    if(diff<0) diff=0;
+    const d=Math.floor(diff/86400000), h=Math.floor(diff/3600000)%24, m=Math.floor(diff/60000)%60, sec=Math.floor(diff/1000)%60;
+    const pad=n=>String(n).padStart(2,'0');
+    el.innerHTML=`<span>${d}</span><span class="unit">days</span><span>${pad(h)}</span><span class="unit">hrs</span><span>${pad(m)}</span><span class="unit">min</span><span>${pad(sec)}</span><span class="unit">sec</span>`;
+    const cd=document.getElementById('condate');
+    cd.innerHTML=`${target.toLocaleDateString(undefined,{weekday:'short',year:'numeric',month:'long',day:'numeric'})}${this.s.conDatePlaceholder?' · placeholder':''} — <button onclick="App.setConDate()">change date</button>`;
+  },
+  setConDate(){
+    const v=prompt("Con start date (YYYY-MM-DD):", this.s.conDate.slice(0,10));
+    if(!v) return;
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(v)){ alert("Use YYYY-MM-DD."); return; }
+    this.s.conDate=v+"T09:00"; this.s.conDatePlaceholder=false; this.save(); this.tickCountdown(); this.renderTimeline();
+  },
+
+  renderReadiness(){
+    const t=this.s.tasks, done=t.filter(x=>x.status==='done').length;
+    const lit=this.s.milestones.filter(m=>m.lit).length;
+    const pct=Math.round(((done/Math.max(t.length,1))*0.6 + (lit/this.s.milestones.length)*0.4)*100);
+    document.getElementById('readyNum').textContent=pct+"%";
+    document.getElementById('readyBar').style.width=pct+"%";
+    document.getElementById('readySub').textContent=`${done} of ${t.length} tasks done · ${lit} of ${this.s.milestones.length} beacons lit`;
+  },
+
+  beaconSVG(lit){
+    const flame = lit
+      ? `<g class="glow"><path class="flame" d="M17 8 C14 12 13 14 13 16 a4 4 0 0 0 8 0 c0-2-1-4-4-8Z" fill="#F2A93B"/><path class="flame" d="M17 11 c-1.6 2.2-2.2 3.4-2.2 4.7a2.2 2.2 0 0 0 4.4 0 c0-1.3-.6-2.5-2.2-4.7Z" fill="#FBD98A"/></g>`
+      : `<path d="M17 9 C14.5 12.5 13.6 14.3 13.6 16 a3.4 3.4 0 0 0 6.8 0 c0-1.7-.9-3.5-3.4-7Z" fill="none" stroke="#42586F" stroke-width="1.4"/>`;
+    return `<svg width="34" height="46" viewBox="0 0 34 46" aria-hidden="true">
+      ${flame}
+      <path d="M11 22 h12 l2 20 H9 Z" fill="${lit?'#3A5471':'#243A52'}" stroke="${lit?'#5F7E9E':'#33506C'}" stroke-width="1"/>
+      <rect x="9.5" y="20" width="15" height="3.4" rx="1" fill="${lit?'#5F7E9E':'#33506C'}"/>
+      <rect x="7" y="42" width="20" height="3" rx="1.2" fill="${lit?'#5F7E9E':'#33506C'}"/>
+    </svg>`;
+  },
+  renderBeacons(){
+    const r=document.getElementById('ridge');
+    r.innerHTML=this.s.milestones.map(m=>`
+      <button class="beacon ${m.lit?'lit':''}" role="listitem" onclick="App.toggleBeacon('${m.id}')"
+        title="${m.lit?'Lit '+(m.date||''):'Not yet — click to light when achieved'}" aria-pressed="${m.lit}">
+        ${this.beaconSVG(m.lit)}
+        <span class="blabel">${this.esc(m.label)}</span>
+        ${m.lit&&m.date?`<span class="bdate">${this.fmt(m.date)}</span>`:''}
+      </button>`).join('');
+  },
+  toggleBeacon(id){
+    const m=this.s.milestones.find(m=>m.id===id);
+    if(!m.lit){
+      if(!confirm(`Light the beacon: "${m.label}"?\nThis tells the whole crew the milestone is achieved.`)) return;
+      m.lit=true; m.date=new Date().toISOString().slice(0,10);
+    } else {
+      if(!confirm(`Un-light "${m.label}"? (Only if it was lit by mistake.)`)) return;
+      m.lit=false; m.date=null;
+    }
+    this.save(); this.renderBeacons(); this.renderReadiness();
+  },
+
+  /* ---- timeline ---- */
+  renderTimeline(){
+    const el=document.getElementById('timeline');
+    const wps=[...this.s.waypoints].sort((a,b)=>a.date.localeCompare(b.date));
+    if(!wps.length){ el.innerHTML=''; return; }
+    const min=new Date(wps[0].date+"T00:00")-8.64e7*10;
+    const max=Math.max(new Date(wps[wps.length-1].date+"T00:00").getTime(), new Date(this.s.conDate).getTime())+8.64e7*8;
+    const px=d=>((new Date(d+"T00:00")-min)/(max-min))*100;
+    const today=this.today();
+    let html=`<div class="track"></div>`;
+    const tPos=((today-min)/(max-min))*100;
+    if(tPos>=0&&tPos<=100) html+=`<div class="today" style="left:${tPos}%"><span>Today</span></div>`;
+    wps.forEach((w,i)=>{
+      const d=new Date(w.date+"T00:00");
+      const past=d<today, over=past; // waypoints have no done flag in v1; past = needs attention if not celebrated
+      const cls = d<today ? 'overdue' : '';
+      const top = i%2===0;
+      html+=`<div class="wp ${cls}" style="left:${px(w.date)}%">
+        <div class="dot"></div>
+        <div class="wlabel">${this.esc(w.label)}</div>
+        <div class="wdate">${this.fmt(w.date)}</div>
+      </div>`;
+    });
+    // con day marker
+    const conP=((new Date(this.s.conDate)-min)/(max-min))*100;
+    html+=`<div class="wp" style="left:${conP}%"><div class="dot" style="border-color:var(--flame)"></div><div class="wlabel" style="color:var(--flame)">WinterCon</div><div class="wdate">${this.fmt(this.s.conDate.slice(0,10))}</div></div>`;
+    el.innerHTML=html;
+  },
+
+  /* ---- this week ---- */
+  renderWeek(){
+    const soon=this.s.tasks.filter(t=>t.status!=='done'&&(t.priority||this.dueWithin(t,10)))
+      .sort((a,b)=>(a.due||'9999').localeCompare(b.due||'9999')).slice(0,5);
+    const el=document.getElementById('thisWeek');
+    el.innerHTML = soon.length ? soon.map(t=>`
+      <div class="plate-task">
+        <span>${t.priority?'<span class="prio" style="color:var(--flame)">★</span> ':''}${this.esc(t.title)}</span>
+        <span><span class="badge group">${this.esc(t.group)}</span> <span class="badge due ${this.isOver(t)?'over':''}">${this.fmt(t.due)}</span></span>
+      </div>`).join('') : `<div class="plate-empty">Nothing urgent. Enjoy it while it lasts.</div>`;
+  },
+  dueWithin(t,days){ if(!t.due) return false; return (new Date(t.due+"T00:00")-this.today())/8.64e7 <= days; },
+  isOver(t){ return t.due && new Date(t.due+"T00:00")<this.today() && t.status!=='done'; },
+
+  /* ---- my plate ---- */
+  renderPlate(){
+    const u=this.user(); const el=document.getElementById('plateBody');
+    if(!u){ el.innerHTML='<div class="plate-empty">Pick who you are (top right) to see your view.</div>'; return; }
+    const mine=this.s.tasks.filter(t=>t.owner===u.id&&t.status!=='done').sort((a,b)=>(a.due||'9999').localeCompare(b.due||'9999'));
+    const open=this.s.tasks.filter(t=>!t.owner&&t.status!=='done'&&(u.role==='Staff'||t.group===u.group)).length;
+    const av=this.s.availability[u.id]||{fri:false,sat:false,sun:false};
+    el.innerHTML =
+      (mine.length? mine.map(t=>`
+        <div class="plate-task">
+          <span>${this.esc(t.title)}</span>
+          <span class="badge due ${this.isOver(t)?'over':''}">${this.fmt(t.due)}</span>
+        </div>`).join('') : `<div class="plate-empty">Nothing assigned to you yet${open?` — ${open} unclaimed task${open>1?'s':''} in ${this.esc(u.group)} below`:''}.</div>`)
+      + `<div class="avail"><span style="color:var(--slate)">Con-weekend availability:</span>
+          ${['fri','sat','sun'].map(d=>`<button class="chip ${av[d]?'on':''}" onclick="App.toggleAvail('${d}')">${d[0].toUpperCase()+d.slice(1)}</button>`).join('')}
+        </div>`;
+  },
+  toggleAvail(d){
+    const u=this.user(); if(!u) return;
+    const av=this.s.availability[u.id]||(this.s.availability[u.id]={fri:false,sat:false,sun:false});
+    av[d]=!av[d]; this.save(); this.renderPlate();
+  },
+
+  /* ---- task board ---- */
+  renderTabs(){
+    const counts=g=>this.s.tasks.filter(t=>t.status!=='done'&&(g==='All'||(g==='Unassigned'?!t.owner:t.group===g))).length;
+    const tabs=['All','Unassigned',...GROUPS];
+    document.getElementById('tabs').innerHTML=tabs.map(g=>
+      `<button class="tab ${this.tab===g?'active':''}" onclick="App.setTab('${g}')">${g}<span class="n">${counts(g)}</span></button>`).join('');
+    if(!this.ntGroup) this.ntGroup=GROUPS[0];
+    document.getElementById('ntGroups').innerHTML=`<span style="font-size:12px;color:var(--slate)">Group:</span>`+
+      GROUPS.map(g=>`<button class="gchip ${this.ntGroup===g?'on':''}" onclick="App.setNtGroup('${g}')">${g}</button>`).join('');
+  },
+  setNtGroup(g){ this.ntGroup=g; this.renderTabs(); },
+  setTab(g){ this.tab=g; if(GROUPS.includes(g)) this.ntGroup=g; this.renderTabs(); this.renderTasks(); },
+
+  renderTasks(){
+    const u=this.user();
+    let list=this.s.tasks.filter(t=> this.tab==='All'||(this.tab==='Unassigned'?!t.owner:t.group===this.tab));
+    list=[...list].sort((a,b)=>(a.status==='done')-(b.status==='done')||(a.due||'9999').localeCompare(b.due||'9999'));
+    document.getElementById('taskList').innerHTML=list.map(t=>{
+      const canClaim=!t.owner&&t.status!=='done'&&u;
+      return `<div class="task ${t.status==='done'?'done':''} ${t.escalated?'escalated':''}">
+        <div class="trow">
+          <span class="ttitle">${t.priority?'<span class="prio">★</span>':''}${this.esc(t.title)}</span>
+          <span class="badge group">${this.esc(t.group)}</span>
+          <span class="badge due ${this.isOver(t)?'over':''}">${this.fmt(t.due)}</span>
+        </div>
+        <div class="meta">
+          <span class="owner">${t.owner?`Owner: <b>${this.esc(this.uname(t.owner))}</b>`:`<b style="color:var(--green)">Unclaimed</b>`}</span>
+          ${t.hours?`<span class="badge hrs">~${t.hours}h</span>`:''}
+          ${(t.skills||[]).map(s=>`<span class="badge skill">${this.esc(s)}</span>`).join('')}
+          ${t.runbook?`<span class="badge skill" title="Runbook / reference">📄 ${this.esc(t.runbook)}</span>`:''}
+        </div>
+        ${t.escalated?`<div class="escnote">⚑ ${this.esc(t.escalated.by)}: ${this.esc(t.escalated.msg)}</div>`:''}
+        <div class="actions">
+          ${canClaim?`<button class="claim" onclick="App.claim('${t.id}')">Claim this</button>`:''}
+          <span class="seg" role="group" aria-label="Status">
+            ${['open','progress','done'].map(s=>`<button class="${t.status===s?'on '+s:''}" onclick="App.setStatus('${t.id}','${s}')" aria-pressed="${t.status===s}">${{open:'Open',progress:'In progress',done:'Done'}[s]}</button>`).join('')}
+          </span>
+          <button class="escbtn" onclick="App.escalate('${t.id}')">${t.escalated?'Resolve flag':'I\u2019m stuck / need help'}</button>
+          <button class="escbtn" onclick="App.toggleNotes('${t.id}')">Notes (${(t.notes||[]).length})</button>
+        </div>
+        <div class="notes" id="notes-${t.id}" style="display:none">
+          ${(t.notes||[]).map(n=>`<div class="note"><b>${this.esc(n.by)}</b> ${this.esc(n.text)} <span class="ts">${this.esc(n.ts)}</span></div>`).join('')||'<div class="note" style="color:var(--slate)">No notes yet — leave context for whoever picks this up next.</div>'}
+          <div class="noteadd"><input id="ni-${t.id}" placeholder="Add a handoff note…"><button class="small-btn" onclick="App.addNote('${t.id}')">Post</button></div>
+        </div>
+      </div>`;
+    }).join('')||'<div class="plate-empty">No tasks in this view.</div>';
+  },
+  claim(id){
+    const u=this.user(); if(!u){alert('Pick who you are first (top right).');return;}
+    const t=this.s.tasks.find(t=>t.id===id); t.owner=u.id; if(t.status==='open')t.status='progress';
+    t.notes.push({by:u.name,text:'Claimed this task.',ts:new Date().toISOString().slice(0,10)});
+    this.save(); this.renderTasks(); this.renderTabs(); this.renderPlate(); this.renderWeek();
+  },
+  setStatus(id,v){
+    const t=this.s.tasks.find(t=>t.id===id); t.status=v;
+    if(v==='done'&&t.escalated) t.escalated=null;
+    this.save(); this.renderTasks(); this.renderTabs(); this.renderReadiness(); this.renderPlate(); this.renderWeek(); this.renderBlockers();
+  },
+  escalate(id){
+    const t=this.s.tasks.find(t=>t.id===id); const u=this.user();
+    if(t.escalated){ t.escalated=null; }
+    else{
+      const msg=prompt("What do you need? (This goes straight to the Blockers list.)");
+      if(!msg) return;
+      t.escalated={by:u?u.name:'Someone', msg, ts:new Date().toISOString().slice(0,10)};
+    }
+    this.save(); this.renderTasks(); this.renderBlockers();
+  },
+  toggleNotes(id){ const el=document.getElementById('notes-'+id); el.style.display=el.style.display==='none'?'block':'none'; },
+  addNote(id){
+    const inp=document.getElementById('ni-'+id); if(!inp.value.trim())return;
+    const t=this.s.tasks.find(t=>t.id===id); const u=this.user();
+    t.notes.push({by:u?u.name:'Someone', text:inp.value.trim(), ts:new Date().toISOString().slice(0,10)});
+    this.save(); this.renderTasks();
+    document.getElementById('notes-'+id).style.display='block';
+  },
+  addTask(){
+    const title=document.getElementById('ntTitle').value.trim(); if(!title)return;
+    this.s.tasks.push({id:'t'+Date.now(), title, group:this.ntGroup||GROUPS[0],
+      owner:null, due:document.getElementById('ntDue').value||null, status:'open', priority:false, hours:null, skills:[], runbook:'', notes:[], escalated:null});
+    document.getElementById('ntTitle').value='';
+    this.save(); this.renderTasks(); this.renderTabs(); this.renderReadiness(); this.renderWeek();
+  },
+
+  /* ---- side ---- */
+  renderBlockers(){
+    const b=this.s.tasks.filter(t=>t.escalated&&t.status!=='done');
+    document.getElementById('blockers').innerHTML=b.length?b.map(t=>`
+      <div class="blocker">
+        <div>${this.esc(t.title)}</div>
+        <div class="who">⚑ ${this.esc(t.escalated.by)} — ${this.esc(t.escalated.msg)}</div>
+        <button class="ghost-btn" onclick="App.escalate('${t.id}')">Mark resolved</button>
+      </div>`).join(''):'<div class="plate-empty">No raised hands. Good sign — or check in anyway.</div>';
+  },
+  renderDM(){
+    const p=this.s.dmPipeline, mx=Math.max(p.goal,1);
+    const rows=[['Prospects',p.prospect],['Contacted',p.contacted],['Committed',p.committed],['Trained',p.trained]];
+    document.getElementById('dmBars').innerHTML=rows.map(([l,v])=>`
+      <div class="dm-row"><span class="lbl">${l}</span><div class="track2"><div style="width:${Math.min(100,v/mx*100)}%"></div></div><span class="val">${v}</span></div>`).join('');
+    document.getElementById('dmGoal').innerHTML=`Goal: <b>${p.goal} committed DMs</b> (1 DM ≈ 5 seats). Know someone? Add them as a prospect. <button class="ghost-btn" onclick="App.editDM()">Update counts</button>`;
+  },
+  editDM(){
+    const p=this.s.dmPipeline;
+    const v=prompt("prospect,contacted,committed,trained", [p.prospect,p.contacted,p.committed,p.trained].join(','));
+    if(!v)return; const parts=v.split(',').map(n=>parseInt(n.trim(),10));
+    if(parts.length===4&&parts.every(n=>!isNaN(n))){ [p.prospect,p.contacted,p.committed,p.trained]=parts; this.save(); this.renderDM(); }
+  },
+  renderDecisions(){
+    document.getElementById('decisions').innerHTML=this.s.decisions.map(d=>`<div class="item">${this.esc(d.text)}<div class="ts">${this.esc(d.date)}</div></div>`).join('');
+  },
+  addDecision(){
+    const i=document.getElementById('decInput'); if(!i.value.trim())return;
+    this.s.decisions.unshift({text:i.value.trim(), date:new Date().toISOString().slice(0,10)}); i.value='';
+    this.save(); this.renderDecisions();
+  },
+  renderDirectory(){
+    const row=u=>`<div class="dir-row"><span><b>${this.esc(u.name)}</b>${u.lead?(u.role==='Staff'?' · lead':' · coordinator'):''}</span>
+      <span class="role">${u.role==='Staff'?this.esc(u.group):'Volunteer'} <button class="rn" onclick="App.renamePerson('${u.id}')" title="Rename" aria-label="Rename ${this.esc(u.name)}">✎</button></span></div>`;
+    const staff=this.s.users.filter(u=>u.role==='Staff');
+    const vols=[...this.s.users.filter(u=>u.role==='Volunteer')].sort((a,b)=>(b.lead?1:0)-(a.lead?1:0));
+    document.getElementById('directory').innerHTML=
+      `<div class="dir-head">Staff (${staff.length})</div>`+staff.map(row).join('')+
+      `<div class="dir-head" style="margin-top:10px">Volunteers (${vols.length})</div>`+vols.map(row).join('')+
+      `<div class="dir-add">
+        <input id="npName" placeholder="Add a person…">
+        <span class="gchips" id="npRole">
+          <button class="gchip ${this.npRole!=='Staff'?'on':''}" onclick="App.setNpRole('Volunteer')">Volunteer</button>
+          <button class="gchip ${this.npRole==='Staff'?'on':''}" onclick="App.setNpRole('Staff')">Staff</button>
+        </span>
+        <button class="small-btn" onclick="App.addPerson()">Add</button>
+      </div>`;
+  },
+  setNpRole(r){ this.npRole=r; this.renderDirectory(); },
+  addPerson(){
+    const i=document.getElementById('npName'); const name=i.value.trim(); if(!name)return;
+    const role=this.npRole==='Staff'?'Staff':'Volunteer';
+    this.s.users.push({id:'u'+Date.now(), name, role, group:role==='Staff'?'Organizers':'Volunteers', lead:false});
+    i.value=''; this.save(); this.renderUsers(); this.renderDirectory();
+  },
+  renamePerson(id){
+    const u=this.s.users.find(u=>u.id===id);
+    const v=prompt('Name:', u.name); if(!v||!v.trim())return;
+    u.name=v.trim(); this.save(); this.renderAll();
+  },
+
+  /* ---- digest ---- */
+  showDigest(){
+    const u=this.user(); if(!u){alert('Pick who you are first.');return;}
+    const mine=this.s.tasks.filter(t=>t.owner===u.id&&t.status!=='done');
+    const soonW=this.s.waypoints.filter(w=>{const d=(new Date(w.date+"T00:00")-this.today())/8.64e7;return d>=0&&d<=21;});
+    const blk=this.s.tasks.filter(t=>t.escalated&&(u.role==='Staff'||t.group===u.group));
+    const open=this.s.tasks.filter(t=>!t.owner&&t.status!=='done'&&(u.role==='Staff'||t.group===u.group));
+    const days=Math.max(0,Math.floor((new Date(this.s.conDate)-new Date())/8.64e7));
+    let txt=`WinterCon weekly digest — ${u.name}\n${days} days to con\n\n`;
+    txt+=`YOUR TASKS (${mine.length})\n`+(mine.map(t=>`  • ${t.title} — due ${this.fmt(t.due)}${this.isOver(t)?' (OVERDUE)':''}`).join('\n')||'  • none assigned')+'\n\n';
+    if(open.length) txt+=`UNCLAIMED IN ${u.group.toUpperCase()} (${open.length})\n`+open.map(t=>`  • ${t.title}${t.hours?` (~${t.hours}h)`:''}`).join('\n')+'\n\n';
+    if(soonW.length) txt+=`COMING UP (next 3 weeks)\n`+soonW.map(w=>`  • ${w.label} — ${this.fmt(w.date)}`).join('\n')+'\n\n';
+    if(blk.length) txt+=`BLOCKERS IN YOUR GROUP\n`+blk.map(t=>`  • ${t.title} — ${t.escalated.msg}`).join('\n')+'\n\n';
+    this._digest=txt;
+    document.getElementById('modalTitle').textContent='Weekly digest preview';
+    document.getElementById('modalBody').innerHTML=`<pre>${this.esc(txt)}</pre><p style="font-size:12px;color:var(--slate);margin-top:8px">In production this is generated server-side and emailed/texted each Monday — this preview shows exactly what each person would receive.</p>`;
+    document.getElementById('modalBg').classList.add('open');
+  },
+  copyDigest(){ if(this._digest) navigator.clipboard.writeText(this._digest).then(()=>alert('Copied.')); },
+  closeModal(){ document.getElementById('modalBg').classList.remove('open'); },
+
+  /* ---- import/export ---- */
+  exportJSON(){
+    const blob=new Blob([JSON.stringify(this.s,null,2)],{type:'application/json'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+    a.download='wintercon_ops_'+new Date().toISOString().slice(0,10)+'.json'; a.click();
+  },
+  importJSON(input){
+    const f=input.files[0]; if(!f)return;
+    const r=new FileReader();
+    r.onload=async e=>{ try{ this.s=JSON.parse(e.target.result); await this.save(); this.renderAll(); alert('Imported.'); }catch(err){ alert('Could not read that file.'); } };
+    r.readAsText(f); input.value='';
+  }
+};
+App.init();
+</script>
+</body>
+</html>

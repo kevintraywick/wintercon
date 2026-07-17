@@ -1,0 +1,8 @@
+{
+  "name": "wintercon",
+  "version": "1.0.0",
+  "description": "WinterCon - D&D convention organizing site (Martin, TN)",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

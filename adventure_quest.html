@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WinterCon — Adventure Quest (3D)</title>
+<style>
+  :root{--navy:#2F5496;--teal:#1f7a6d;--gold:#e0a526;--red:#c0504d;--line:#e4e6ea;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;overflow:hidden;font-family:'Helvetica Neue',Arial,sans-serif;color:#242424;background:#0e1526;}
+  #scene{position:absolute;inset:0 320px 0 0;}
+  canvas{display:block;}
+  /* top bar */
+  #topbar{position:absolute;top:0;left:0;right:320px;padding:10px 14px;display:flex;align-items:center;gap:12px;pointer-events:none;z-index:5;}
+  #hero{background:rgba(255,255,255,.92);border-radius:10px;padding:6px 13px;font-size:13.5px;box-shadow:0 2px 8px rgba(0,0,0,.25);}
+  #hero b{color:var(--navy);}
+  #clock{background:rgba(255,255,255,.92);border-radius:10px;padding:6px 13px;font-size:13.5px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.25);}
+  #homeicon{margin-left:auto;pointer-events:auto;font-size:17px;text-decoration:none;background:rgba(255,255,255,.92);border-radius:9px;padding:4px 9px;box-shadow:0 2px 8px rgba(0,0,0,.25);}
+  /* fork chooser */
+  #forkbox{position:absolute;left:50%;bottom:18px;transform:translateX(calc(-50% - 160px));z-index:6;text-align:center;max-width:760px;width:min(94%,760px);}
+  #forkq{display:inline-block;background:rgba(20,30,55,.85);color:#fff;font-size:15px;font-weight:700;border-radius:12px;padding:8px 18px;margin-bottom:9px;box-shadow:0 3px 10px rgba(0,0,0,.35);}
+  #opts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+  .opt{background:rgba(255,255,255,.96);border:2.5px solid transparent;border-radius:12px;padding:9px 13px;min-width:150px;max-width:225px;
+       cursor:pointer;text-align:left;box-shadow:0 3px 10px rgba(0,0,0,.3);transition:transform .12s;}
+  .opt:hover{transform:translateY(-3px);border-color:var(--gold);}
+  .opt .ot{font-weight:800;font-size:13.5px;}
+  .opt .om{font-size:11px;color:#777;margin-top:2px;}
+  .opt.food{border-left:6px solid #3f9d54;}
+  #walking{display:none;background:rgba(20,30,55,.7);color:#fff;border-radius:10px;padding:6px 16px;font-size:13px;}
+  /* right panel */
+  #panel{position:absolute;top:0;right:0;bottom:0;width:320px;background:#fff;border-left:1px solid var(--line);display:flex;flex-direction:column;z-index:7;}
+  #panel header{background:var(--navy);color:#fff;padding:12px 15px;}
+  #panel header h1{margin:0;font-size:16px;}
+  #panel header p{margin:3px 0 0;font-size:11px;opacity:.85;}
+  #desc{padding:11px 15px;border-bottom:1px solid var(--line);min-height:104px;background:#fbfcfe;}
+  #desc h3{margin:0 0 4px;font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:#8a8f98;}
+  #desc .dt{font-weight:800;font-size:14.5px;}
+  #desc .dm{font-size:11.5px;color:#777;margin:2px 0 5px;}
+  #desc .dd{font-size:12.5px;line-height:1.5;}
+  #sched{flex:1;overflow-y:auto;padding:9px 15px;}
+  #sched h3{margin:4px 0 6px;font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:#8a8f98;}
+  .sitem{display:flex;gap:8px;padding:7px 9px;border-radius:9px;margin-bottom:6px;background:#f5f7fb;border-left:4px solid var(--navy);font-size:12.5px;line-height:1.35;}
+  .sitem .tm{font-weight:800;color:var(--navy);white-space:nowrap;font-size:11.5px;padding-top:1px;}
+  .sitem.food{border-left-color:#3f9d54;background:#f0f8f1;}
+  .sitem.warn{border-left-color:var(--gold);background:#fff7e2;color:#7a5a10;}
+  .sitem.free{border-left-color:#9aa2ad;background:#f4f4f6;}
+  .snone{color:#aaa;font-size:12.5px;font-style:italic;}
+  #done{display:none;margin:8px 0;padding:10px 12px;border-radius:10px;background:#eef7f3;color:#1f6a52;font-size:13px;line-height:1.5;}
+  #panel footer{padding:10px 15px;border-top:1px solid var(--line);}
+  #resetbtn{width:100%;font:inherit;font-weight:800;font-size:14.5px;background:var(--red);color:#fff;border:none;border-radius:10px;padding:11px;cursor:pointer;}
+  #resetbtn:hover{filter:brightness(1.08);}
+  .tip{font-size:10.5px;color:#9a9aa0;margin-top:7px;line-height:1.45;}
+  @media(max-width:820px){ #scene{inset:0 0 44% 0;} #panel{width:100%;height:44%;top:auto;} #topbar{right:0;} #forkbox{transform:translateX(-50%);bottom:46%;} }
+</style>
+</head>
+<body>
+<div id="scene"></div>
+<div id="topbar">
+  <div id="hero">🗡️ <b id="heroname">Adventurer</b> <span id="herosub"></span></div>
+  <div id="clock">🕘 9:30a</div>
+  <a id="homeicon" href="index.html" title="Organizing home">🏠</a>
+</div>
+<div id="forkbox">
+  <div id="forkq"></div>
+  <div id="opts"></div>
+  <div id="walking">🥾 walking…</div>
+</div>
+<div id="panel">
+  <header><h1>Your Saturday quest</h1><p>Walk the path. Every fork you choose writes your schedule below.</p></header>
+  <div id="desc"><h3>On the signpost</h3><div class="dd" style="color:#aaa;font-style:italic;">Hover a signpost (or an option card) to read about it. Click to walk that way.</div></div>
+  <div id="sched"><h3>The plan so far</h3><div id="slist"><div class="snone">Your hero stands at the doors, coffee in hand…</div></div><div id="done"></div></div>
+  <footer><button id="resetbtn">↺ Start the day over</button>
+    <div class="tip">Prototype: Saturday only, sample events. Your avatar (species &amp; class colors) carries over from the Adventure Planner page. This never registers you for real events.</div></footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ============ hero carry-over ============ */
+let heroState={name:'',species:'human',klass:'fighter'};
+try{ const s=JSON.parse(localStorage.getItem('wincon_adventure')||'null'); if(s)heroState=Object.assign(heroState,s); }catch(e){}
+const SKINS={human:0xf2c79a,elf:0xf7ddb4,dwarf:0xeab887,halfling:0xf2c79a,gnome:0xf6cfa4,orc:0x7ba05b,goliath:0xa8b0b8,dragonborn:0xb0413e,tiefling:0xc94f4f,aasimar:0xf7e0c0};
+const TUNICS={barbarian:0xb3552e,bard:0xc2559e,cleric:0xcfc7a8,druid:0x4e8d4e,fighter:0x6b7b8c,monk:0xd98a1f,paladin:0xc8a428,ranger:0x3e6b3e,rogue:0x4a4a55,sorcerer:0xc0392b,warlock:0x6a3fa0,wizard:0x3f51b5};
+const SCALES={dwarf:.85,halfling:.78,gnome:.74,goliath:1.14};
+document.getElementById('heroname').textContent=heroState.name||'Adventurer';
+document.getElementById('herosub').textContent='· '+cap(heroState.species)+' '+cap(heroState.klass);
+function cap(s){return s? s[0].toUpperCase()+s.slice(1):'';}
+
+/* ============ quest data ============ */
+const fmt=m=>{let h=Math.floor(m/60),mm=m%60,ap=h<12?'a':'p';h=h%12;if(h===0)h=12;return h+(mm?':'+String(mm).padStart(2,'0'):'')+ap;};
+const T=(h,m)=>h*60+(m||0);
+const FORKS=[
+ {q:'☀️ The morning fork — how does your Saturday begin?',opts:[
+   {title:'Battle Interactive: The Siege',s:T(10),e:T(12),room:'Interior Room',prop:'flag',
+    desc:'The signature event — every table fights the same siege and your table’s choices ripple to the others. Pregens provided.'},
+   {title:'Intro to Miniature Painting',s:T(10),e:T(12),room:'Adjacent Room',prop:'mini',
+    desc:'Paint your first mini with real techniques and take it home. All supplies provided; limited seats.'},
+   {title:'Browse the Vendor Hall',s:T(10),e:T(11,30),room:'Hallway',prop:'tent',free:true,
+    desc:'Dice, minis, art, and pre-made adventures. Low commitment, high loot. You can still jump into open tables.'}]},
+ {q:'🌮 Lunchtime — the food trucks are calling…',opts:[
+   {title:'Food Trucks — Lunch',s:T(12),e:T(12,45),room:'Outside',prop:'truck',food:true,
+    desc:'Tacos in the sun with your new party. Communal tables — lunch is where strangers become a Tuesday-night group.'},
+   {title:'Skip lunch — keep gaming!',s:T(12),e:T(12,45),room:'—',prop:'skull',skipMeal:'lunch',free:true,
+    desc:'Bold. Hungry. Your stomach will roll initiative around 3pm. (We will remember this.)'}]},
+ {q:'⚔️ The afternoon fork — commit or wander?',opts:[
+   {title:'MTG Tournament (all afternoon)',s:T(13),e:T(17),room:'Interior Room',prop:'cards',longHaul:true,
+    desc:'Four hours, real judge, prize support. Committing carries you PAST Dice Goblin, the LARP demo, and the workshop — the tournament is your whole afternoon.'},
+   {title:'Dice Goblin',s:T(14),e:T(16),room:'Adjacent Room',prop:'dice',
+    desc:'A chaotic two-hour dungeon crawl where the loot is dice and the dice are cursed (in a fun way). Extremely silly. Beginner-friendly.'},
+   {title:'LARP Demo + free play',s:T(14),e:T(15),room:'Hallway',prop:'sword',
+    desc:'Foam swords, real drama — watch the troupe, then step in for the finale. Leaves you free for the late-afternoon fork.'}]},
+ {q:'🎭 Late afternoon — one more before dinner?',opts:[
+   {title:'DM Workshop: Running Combat',s:T(16),e:T(18),room:'Adjacent Room',prop:'book',
+    desc:'For current and future DMs: pacing, initiative, and keeping six people on the edge of their seats. The on-ramp to DMing next year.'},
+   {title:'Cosplay Contest',s:T(17),e:T(18),room:'Hallway',prop:'star',
+    desc:'The social peak of the day — staged walk, real MC, prizes handed over in front of the best crowd of the weekend.'},
+   {title:'Chill at the Board Game Library',s:T(16),e:T(17,30),room:'Adjacent Room',prop:'meeple',free:true,
+    desc:'Recharge with something light off the shelf. Sometimes the best con memory is Codenames with five strangers.'}]},
+ {q:'🌇 Dinner under the string lights…',opts:[
+   {title:'Food Trucks — Dinner',s:T(18),e:T(18,45),room:'Outside',prop:'truck',food:true,
+    desc:'Fuel up before the evening marathon. Cosplay-friendly options (food on sticks!).'},
+   {title:'Skip dinner — no time to chew',s:T(18),e:T(18,45),room:'—',prop:'skull',skipMeal:'dinner',free:true,
+    desc:'Your hero intends to subsist on adrenaline and vending-machine peanuts. The cleric disapproves.'}]},
+ {q:'🌙 The evening calls — choose your night',opts:[
+   {title:'Evening Campaign Marathon',s:T(19),e:T(23),room:'Interior Room',prop:'flag',
+    desc:'Four uninterrupted hours of deep, connected play with a hand-picked DM. The session people talk about all year.'},
+   {title:'One-Shot: Curse of Strahd',s:T(19),e:T(23),room:'Adjacent Room',prop:'castle',
+    desc:'One night in Barovia. Gothic horror, candlelight, and a DM who does the voice. You will not all survive — that’s the point.'},
+   {title:'Board games & an early night',s:T(19),e:T(21),room:'Hallway',prop:'meeple',free:true,
+    desc:'Wind down easy — a few rounds in the library, then home to bed. Sunday one-shots start at 10am, hero.'}]},
+];
+
+/* ============ three.js scene ============ */
+const SEG=30, LANE=6.5;
+const startZ=6, endZ=startZ+SEG*FORKS.length+16;
+const sceneEl=document.getElementById('scene');
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+renderer.shadowMap.enabled=true;
+sceneEl.appendChild(renderer.domElement);
+const scene=new THREE.Scene();
+scene.fog=new THREE.Fog(0xaee0f8,40,120);
+const camera=new THREE.PerspectiveCamera(46,1,.1,300);
+
+const amb=new THREE.AmbientLight(0xffffff,.55); scene.add(amb);
+const sun=new THREE.DirectionalLight(0xfff3d6,.95); sun.castShadow=true;
+sun.shadow.mapSize.set(1024,1024); sun.shadow.camera.left=-30;sun.shadow.camera.right=30;sun.shadow.camera.top=30;sun.shadow.camera.bottom=-30;
+scene.add(sun); scene.add(sun.target);
+const sunBall=new THREE.Mesh(new THREE.SphereGeometry(1.6,16,16),new THREE.MeshBasicMaterial({color:0xffd76e}));
+scene.add(sunBall);
+const moonBall=new THREE.Mesh(new THREE.SphereGeometry(1.2,16,16),new THREE.MeshBasicMaterial({color:0xe8ecf5}));
+moonBall.visible=false; scene.add(moonBall);
+
+/* ground: snowy field */
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(400,500),new THREE.MeshLambertMaterial({color:0xe9eef4}));
+ground.rotation.x=-Math.PI/2; ground.position.z=endZ/2; ground.receiveShadow=true; scene.add(ground);
+
+/* main path ribbon */
+function pathStrip(x0,z0,x1,z1,w,color){
+  const dx=x1-x0,dz=z1-z0,len=Math.hypot(dx,dz);
+  const m=new THREE.Mesh(new THREE.PlaneGeometry(w,len),new THREE.MeshLambertMaterial({color:color||0xcbb79a}));
+  m.rotation.x=-Math.PI/2; m.rotation.z=-Math.atan2(dx,dz);
+  m.position.set((x0+x1)/2,.02,(z0+z1)/2); m.receiveShadow=true; scene.add(m); return m;
+}
+pathStrip(0,-6,0,endZ,3.4);
+
+/* trees + props scattered */
+function tree(x,z,s){
+  const g=new THREE.Group();
+  const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.28*s,.36*s,1.2*s,7),new THREE.MeshLambertMaterial({color:0x7a5a3a}));
+  trunk.position.y=.6*s; g.add(trunk);
+  for(let i=0;i<3;i++){
+    const cone=new THREE.Mesh(new THREE.ConeGeometry((1.7-i*.42)*s,1.5*s,8),new THREE.MeshLambertMaterial({color:0x3e6b4f}));
+    cone.position.y=(1.3+i*.95)*s; cone.castShadow=true; g.add(cone);
+    const snow=new THREE.Mesh(new THREE.ConeGeometry((1.7-i*.42)*s*.65,.4*s,8),new THREE.MeshLambertMaterial({color:0xf4f7fa}));
+    snow.position.y=(1.75+i*.95)*s; g.add(snow);
+  }
+  g.position.set(x,0,z); scene.add(g);
+}
+let rngSeed=42; const rng=()=>{rngSeed=(rngSeed*9301+49297)%233280; return rngSeed/233280;};
+for(let z=-4;z<endZ+10;z+=4.5){
+  if(rng()<.75) tree(-(9+rng()*16), z+rng()*3, .8+rng()*.7);
+  if(rng()<.75) tree( (9+rng()*16), z+rng()*3, .8+rng()*.7);
+}
+/* venue at start */
+(function(){
+  const g=new THREE.Group();
+  const hall=new THREE.Mesh(new THREE.BoxGeometry(10,4.4,6),new THREE.MeshLambertMaterial({color:0xb7c4d6}));
+  hall.position.y=2.2; hall.castShadow=true; g.add(hall);
+  const roof=new THREE.Mesh(new THREE.ConeGeometry(7.6,2.6,4),new THREE.MeshLambertMaterial({color:0x2F5496}));
+  roof.position.y=5.6; roof.rotation.y=Math.PI/4; g.add(roof);
+  const door=new THREE.Mesh(new THREE.BoxGeometry(1.6,2.4,.2),new THREE.MeshLambertMaterial({color:0x6a4c2f}));
+  door.position.set(0,1.2,3.05); g.add(door);
+  g.position.set(6,0,-18); g.rotation.y=-.4; scene.add(g);
+})();
+
+/* prop factory for event stations */
+function prop(kind,x,z){
+  const g=new THREE.Group(); const M=c=>new THREE.MeshLambertMaterial({color:c});
+  const add=m=>{m.castShadow=true;g.add(m);return m;};
+  if(kind==='truck'){ add(new THREE.Mesh(new THREE.BoxGeometry(3,1.6,1.5),M(0xd97f4f))).position.y=1.2;
+    add(new THREE.Mesh(new THREE.BoxGeometry(.9,1,1.4),M(0xb75f33))).position.set(1.9,.9,0);
+    [[-1,-.6],[1,-.6],[-1,.6],[1,.6]].forEach(([wx,wz])=>{const w=new THREE.Mesh(new THREE.CylinderGeometry(.32,.32,.24,10),M(0x333));w.rotation.x=Math.PI/2;w.position.set(wx,.32,wz);g.add(w);});}
+  else if(kind==='dice'){ const d=add(new THREE.Mesh(new THREE.BoxGeometry(1.3,1.3,1.3),M(0xc0504d))); d.position.y=.95; d.rotation.y=.6; d.rotation.z=.5;
+    const d2=add(new THREE.Mesh(new THREE.BoxGeometry(.9,.9,.9),M(0x2F5496))); d2.position.set(1.2,.45,.5); d2.rotation.y=.3; }
+  else if(kind==='tent'){ const t=add(new THREE.Mesh(new THREE.ConeGeometry(1.8,1.9,4),M(0x7a4fb0))); t.position.y=.95; t.rotation.y=Math.PI/4;
+    const t2=add(new THREE.Mesh(new THREE.ConeGeometry(1.4,1.5,4),M(0xe0a526))); t2.position.set(2.2,.75,.8); t2.rotation.y=Math.PI/4; }
+  else if(kind==='flag'){ const p=add(new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,3.4,6),M(0x8a6d4a))); p.position.y=1.7;
+    const f=add(new THREE.Mesh(new THREE.BoxGeometry(1.5,.9,.06),M(0x2F5496))); f.position.set(.8,2.8,0); }
+  else if(kind==='cards'){ [-.4,0,.4].forEach((dx,i)=>{const c=add(new THREE.Mesh(new THREE.BoxGeometry(.8,1.15,.05),M([0xc0504d,0xe0a526,0x2F5496][i])));c.position.set(dx,1,dx*.3);c.rotation.z=dx*.5;c.rotation.y=.3;}); const tb=add(new THREE.Mesh(new THREE.CylinderGeometry(1.3,1.3,.5,12),M(0x8a6d4a))); tb.position.y=.25;}
+  else if(kind==='sword'){ const s1=add(new THREE.Mesh(new THREE.BoxGeometry(.16,2.3,.16),M(0xb9c2cc))); s1.position.y=1.35; s1.rotation.z=.5;
+    const s2=add(new THREE.Mesh(new THREE.BoxGeometry(.16,2.3,.16),M(0xb9c2cc))); s2.position.y=1.35; s2.rotation.z=-.5;
+    const h=add(new THREE.Mesh(new THREE.BoxGeometry(.7,.14,.2),M(0x7a4fb0))); h.position.y=.6; }
+  else if(kind==='book'){ const b=add(new THREE.Mesh(new THREE.BoxGeometry(1.5,.35,1.1),M(0x3f51b5))); b.position.y=.9; b.rotation.y=.4;
+    const b2=add(new THREE.Mesh(new THREE.BoxGeometry(1.4,.3,1),M(0xc0504d))); b2.position.set(.3,1.2,.1); b2.rotation.y=-.2; }
+  else if(kind==='star'){ const s=add(new THREE.Mesh(new THREE.OctahedronGeometry(.8),M(0xe0a526))); s.position.y=1.8; s.userData.spin=true;
+    const p=add(new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,1.6,6),M(0x8a8f98))); p.position.y=.8; }
+  else if(kind==='meeple'){ const b=add(new THREE.Mesh(new THREE.SphereGeometry(.42,10,10),M(0x2e8b57))); b.position.y=1.3;
+    const bd=add(new THREE.Mesh(new THREE.ConeGeometry(.55,1,10),M(0x2e8b57))); bd.position.y=.6; }
+  else if(kind==='mini'){ const b=add(new THREE.Mesh(new THREE.CylinderGeometry(.5,.6,.2,12),M(0x8a8f98))); b.position.y=.1;
+    const m2=add(new THREE.Mesh(new THREE.ConeGeometry(.3,.9,8),M(0xc0392b))); m2.position.y=.65;
+    const br=add(new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,.7,6),M(0xd98a1f))); br.position.set(.5,.5,0); br.rotation.z=.7; }
+  else if(kind==='castle'){ [[0,0],[1.1,.3],[-1.1,.3]].forEach(([dx,dz],i)=>{const t=add(new THREE.Mesh(new THREE.CylinderGeometry(.45,.5,2+(i===0?1:0),8),M(0x5a5f6b)));t.position.set(dx,1+(i===0?.5:0),dz);
+    const r=add(new THREE.Mesh(new THREE.ConeGeometry(.55,.7,8),M(0x3a2f4a)));r.position.set(dx,2.4+(i===0?1:0)-(i===0?0:.05),dz);});}
+  else if(kind==='skull'){ const s=add(new THREE.Mesh(new THREE.SphereGeometry(.55,10,10),M(0xe8e4d8))); s.position.y=.9;
+    const j=add(new THREE.Mesh(new THREE.BoxGeometry(.6,.3,.5),M(0xe8e4d8))); j.position.y=.5; }
+  g.position.set(x,0,z); scene.add(g); return g;
+}
+
+/* signpost with canvas label */
+const signGroup=new THREE.Group(); scene.add(signGroup);
+function makeSign(text,x,z,idx){
+  const g=new THREE.Group();
+  const pole=new THREE.Mesh(new THREE.CylinderGeometry(.09,.11,2.4,7),new THREE.MeshLambertMaterial({color:0x8a6d4a}));
+  pole.position.y=1.2; pole.castShadow=true; g.add(pole);
+  const cv=document.createElement('canvas'); cv.width=256; cv.height=128;
+  const cx=cv.getContext('2d');
+  cx.fillStyle='#f7f1e2'; cx.fillRect(0,0,256,128);
+  cx.strokeStyle='#8a6d4a'; cx.lineWidth=10; cx.strokeRect(0,0,256,128);
+  cx.fillStyle='#2a2a2a'; cx.font='bold 26px Helvetica'; cx.textAlign='center';
+  const words=text.split(' '); let lines=[''],li=0;
+  words.forEach(w=>{ if((lines[li]+' '+w).trim().length>16){li++;lines[li]='';} lines[li]=(lines[li]+' '+w).trim(); });
+  lines.slice(0,3).forEach((l,i)=>cx.fillText(l,128,46+i*30-(lines.length-1)*8));
+  const tex=new THREE.CanvasTexture(cv);
+  const board=new THREE.Mesh(new THREE.BoxGeometry(2.6,1.3,.12),new THREE.MeshLambertMaterial({map:tex}));
+  board.position.y=2.5; board.castShadow=true; g.add(board);
+  g.position.set(x,0,z);
+  g.userData={opt:idx,board};
+  signGroup.add(g); return g;
+}
+
+/* ============ avatar ============ */
+function buildAvatar(){
+  const g=new THREE.Group();
+  const skin=SKINS[heroState.species]||SKINS.human, tunic=TUNICS[heroState.klass]||TUNICS.fighter;
+  const M=c=>new THREE.MeshLambertMaterial({color:c});
+  const body=new THREE.Mesh(new THREE.CylinderGeometry(.42,.52,1.05,10),M(tunic)); body.position.y=1.15; body.castShadow=true; g.add(body);
+  const head=new THREE.Mesh(new THREE.SphereGeometry(.5,14,14),M(skin)); head.position.y=2.15; head.castShadow=true; g.add(head);
+  /* eyes */
+  [-.18,.18].forEach(dx=>{const e=new THREE.Mesh(new THREE.SphereGeometry(.06,6,6),M(0x222222)); e.position.set(dx,2.22,.44); g.add(e);});
+  /* limbs (animated) */
+  const mkLimb=(x,y,len,c)=>{const l=new THREE.Mesh(new THREE.CylinderGeometry(.13,.13,len,7),M(c)); l.geometry.translate(0,-len/2,0); l.position.set(x,y,0); g.add(l); return l;};
+  const armL=mkLimb(-.55,1.62,.75,tunic), armR=mkLimb(.55,1.62,.75,tunic);
+  const legL=mkLimb(-.22,.62,.62,0x5b4a3f), legR=mkLimb(.22,.62,.62,0x5b4a3f);
+  /* class hat hints */
+  if(heroState.klass==='wizard'){ const h=new THREE.Mesh(new THREE.ConeGeometry(.45,1,10),M(0x3f51b5)); h.position.y=2.85; g.add(h); }
+  if(heroState.klass==='paladin'){ const h=new THREE.Mesh(new THREE.SphereGeometry(.52,10,10,0,Math.PI*2,0,Math.PI/2),M(0xb8bec6)); h.position.y=2.25; g.add(h); }
+  if(heroState.klass==='ranger'||heroState.klass==='rogue'){ const h=new THREE.Mesh(new THREE.ConeGeometry(.55,.7,10),M(heroState.klass==='rogue'?0x3a3a44:0x2f5430)); h.position.y=2.62; g.add(h); }
+  if(heroState.species==='tiefling'){ [-.25,.25].forEach(dx=>{const horn=new THREE.Mesh(new THREE.ConeGeometry(.1,.4,6),M(0x7a3b38)); horn.position.set(dx,2.62,.05); horn.rotation.z=-dx*1.2; g.add(horn);}); }
+  if(heroState.species==='aasimar'){ const halo=new THREE.Mesh(new THREE.TorusGeometry(.4,.05,8,20),M(0xffd76e)); halo.position.y=2.95; halo.rotation.x=Math.PI/2; g.add(halo); }
+  const s=SCALES[heroState.species]||1; g.scale.set(s,s,s);
+  g.userData={armL,armR,legL,legR};
+  scene.add(g); return g;
+}
+const avatar=buildAvatar();
+avatar.position.set(0,0,0);
+
+/* ============ state & flow ============ */
+let forkIdx=0, chosen=[], walking=false, walkCurve=null, walkT=0, walkDur=0, currentTime=T(9,30);
+let hoverSign=null;
+const clockEl=document.getElementById('clock');
+
+function skyFor(t){ // returns {bg, sunFrac}
+  const h=t/60;
+  let bg;
+  if(h<12) bg=new THREE.Color(0xaee0f8);
+  else if(h<17) bg=new THREE.Color(0x9fd4f2).lerp(new THREE.Color(0xf6c98a),(h-12)/5*.35);
+  else if(h<19.5) bg=new THREE.Color(0xf6b978).lerp(new THREE.Color(0x6a5a8a),(h-17)/2.5);
+  else bg=new THREE.Color(0x1d2a4d);
+  return bg;
+}
+function applyTime(t){
+  currentTime=t;
+  clockEl.textContent='🕘 '+fmt(t);
+  const bg=skyFor(t);
+  scene.background=bg; scene.fog.color=bg;
+  const frac=Math.min(1,Math.max(0,(t-7*60)/(21*60-7*60))); // 7a→9p arc
+  const ang=Math.PI*(1-frac);
+  const cx=avatar.position.x, cz=avatar.position.z;
+  sunBall.position.set(cx+Math.cos(ang)*38, 6+Math.sin(ang)*26, cz+14);
+  sun.position.copy(sunBall.position); sun.target.position.set(cx,0,cz);
+  const night=t>=19.5*60;
+  sunBall.visible=!night; moonBall.visible=night;
+  if(night){ moonBall.position.set(cx-14,24,cz+18); amb.intensity=.38; sun.intensity=.35; sun.color.set(0xa9b8e8); }
+  else { amb.intensity=.55; sun.intensity=.95; sun.color.set(0xfff3d6); }
+}
+
+const slist=document.getElementById('slist');
+function addSched(entry){
+  if(slist.querySelector('.snone'))slist.innerHTML='';
+  const d=document.createElement('div');
+  d.className='sitem'+(entry.cls?' '+entry.cls:'');
+  d.innerHTML=`<span class="tm">${entry.tm||''}</span><span>${entry.txt}</span>`;
+  slist.appendChild(d);
+  d.scrollIntoView({block:'nearest'});
+}
+addSchedStart();
+function addSchedStart(){ slist.innerHTML=''; addSched({tm:'9:30a',txt:'☕ Doors, coffee, badge on. The day is unwritten.',cls:'free'}); }
+
+function junctionZ(i){ return startZ+SEG*i; }
+function laneX(fork,j){ const n=FORKS[fork].opts.length; return (j-(n-1)/2)*LANE; }
+
+let stations=[];
+function showFork(i){
+  clearSigns();
+  const f=FORKS[i];
+  document.getElementById('forkq').textContent=f.q;
+  const opts=document.getElementById('opts'); opts.innerHTML='';
+  document.getElementById('walking').style.display='none';
+  document.getElementById('forkq').style.display='';
+  f.opts.forEach((o,j)=>{
+    makeSign(o.title,laneX(i,j),junctionZ(i)+7,j);
+    if(o.prop&&o.prop!=='skull') stations.push(prop(o.prop,laneX(i,j)+(laneX(i,j)>0?2.4:-2.4)||2.4,junctionZ(i)+13));
+    const c=document.createElement('div'); c.className='opt'+(o.food?' food':'');
+    c.innerHTML=`<div class="ot">${o.title}</div><div class="om">${fmt(o.s)}–${fmt(o.e)} · ${o.room}</div>`;
+    c.onmouseenter=()=>showDesc(o); c.onclick=()=>choose(j);
+    opts.appendChild(c);
+  });
+  showDesc(null);
+}
+function clearSigns(){
+  while(signGroup.children.length)signGroup.remove(signGroup.children[0]);
+  stations.forEach(s=>scene.remove(s)); stations=[];
+}
+function showDesc(o){
+  const d=document.getElementById('desc');
+  if(!o){ d.innerHTML='<h3>On the signpost</h3><div class="dd" style="color:#aaa;font-style:italic;">Hover a signpost (or an option card) to read about it. Click to walk that way.</div>'; return; }
+  d.innerHTML=`<h3>On the signpost</h3><div class="dt">${o.title}</div>
+    <div class="dm">${fmt(o.s)}–${fmt(o.e)} · ${o.room}</div><div class="dd">${o.desc}</div>`;
+}
+
+function choose(j){
+  if(walking||forkIdx>=FORKS.length)return;
+  const f=FORKS[forkIdx], o=f.opts[j];
+  chosen.push({fork:forkIdx,opt:j});
+  /* schedule entry */
+  if(o.skipMeal) addSched({tm:fmt(o.s),txt:'⚠️ Skipped '+o.skipMeal+'! Your hero marches on an empty stomach…',cls:'warn'});
+  else if(o.food) addSched({tm:fmt(o.s)+'–'+fmt(o.e),txt:'🍔 '+o.title+' — fed and happy.',cls:'food'});
+  else if(o.free) addSched({tm:fmt(o.s)+'–'+fmt(o.e),txt:'🎲 '+o.title,cls:'free'});
+  else addSched({tm:fmt(o.s)+'–'+fmt(o.e),txt:'⚔️ <b>'+o.title+'</b> · '+o.room});
+  if(o.longHaul) addSched({tm:'',txt:'…the tournament swallows the afternoon — you march right past Dice Goblin, the LARP demo, and the workshop.',cls:'free'});
+  /* walk path */
+  const skip=o.longHaul?1:0;
+  const zA=junctionZ(forkIdx), zB=junctionZ(forkIdx+1+skip);
+  const lx=laneX(forkIdx,j);
+  const pts=[
+    new THREE.Vector3(avatar.position.x,0,avatar.position.z),
+    new THREE.Vector3(lx*.7,0,zA+4),
+    new THREE.Vector3(lx,0,zA+8.5),
+    new THREE.Vector3(lx,0,zA+14),
+    new THREE.Vector3(lx*.4,0,zA+SEG*.8),
+    new THREE.Vector3(0,0,zB),
+  ];
+  walkCurve=new THREE.CatmullRomCurve3(pts);
+  walkT=0; walkDur=2600+skip*1400; walking=true;
+  /* lane ribbon so the trail stays visible */
+  for(let k=0;k<pts.length-1;k++)pathStrip(pts[k].x,pts[k].z,pts[k+1].x,pts[k+1].z,1.7,0xd9c8a8);
+  document.getElementById('forkq').style.display='none';
+  document.getElementById('opts').innerHTML='';
+  document.getElementById('walking').style.display='inline-block';
+  const targetTime=o.e;
+  const t0=currentTime;
+  walkTick=(f)=>applyTime(Math.round(t0+(targetTime-t0)*f));
+  forkIdx+=1+skip;
+}
+let walkTick=null;
+
+function finishDay(){
+  document.getElementById('forkq').style.display='none';
+  document.getElementById('opts').innerHTML='';
+  document.getElementById('walking').style.display='none';
+  const meals={lunch:false,dinner:false}, picks=[];
+  chosen.forEach(({fork,opt})=>{ const o=FORKS[fork].opts[opt]; if(o.food&&o.title.includes('Lunch'))meals.lunch=true; if(o.food&&o.title.includes('Dinner'))meals.dinner=true; if(!o.food&&!o.skipMeal)picks.push(o.title); });
+  addSched({tm:fmt(currentTime),txt:'🌙 Day complete! Your hero staggers home happy.',cls:'food'});
+  const done=document.getElementById('done'); done.style.display='block';
+  done.innerHTML=`<b>🎉 Quest complete${heroState.name?', '+heroState.name:''}!</b><br>
+    You chose: ${picks.join(' → ')||'a very relaxed day'}.<br>
+    ${meals.lunch?'':'⚠️ No lunch. '}${meals.dinner?'':'⚠️ No dinner. '}${meals.lunch&&meals.dinner?'And you remembered to eat — the cleric is proud.':'Next run, feed your hero!'}<br>
+    Hit reset to walk it differently.`;
+  /* finale banner */
+  const g=new THREE.Group();
+  const cv=document.createElement('canvas'); cv.width=512; cv.height=128;
+  const cx=cv.getContext('2d'); cx.fillStyle='#2F5496'; cx.fillRect(0,0,512,128);
+  cx.fillStyle='#fff'; cx.font='bold 44px Helvetica'; cx.textAlign='center'; cx.fillText('SEE YOU AT WINTERCON!',256,80);
+  const banner=new THREE.Mesh(new THREE.PlaneGeometry(10,2.5),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(cv),side:THREE.DoubleSide}));
+  banner.position.set(0,3.4,junctionZ(FORKS.length)+8);
+  banner.rotation.y=Math.PI; /* face the approaching hero/camera */
+  [-5.2,5.2].forEach(x=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,4.6,8),new THREE.MeshLambertMaterial({color:0x8a6d4a}));p.position.set(x,2.3,junctionZ(FORKS.length)+8);g.add(p);});
+  g.add(banner); scene.add(g); finale=g;
+}
+let finale=null;
+
+/* ============ raycast hover/click on signs ============ */
+const ray=new THREE.Raycaster(), mouse=new THREE.Vector2();
+function signAt(ev){
+  const r=renderer.domElement.getBoundingClientRect();
+  mouse.x=((ev.clientX-r.left)/r.width)*2-1; mouse.y=-((ev.clientY-r.top)/r.height)*2+1;
+  ray.setFromCamera(mouse,camera);
+  const hits=ray.intersectObjects(signGroup.children,true);
+  if(!hits.length)return null;
+  let obj=hits[0].object; while(obj&&obj.parent!==signGroup)obj=obj.parent;
+  return obj;
+}
+renderer.domElement.addEventListener('pointermove',ev=>{
+  const s=signAt(ev);
+  document.body.style.cursor=s?'pointer':'';
+  if(s!==hoverSign){ hoverSign=s;
+    if(s&&forkIdx<FORKS.length){ showDesc(FORKS[forkIdx].opts[s.userData.opt]); s.userData.board.material.emissive=new THREE.Color(0x332200); }
+    signGroup.children.forEach(g=>{ if(g!==s&&g.userData.board.material.emissive)g.userData.board.material.emissive=new THREE.Color(0x000000); });
+    if(!s)showDesc(null);
+  }
+});
+renderer.domElement.addEventListener('click',ev=>{
+  const s=signAt(ev); if(s&&!walking)choose(s.userData.opt);
+});
+
+/* ============ reset ============ */
+document.getElementById('resetbtn').onclick=()=>{
+  forkIdx=0; chosen=[]; walking=false; walkCurve=null;
+  avatar.position.set(0,0,0); avatar.rotation.y=0;
+  if(finale){scene.remove(finale);finale=null;}
+  document.getElementById('done').style.display='none';
+  addSchedStart(); applyTime(T(9,30)); showFork(0);
+};
+
+/* ============ loop ============ */
+const clock=new THREE.Clock();
+function resize(){
+  const w=sceneEl.clientWidth,h=sceneEl.clientHeight;
+  renderer.setSize(w,h); camera.aspect=w/h; camera.updateProjectionMatrix();
+}
+window.addEventListener('resize',resize);
+
+function animate(){
+  requestAnimationFrame(animate);
+  const dt=Math.min(.05,clock.getDelta());
+  const t=clock.elapsedTime;
+  /* walking */
+  if(walking&&walkCurve){
+    walkT+=dt*1000/walkDur;
+    const f=Math.min(1,walkT);
+    const eased=f<.5?2*f*f:1-Math.pow(-2*f+2,2)/2;
+    const p=walkCurve.getPoint(eased);
+    const tan=walkCurve.getTangent(Math.min(.999,eased));
+    avatar.position.set(p.x,0,p.z);
+    avatar.rotation.y=Math.atan2(tan.x,tan.z);
+    const sw=Math.sin(t*11);
+    avatar.userData.armL.rotation.x=sw*.7; avatar.userData.armR.rotation.x=-sw*.7;
+    avatar.userData.legL.rotation.x=-sw*.7; avatar.userData.legR.rotation.x=sw*.7;
+    avatar.position.y=Math.abs(Math.sin(t*11))*.09;
+    if(walkTick)walkTick(f);
+    if(f>=1){ walking=false; walkCurve=null; walkTick=null;
+      avatar.userData.armL.rotation.x=avatar.userData.armR.rotation.x=0;
+      avatar.userData.legL.rotation.x=avatar.userData.legR.rotation.x=0;
+      avatar.position.y=0; avatar.rotation.y=0;
+      if(forkIdx<FORKS.length)showFork(forkIdx); else finishDay();
+    }
+  } else {
+    avatar.position.y=Math.sin(t*2.2)*.03; /* idle breathe */
+  }
+  /* spinning props */
+  stations.forEach(s=>s.children.forEach(c=>{if(c.userData.spin)c.rotation.y+=dt*2;}));
+  /* camera follow */
+  const target=new THREE.Vector3(avatar.position.x*.6,0,avatar.position.z);
+  const camGoal=new THREE.Vector3(target.x-7.5,9.5,target.z-9.5);
+  camera.position.lerp(camGoal,.06);
+  camera.lookAt(target.x,1.4,target.z+4);
+  renderer.render(scene,camera);
+}
+/* start camera already in position (no swoop from origin) */
+camera.position.set(-7.5,9.5,-9.5);
+camera.lookAt(0,1.4,4);
+resize(); applyTime(T(9,30)); showFork(0); animate();
+</script>
+</body>
+</html>
