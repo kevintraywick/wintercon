@@ -1,8 +1,13 @@
 {
   "name": "wintercon",
-  "version": "1.0.0",
-  "description": "WinterCon - D&D convention organizing site (Martin, TN)",
+  "version": "2.0.0",
+  "description": "WinterCon - D&D convention organizing site (Martin, TN) - static pages + shared-state API",
   "scripts": {
     "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "pg": "^8.13.1",
+    "playwright": "^1.61.1"
   }
 }
