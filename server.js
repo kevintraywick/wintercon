@@ -93,6 +93,16 @@ function validKey(key) {
 
 app.get('/healthz', (_req, res) => res.json({ ok: true, storage: store.kind }));
 
+// ---------- DM Zone login (emoji-chip passcode, Weldon-style) ----------
+// Change the code by setting the DM_CODE env var on Railway (an emoji string).
+const DM_CODE = (process.env.DM_CODE || '🐉❄️🎲🗡️').trim();
+app.post('/api/dm/login', (req, res) => {
+  const code = req.body && req.body.code;
+  const attempt = Array.isArray(code) ? code.join('') : String(code || '');
+  if (attempt === DM_CODE) return res.json({ ok: true });
+  res.status(403).json({ ok: false });
+});
+
 // Full or incremental state. ?since=<ms> returns only newer entries.
 app.get('/api/state', async (req, res) => {
   try {

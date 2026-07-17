@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WinterCon — DM Zone · Your Schedule</title>
+<style>
+  :root{--navy:#2F5496;--teal:#1f7a6d;--gold:#e0a526;--bg:#f4f5f7;--ink:#242424;--line:#e4e6ea;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;font-family:'Helvetica Neue',Arial,sans-serif;color:var(--ink);background:var(--bg);}
+  header{background:linear-gradient(150deg,#22406f,#2F5496);color:#fff;padding:20px 24px;position:relative;}
+  #homeBtn{position:absolute;top:14px;right:16px;font-size:20px;text-decoration:none;
+           background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.35);
+           border-radius:8px;padding:4px 9px;line-height:1;}
+  header h1{margin:0;font-size:22px;}
+  header p{margin:4px 0 0;font-size:12.5px;opacity:.85;}
+  #layout{display:flex;max-width:1000px;margin:0 auto;gap:20px;padding:22px;align-items:flex-start;}
+  nav{width:210px;min-width:180px;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;position:sticky;top:14px;}
+  nav .navhead{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#8a909a;font-weight:700;padding:12px 16px 6px;}
+  nav a{display:block;padding:11px 16px;font-size:14.5px;color:var(--ink);text-decoration:none;border-left:4px solid transparent;}
+  nav a:hover{background:#f6f7f9;}
+  nav a.on{border-left-color:var(--navy);background:#eef2f8;font-weight:700;color:var(--navy);}
+  nav .logout{display:block;padding:11px 16px;font-size:12.5px;color:#8a909a;border-top:1px solid var(--line);cursor:pointer;background:none;border-left:none;border-right:none;border-bottom:none;width:100%;text-align:left;font-family:inherit;}
+  main{flex:1;background:#fff;border:1px solid var(--line);border-radius:12px;min-height:340px;
+       display:flex;align-items:center;justify-content:center;padding:30px;}
+  .blank{text-align:center;color:#9aa0a8;}
+  .blank .big{font-size:40px;margin-bottom:10px;}
+  .blank b{display:block;color:#5b6169;font-size:16px;margin-bottom:6px;}
+  .blank p{margin:0;font-size:13.5px;line-height:1.5;}
+  @media(max-width:640px){#layout{flex-direction:column;}nav{width:100%;position:static;}}
+</style>
+</head>
+<body>
+<script>if(sessionStorage.getItem('wc_dm')!=='1')location.replace('login.html');</script>
+<header>
+  <a id="homeBtn" href="../index.html" title="Home">🏠</a>
+  <h1>DM Zone</h1>
+  <p>For WinterCon Dungeon Masters — thank you for running the tables.</p>
+</header>
+<div id="layout">
+  <nav>
+    <div class="navhead">DM Zone</div>
+    <a href="schedule.html" class="on">Your Schedule</a>
+    <a href="set_pieces.html">Set Pieces</a>
+    <a href="players.html">Your Players</a>
+    <button class="logout" onclick="sessionStorage.removeItem('wc_dm');location.href='login.html'">log out</button>
+  </nav>
+  <main>
+    <div class="blank">
+      <div class="big">📅</div>
+      <b>Your Schedule</b>
+      <p>Nothing here yet — your session slots, rooms, and times will appear here once the schedule is locked.</p>
+    </div>
+  </main>
+</div>
+</body>
+</html>

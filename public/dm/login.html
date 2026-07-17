@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WinterCon — DM Zone</title>
+<style>
+  :root{--navy:#2F5496;--bg:#f4f5f7;--ink:#242424;--line:#e4e6ea;--red:#c0504d;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;font-family:'Helvetica Neue',Arial,sans-serif;color:var(--ink);background:var(--bg);}
+  header{background:linear-gradient(150deg,#22406f,#2F5496);color:#fff;padding:26px 24px;text-align:center;position:relative;}
+  #homeBtn{position:absolute;top:14px;right:16px;font-size:20px;text-decoration:none;
+           background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.35);
+           border-radius:8px;padding:4px 9px;line-height:1;}
+  header h1{margin:0;font-size:26px;}
+  header p{margin:6px 0 0;font-size:13.5px;opacity:.88;}
+  #wrap{max-width:420px;margin:0 auto;padding:28px 22px;text-align:center;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;box-shadow:0 2px 10px rgba(20,30,50,.06);}
+  .slots{display:flex;justify-content:center;gap:10px;margin:6px 0 18px;}
+  .slot{width:52px;height:52px;border:2px dashed #c3c9d2;border-radius:12px;font-size:26px;
+        display:flex;align-items:center;justify-content:center;background:#fafbfc;}
+  .slot.filled{border-style:solid;border-color:var(--navy);background:#fff;}
+  .chips{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+  .chip{font-size:26px;padding:12px 0;border:1px solid var(--line);border-radius:12px;background:#fafbfc;
+        cursor:pointer;transition:transform .08s;}
+  .chip:active{transform:scale(.9);}
+  .row{display:flex;justify-content:space-between;align-items:center;margin-top:16px;}
+  .clear{background:none;border:none;color:#8a909a;font-size:13px;cursor:pointer;text-decoration:underline;}
+  #msg{font-size:13px;min-height:18px;margin-top:10px;color:var(--red);font-weight:600;}
+  .card.shake{animation:sh .35s;}
+  @keyframes sh{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+  .hint{font-size:12px;color:#9a9aa0;margin-top:16px;line-height:1.5;}
+</style>
+</head>
+<body>
+<header>
+  <a id="homeBtn" href="../index.html" title="Home">🏠</a>
+  <h1>DM Zone</h1>
+  <p>Dungeon Masters only. Enter your four-emoji passcode.</p>
+</header>
+
+<div id="wrap">
+  <div class="card" id="card">
+    <div class="slots" id="slots"></div>
+    <div class="chips" id="chips"></div>
+    <div class="row">
+      <span></span>
+      <button class="clear" id="clear">clear</button>
+    </div>
+    <div id="msg"></div>
+  </div>
+  <p class="hint">Don't have the passcode? Ask at DM HQ or message the organizers.</p>
+</div>
+
+<script>
+const EMOJIS = ['🐉','❄️','🎲','🗡️','🧙','🛡️','🔥','🏹','🍺','🗝️','💀','🦉'];
+const LEN = 4;
+let picked = [];
+
+const slotsEl = document.getElementById('slots');
+const chipsEl = document.getElementById('chips');
+const msgEl = document.getElementById('msg');
+const card = document.getElementById('card');
+
+function renderSlots(){
+  slotsEl.innerHTML = '';
+  for (let i = 0; i < LEN; i++) {
+    const d = document.createElement('div');
+    d.className = 'slot' + (picked[i] ? ' filled' : '');
+    d.textContent = picked[i] || '';
+    slotsEl.appendChild(d);
+  }
+}
+EMOJIS.forEach(e => {
+  const b = document.createElement('button');
+  b.className = 'chip'; b.textContent = e;
+  b.onclick = () => {
+    if (picked.length >= LEN) return;
+    picked.push(e); msgEl.textContent = ''; renderSlots();
+    if (picked.length === LEN) submit();
+  };
+  chipsEl.appendChild(b);
+});
+document.getElementById('clear').onclick = () => { picked = []; msgEl.textContent=''; renderSlots(); };
+
+async function submit(){
+  try {
+    const r = await fetch('/api/dm/login', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ code: picked })
+    });
+    if (r.ok) {
+      sessionStorage.setItem('wc_dm', '1');
+      location.href = 'schedule.html';
+    } else {
+      throw new Error();
+    }
+  } catch (e) {
+    card.classList.add('shake');
+    msgEl.textContent = 'That\'s not it — try again.';
+    setTimeout(() => { card.classList.remove('shake'); picked = []; renderSlots(); }, 400);
+  }
+}
+renderSlots();
+</script>
+</body>
+</html>
