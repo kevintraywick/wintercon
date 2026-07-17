@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Safety — WinterCon</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23c0221f'/%3E%3Cpath d='M26 12h12v14h14v12H38v14H26V38H12V26h14z' fill='%23ffffff'/%3E%3C/svg%3E"/>
+<style>
+  :root{--navy:#2F5496;--red:#c0221f;--teal:#1f7a6d;--gold:#e0a526;--bg:#f4f5f7;--ink:#242424;--line:#e4e6ea;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;font-family:'Helvetica Neue',Arial,sans-serif;color:var(--ink);background:var(--bg);}
+  header{background:var(--red);color:#fff;padding:18px 24px;position:relative;}
+  header h1{margin:0;font-size:23px;}
+  header p{margin:5px 0 0;font-size:13px;opacity:.9;}
+  #homeBtn{position:absolute;top:14px;right:16px;font-size:20px;text-decoration:none;
+           background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.35);
+           border-radius:8px;padding:4px 9px;line-height:1;}
+  #wrap{padding:22px 24px 40px;max-width:680px;margin:0 auto;}
+  #call911{background:#fff;border:2px solid var(--red);border-radius:10px;padding:16px;text-align:center;margin-bottom:16px;}
+  #call911 .big{font-size:15px;color:#555;}
+  #call911 a{display:inline-block;font-size:34px;font-weight:700;color:var(--red);text-decoration:none;margin-top:2px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:16px;}
+  .card h2{margin:0;padding:11px 16px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#fff;}
+  .fac{padding:13px 16px;border-bottom:1px solid #f0f1f4;}
+  .fac:last-child{border-bottom:none;}
+  .fac b{display:block;font-size:15.5px;}
+  .fac .addr{font-size:13px;color:#6c727c;margin:2px 0 8px;}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;}
+  .btns a{font-size:13.5px;text-decoration:none;border-radius:8px;padding:7px 13px;font-weight:600;}
+  .call{background:var(--red);color:#fff;}
+  .map{background:#eef3fc;color:var(--navy);border:1px solid #dbe4f5;}
+  .note{font-size:12.5px;color:#8a8f98;padding:0 2px;margin-top:-6px;margin-bottom:16px;line-height:1.5;}
+  .tag{display:inline-block;font-size:11px;border-radius:9px;padding:1px 8px;margin-left:6px;vertical-align:middle;}
+</style>
+</head>
+<body>
+<header>
+  <a id="homeBtn" href="index.html" title="Home">🏠</a>
+  <h1>Safety &amp; Emergency Info</h1>
+  <p>Keep this page bookmarked during con weekend. When in doubt, call.</p>
+</header>
+
+<div id="wrap">
+
+  <div id="call911">
+    <div class="big">Life-threatening emergency — fire, medical, crime in progress</div>
+    <a href="tel:911">Call 911</a>
+  </div>
+
+  <div class="card">
+    <h2 style="background:var(--red)">Hospitals — 24/7 ER</h2>
+    <div class="fac">
+      <b>WTH Volunteer Hospital <span class="tag" style="background:#fdecec;color:var(--red);">in Martin · ~5 min</span></b>
+      <div class="addr">161 Mt. Pelia Rd, Martin, TN 38237 · 24-hour emergency department</div>
+      <div class="btns">
+        <a class="call" href="tel:7315883200">📞 (731) 588-3200</a>
+        <a class="map" href="https://www.google.com/maps/search/?api=1&query=West+Tennessee+Healthcare+Volunteer+Hospital+161+Mt+Pelia+Rd+Martin+TN" target="_blank">🗺 Map</a>
+      </div>
+    </div>
+    <div class="fac">
+      <b>Baptist Memorial Hospital <span class="tag" style="background:#fdecec;color:var(--red);">Union City · ~20 min</span></b>
+      <div class="addr">1201 Bishop St, Union City, TN 38261</div>
+      <div class="btns">
+        <a class="call" href="tel:7318852410">📞 (731) 885-2410</a>
+        <a class="map" href="https://www.google.com/maps/search/?api=1&query=Baptist+Memorial+Hospital+1201+Bishop+St+Union+City+TN" target="_blank">🗺 Map</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="background:var(--gold)">Urgent care — non-emergency</h2>
+    <div class="fac">
+      <b>Fast Pace Health Urgent Care</b>
+      <div class="addr">108 Courtright Rd, Martin, TN 38237 · Mon–Fri 8am–8pm, Sat 8am–6pm (confirm Sun hours)</div>
+      <div class="btns">
+        <a class="call" href="tel:7312814183">📞 (731) 281-4183</a>
+        <a class="map" href="https://www.google.com/maps/search/?api=1&query=Fast+Pace+Health+Urgent+Care+108+Courtright+Rd+Martin+TN" target="_blank">🗺 Map</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="background:var(--navy)">Police</h2>
+    <div class="fac">
+      <b>Martin Police Department</b>
+      <div class="addr">732 N Lindell St, Martin, TN 38237 · Emergencies: 911</div>
+      <div class="btns">
+        <a class="call" href="tel:7315875355">📞 Non-emergency (731) 587-5355</a>
+        <a class="map" href="https://www.google.com/maps/search/?api=1&query=Martin+Police+Department+732+N+Lindell+St+Martin+TN" target="_blank">🗺 Map</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="background:var(--teal)">Also good to have</h2>
+    <div class="fac">
+      <b>Poison Control (national, 24/7)</b>
+      <div class="btns"><a class="call" href="tel:18002221222">📞 1-800-222-1222</a></div>
+    </div>
+    <div class="fac">
+      <b>Con organizer on duty</b>
+      <div class="addr">Number to be posted at the registration desk and here before con weekend.</div>
+    </div>
+  </div>
+
+  <p class="note">Venue: Martin Event Center, 89 Central St. Nearest 24/7 ER is WTH Volunteer Hospital, about five minutes away. First-aid kit and AED locations inside the venue will be added to this page after the walkthrough.</p>
+
+</div>
+</body>
+</html>

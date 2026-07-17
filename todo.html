@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<script src="/sync.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WinterCon — To-Do</title>
+<style>
+  :root{--navy:#2F5496;--bg:#f4f5f7;--ink:#242424;--line:#e4e6ea;--done:#2e8b57;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;font-family:'Helvetica Neue',Arial,sans-serif;color:var(--ink);background:var(--bg);}
+  header{background:var(--navy);color:#fff;padding:18px 24px;position:relative;}
+  header h1{margin:0;font-size:23px;}
+  header p{margin:5px 0 0;font-size:13px;opacity:.85;}
+  #homeBtn{position:absolute;top:14px;right:16px;font-size:20px;text-decoration:none;
+           background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.35);
+           border-radius:8px;padding:4px 9px;line-height:1;}
+  #wrap{padding:22px 24px;max-width:620px;margin:0 auto;}
+  #card{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+  #card h2{margin:0;padding:11px 16px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#fff;background:var(--navy);}
+  ul{list-style:none;margin:0;padding:6px 0;}
+  li{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid #f0f1f4;}
+  li:last-child{border-bottom:none;}
+  .circ{width:26px;height:26px;min-width:26px;border-radius:50%;border:2px solid #b9c2d0;background:#fff;
+        cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff;
+        transition:background .15s,border-color .15s;}
+  .circ.done{background:var(--done);border-color:var(--done);}
+  .txt{flex:1;font-size:15.5px;}
+  li.done .txt{color:#9aa0a8;text-decoration:line-through;}
+  .del{border:none;background:none;color:#c9ced6;font-size:17px;cursor:pointer;padding:2px 6px;}
+  .del:hover{color:#c0504d;}
+  .own{border:1px dashed #b9c2d0;background:none;color:#8a8f98;font-size:12px;border-radius:12px;
+       padding:3px 10px;cursor:pointer;white-space:nowrap;}
+  .own:hover{border-color:var(--navy);color:var(--navy);}
+  .own.has{border:1px solid #dbe4f5;background:#eef3fc;color:var(--navy);font-weight:600;}
+  li.done .own{opacity:.55;}
+  #addRow{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--line);background:#fafbfc;}
+  #addRow input{flex:1;font-size:14.5px;padding:9px 12px;border:1px solid #ccd2db;border-radius:8px;}
+  #addRow button{font-size:14px;padding:9px 16px;border:none;border-radius:8px;background:var(--navy);color:#fff;cursor:pointer;}
+  #empty{padding:22px 16px;font-size:13.5px;color:#9aa0a8;text-align:center;}
+</style>
+</head>
+<body>
+<header>
+  <a id="homeBtn" href="index.html" title="Ops home">🔧</a>
+  <h1>To-Do</h1>
+  <p>Shared checklist — tap the circle when it's done.</p>
+</header>
+
+<div id="wrap">
+  <div id="card">
+    <h2>Checklist</h2>
+    <ul id="list"></ul>
+    <div id="empty" style="display:none">Nothing here yet — add your first item below.</div>
+    <div id="addRow">
+      <input id="newTxt" type="text" placeholder="Add an item…" />
+      <button onclick="addItem()">Add</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const KEY='wincon_todos';
+function load(){
+  try{const d=JSON.parse(localStorage.getItem(KEY));if(Array.isArray(d))return d;}catch(e){}
+  return null;
+}
+function save(d){localStorage.setItem(KEY,JSON.stringify(d));}
+let items=load();
+if(!items){
+  items=[
+    {id:'td'+Date.now(),txt:'Player Packages',done:false},
+    {id:'td'+(Date.now()+1),txt:'Set up Stripe',done:false}
+  ];
+  save(items);
+}
+function render(){
+  const ul=document.getElementById('list');
+  ul.innerHTML='';
+  document.getElementById('empty').style.display=items.length?'none':'block';
+  items.forEach(it=>{
+    const li=document.createElement('li');
+    if(it.done)li.className='done';
+    const c=document.createElement('button');
+    c.className='circ'+(it.done?' done':'');
+    c.innerHTML=it.done?'✓':'';
+    c.title=it.done?'Mark not done':'Mark done';
+    c.onclick=()=>{it.done=!it.done;save(items);render();};
+    const t=document.createElement('div');
+    t.className='txt';t.textContent=it.txt;
+    const o=document.createElement('button');
+    o.className='own'+(it.owner?' has':'');
+    o.textContent=it.owner?it.owner:'＋ own this';
+    o.title=it.owner?'Tap to change or release (leave blank to release)':'Take ownership';
+    o.onclick=()=>{
+      const v=prompt(it.owner?'Owner (clear to release):':'Your name:',it.owner||'');
+      if(v===null)return;
+      it.owner=v.trim();
+      save(items);render();
+    };
+    const d=document.createElement('button');
+    d.className='del';d.innerHTML='✕';d.title='Remove';
+    d.onclick=()=>{if(confirm('Remove "'+it.txt+'"?')){items=items.filter(x=>x.id!==it.id);save(items);render();}};
+    li.append(c,t,o,d);
+    ul.appendChild(li);
+  });
+}
+function addItem(){
+  const inp=document.getElementById('newTxt');
+  const v=inp.value.trim();
+  if(!v)return;
+  items.push({id:'td'+Date.now(),txt:v,done:false});
+  save(items);inp.value='';render();
+}
+document.getElementById('newTxt').addEventListener('keydown',e=>{if(e.key==='Enter')addItem();});
+// re-render if sync.js pulls fresh server state
+window.addEventListener('storage',e=>{if(e.key===KEY){items=load()||[];render();}});
+render();
+</script>
+</body>
+</html>
