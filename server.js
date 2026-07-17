@@ -141,6 +141,44 @@ app.delete('/api/state/:key', requireEditAccess, async (req, res) => {
   }
 });
 
+// ---------- Image generation: Nano Banana via Gemini (same setup as Blackmoor) ----------
+const GEMINI_IMAGE_PRO = 'gemini-3-pro-image-preview';   // Nano Banana Pro — high fidelity, up to 4K
+const GEMINI_IMAGE_LITE = 'gemini-3.1-flash-lite-image'; // Nano Banana 2 Lite — ~4s, ~$0.034/image, 1K
+app.post('/api/image', async (req, res) => {
+  // Costs real money per call → gated behind the DM passcode (sent in the
+  // body — emoji don't survive HTTP headers).
+  const { prompt, quality, aspectRatio, dmCode } = req.body || {};
+  const codeAttempt = Array.isArray(dmCode) ? dmCode.join('') : String(dmCode || '');
+  if (codeAttempt !== DM_CODE) return res.status(403).json({ error: 'DM passcode required' });
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return res.status(503).json({ error: 'GEMINI_API_KEY not set on the server yet' });
+  if (!prompt || !String(prompt).trim()) return res.status(400).json({ error: 'prompt required' });
+  const model = quality === 'pro' ? GEMINI_IMAGE_PRO : GEMINI_IMAGE_LITE;
+  const ar = ['1:1', '16:9', '9:16', '4:3', '3:4', '21:9'].includes(aspectRatio) ? aspectRatio : '1:1';
+  try {
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: String(prompt).slice(0, 4000) }] }],
+        generationConfig: { responseModalities: ['IMAGE', 'TEXT'], imageConfig: { aspectRatio: ar } },
+      }),
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) return res.status(502).json({ error: (data.error && data.error.message) || `Gemini HTTP ${r.status}` });
+    const parts = (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) || [];
+    const img = parts.find(p => p.inlineData && p.inlineData.data);
+    if (!img) {
+      // Usually a content-safety refusal: the model returns only text. Surface it.
+      const text = parts.map(p => p.text).filter(Boolean).join(' ').trim();
+      return res.status(502).json({ error: 'No image returned' + (text ? ` — model said: ${text.slice(0, 240)}` : '') });
+    }
+    res.json({ ok: true, mimeType: img.inlineData.mimeType || 'image/jpeg', data: img.inlineData.data, model });
+  } catch (e) {
+    res.status(502).json({ error: 'Gemini request failed: ' + (e && e.message ? e.message : e) });
+  }
+});
+
 // ---------- static site ----------
 app.use(express.static(__dirname, { extensions: ['html'] }));
 app.use((_req, res) => {

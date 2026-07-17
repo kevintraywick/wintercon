@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WinterCon — Image Lab 🍌</title>
+<style>
+  :root{--navy:#2F5496;--gold:#e0a526;--red:#c0504d;--bg:#f4f5f7;--ink:#242424;--line:#e4e6ea;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;font-family:'Helvetica Neue',Arial,sans-serif;color:var(--ink);background:var(--bg);}
+  header{background:linear-gradient(150deg,#22406f,#2F5496);color:#fff;padding:22px 24px;position:relative;}
+  #homeBtn{position:absolute;top:14px;right:16px;font-size:20px;text-decoration:none;
+           background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.35);
+           border-radius:8px;padding:4px 9px;line-height:1;}
+  header h1{margin:0;font-size:23px;}
+  header p{margin:5px 0 0;font-size:13px;opacity:.86;}
+  #wrap{max-width:760px;margin:0 auto;padding:22px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;}
+  /* unlock */
+  #unlock .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+  #unlock .chip{font-size:22px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:#fafbfc;cursor:pointer;}
+  #unlock .picked{font-size:22px;min-height:34px;margin-top:8px;letter-spacing:4px;}
+  #unlock small{color:#8a909a;}
+  /* lab */
+  textarea{width:100%;min-height:90px;font:inherit;font-size:14.5px;border:1px solid var(--line);border-radius:10px;padding:12px;resize:vertical;}
+  .row{display:flex;gap:12px;align-items:center;margin-top:12px;flex-wrap:wrap;}
+  select,button.go{font:inherit;font-size:14px;padding:9px 14px;border-radius:10px;border:1px solid var(--line);background:#fff;}
+  .qtoggle{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+  .qtoggle button{font:inherit;font-size:13.5px;padding:9px 16px;border:none;background:#fff;cursor:pointer;}
+  .qtoggle button.on{background:var(--navy);color:#fff;font-weight:700;}
+  button.go{background:var(--gold);border-color:var(--gold);color:#fff;font-weight:800;cursor:pointer;margin-left:auto;}
+  button.go:disabled{opacity:.5;cursor:wait;}
+  .hint{font-size:12px;color:#8a909a;margin-top:10px;line-height:1.5;}
+  #err{color:var(--red);font-size:13.5px;font-weight:600;margin-top:12px;min-height:18px;}
+  #out{text-align:center;}
+  #out img{max-width:100%;border-radius:10px;border:1px solid var(--line);}
+  #out a{display:inline-block;margin-top:10px;font-size:13.5px;}
+  .spin{display:inline-block;animation:sp 1s linear infinite;}
+  @keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<header>
+  <a id="homeBtn" href="index.html" title="Ops home">🏠</a>
+  <h1>Image Lab 🍌</h1>
+  <p>Nano Banana image generation — same engine as Blackmoor. Pro for print-quality, Lite (~3¢/image) for quick art.</p>
+</header>
+
+<div id="wrap">
+  <div class="card" id="unlock">
+    <b>Unlock with the DM passcode</b>
+    <div class="picked" id="picked"></div>
+    <div class="chips" id="chips"></div>
+    <div style="margin-top:8px"><small>Tap your four emojis in order. <a href="#" id="reset">start over</a></small></div>
+  </div>
+
+  <div class="card" id="lab" style="display:none">
+    <textarea id="prompt" placeholder="Describe the image… e.g. 'Low-poly snowy tabletop convention hall, warm lantern light, chibi adventurers at game tables, winter D&D con poster style'"></textarea>
+    <div class="row">
+      <div class="qtoggle">
+        <button id="qlite" class="on">Lite · fast · ~3¢</button>
+        <button id="qpro">Pro · high fidelity</button>
+      </div>
+      <select id="ar">
+        <option value="1:1">Square 1:1</option>
+        <option value="16:9">Wide 16:9</option>
+        <option value="9:16">Tall 9:16</option>
+        <option value="4:3">4:3</option>
+        <option value="3:4">3:4</option>
+        <option value="21:9">Banner 21:9</option>
+      </select>
+      <button class="go" id="go">Generate</button>
+    </div>
+    <div id="err"></div>
+    <p class="hint">Every generation costs real money on the shared Google account — Lite ≈ $0.034, Pro noticeably more. Think before you spam. Images aren't stored server-side; download what you want to keep.</p>
+  </div>
+
+  <div class="card" id="out" style="display:none"></div>
+</div>
+
+<script>
+const EMOJIS = ['🐉','❄️','🎲','🗡️','🧙','🛡️','🔥','🏹','🍺','🗝️','💀','🦉'];
+let code = JSON.parse(sessionStorage.getItem('wc_dmcode') || 'null');
+let quality = 'lite';
+const $ = id => document.getElementById(id);
+
+function showLab(){ $('unlock').style.display='none'; $('lab').style.display='block'; }
+if (Array.isArray(code) && code.length === 4) showLab();
+
+let picks = [];
+EMOJIS.forEach(e => {
+  const b = document.createElement('button');
+  b.className='chip'; b.textContent=e;
+  b.onclick = async () => {
+    picks.push(e); $('picked').textContent = picks.join(' ');
+    if (picks.length === 4) {
+      const r = await fetch('/api/dm/login', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:picks})});
+      if (r.ok) { code = picks; sessionStorage.setItem('wc_dmcode', JSON.stringify(code)); showLab(); }
+      else { $('picked').textContent = '❌ not it — try again'; picks = []; }
+    }
+  };
+  $('chips').appendChild(b);
+});
+$('reset').onclick = (e)=>{ e.preventDefault(); picks=[]; $('picked').textContent=''; };
+
+$('qlite').onclick = ()=>{ quality='lite'; $('qlite').classList.add('on'); $('qpro').classList.remove('on'); };
+$('qpro').onclick  = ()=>{ quality='pro';  $('qpro').classList.add('on');  $('qlite').classList.remove('on'); };
+
+$('go').onclick = async () => {
+  const prompt = $('prompt').value.trim();
+  if (!prompt) { $('err').textContent = 'Write a prompt first.'; return; }
+  $('err').textContent = ''; $('go').disabled = true;
+  $('go').innerHTML = '<span class="spin">🍌</span> Generating…';
+  try {
+    const r = await fetch('/api/image', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ prompt, quality, aspectRatio: $('ar').value, dmCode: code })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+    const url = 'data:' + d.mimeType + ';base64,' + d.data;
+    const out = $('out');
+    out.style.display = 'block';
+    out.innerHTML = '<img src="' + url + '" alt="generated image"/><br/><a download="wintercon-image.jpg" href="' + url + '">⬇ download</a>' +
+      '<div class="hint">' + d.model + ' · ' + $('ar').value + '</div>';
+    out.scrollIntoView({behavior:'smooth'});
+  } catch (e) {
+    $('err').textContent = e.message;
+  } finally {
+    $('go').disabled = false; $('go').textContent = 'Generate';
+  }
+};
+</script>
+</body>
+</html>
