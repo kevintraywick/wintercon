@@ -46,8 +46,8 @@ const { chromium } = require('playwright');
   check('server received user B write', serverState2.wincon_people.v.includes('-fromB'));
 
   // --- All pages load without JS errors with sync.js installed ---
-  const pages = ['index.html', 'people.html', 'outreach_map.html', 'adventure_planner.html',
-    'adventure_quest.html', 'mindmap.html', 'player_journey.html', 'dashboard.html', 'schedule.html'];
+  const pages = ['index.html', 'people.html', 'outreach_map.html', 'public/adventure_planner.html',
+    'public/adventure_quest.html', 'mindmap.html', 'player_journey.html', 'dashboard.html', 'public/schedule.html'];
   for (const p of pages) {
     const errors = [];
     const pg = await ctxA.newPage();
