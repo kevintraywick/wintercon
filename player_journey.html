@@ -6,322 +6,352 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>WinterCon — Player Journey Map</title>
 <style>
-  :root{--navy:#2F5496;--teal:#1f7a6d;--gold:#e0a526;--purple:#7a4fb0;--green:#2e8b57;--red:#c0504d;
-        --bg:#f4f5f7;--ink:#242424;--line:#e4e6ea;}
+  :root{--navy:#2F5496;--navy2:#22406f;--gold:#e0a526;--red:#c0504d;
+        --bg:#f4f5f7;--ink:#242424;--line:#e4e6ea;--label:#8a909a;
+        --colw:230px;--railw:46px;}
   *{box-sizing:border-box;}
   html,body{margin:0;font-family:'Helvetica Neue',Arial,sans-serif;color:var(--ink);background:var(--bg);}
-  header{background:var(--navy);color:#fff;padding:14px 20px;}
-  header .row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-  header h1{margin:0;font-size:19px;}
-  header p{margin:4px 0 0;font-size:12.5px;opacity:.85;max-width:900px;}
-  header a.home{color:#fff;opacity:.85;font-size:13px;text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:6px;padding:4px 10px;}
-  header a.home:hover{opacity:1;background:rgba(255,255,255,.12);}
-  #controls{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid var(--line);padding:10px 20px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
-  .personas{display:flex;gap:8px;flex-wrap:wrap;}
-  .pchip{border:2px solid var(--line);background:#fff;border-radius:18px;padding:6px 13px;font-size:13.5px;cursor:pointer;display:flex;gap:7px;align-items:center;}
-  .pchip .em{font-size:16px;}
-  .pchip.on{color:#fff;font-weight:700;}
-  .toggles{display:flex;gap:16px;margin-top:9px;font-size:12.5px;color:#555;flex-wrap:wrap;align-items:center;}
-  .toggles label{display:flex;gap:5px;align-items:center;cursor:pointer;}
-  .pdesc{font-size:12.5px;color:#666;margin-top:8px;}
-  /* comfort curve */
-  #curvewrap{background:#fff;border-bottom:1px solid var(--line);padding:6px 20px 10px;}
-  #curvewrap h3{margin:2px 0 2px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#8a8f98;}
-  svg#curve{width:100%;height:120px;display:block;}
-  svg#curve text{font-family:inherit;}
-  main{max-width:980px;margin:0 auto;padding:18px 20px 80px;}
-  .phase{margin:26px 0 10px;font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:#8a8f98;
-         border-bottom:2px solid var(--line);padding-bottom:5px;}
-  .stage{background:#fff;border:1px solid var(--line);border-radius:10px;margin:12px 0;padding:14px 16px;position:relative;}
-  .stage h2{margin:0 0 2px;font-size:16.5px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-  .stage .num{flex:none;width:26px;height:26px;border-radius:50%;background:var(--navy);color:#fff;font-size:13px;
-              display:flex;align-items:center;justify-content:center;font-weight:700;}
-  .comfort{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;color:#777;}
-  .cdots span{display:inline-block;width:11px;height:11px;border-radius:50%;background:#e8e9ec;margin-left:3px;}
-  .exp{font-size:14px;line-height:1.5;margin:8px 0 2px;}
-  .need,.miss,.job,.partner{font-size:13px;line-height:1.5;margin:7px 0 0;padding:7px 11px;border-radius:7px;}
-  .need{background:#f2f6ff;border-left:4px solid var(--navy);}
-  .need b{color:var(--navy);}
-  .miss{background:#fff7e6;border-left:4px solid var(--gold);}
-  .miss b{color:#9a6b00;}
-  .job{background:#eef7f3;border-left:4px solid var(--teal);}
-  .job b{color:var(--teal);}
-  .partner{background:#f5f0fb;border-left:4px solid var(--purple);}
-  .partner b{color:var(--purple);}
-  .notes{margin-top:8px;}
-  .notes textarea{width:100%;min-height:34px;font:inherit;font-size:13px;border:1px dashed #d7d9de;border-radius:7px;
-                  padding:7px 10px;color:#444;resize:vertical;background:#fcfcfb;}
+
+  /* ---- controls (bottom bar) ---- */
+  #controls{max-width:1280px;margin:0 auto;padding:4px 22px 28px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .pick{border:1px solid var(--line);background:#fff;border-radius:20px;padding:7px 14px;font:inherit;
+        font-size:13.5px;cursor:pointer;font-weight:600;color:#5b6169;display:flex;gap:6px;align-items:center;}
+  .pick.on{color:#fff;}
+  #controls .spacer{margin-left:auto;}
+  .ctl{border:1px solid var(--line);background:#fbfbfa;border-radius:20px;padding:7px 14px;font:inherit;
+       font-size:12.5px;cursor:pointer;color:#5b6169;font-weight:600;}
+  .ctl.on{background:#2b2f36;border-color:#2b2f36;color:#fff;}
+
+  /* ---- journey card ---- */
+  #wrap{padding:22px 22px 12px;max-width:1280px;margin:0 auto;}
+  .jcard{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;
+         box-shadow:0 2px 10px rgba(20,30,50,.06);}
+
+  /* persona band */
+  .band{display:grid;grid-template-columns:290px 1.2fr 1fr;color:#fff;padding:22px 24px 20px;transition:background .3s;}
+  .band .who{display:flex;align-items:center;gap:15px;}
+  .avatar{width:78px;height:78px;min-width:78px;border-radius:50%;background:#fff;display:flex;align-items:center;
+          justify-content:center;font-size:42px;border:3px solid rgba(255,255,255,.6);}
+  .who b{font-size:21px;display:block;line-height:1.15;}
+  .rolechip{display:inline-block;margin-top:7px;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;
+            background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);border-radius:12px;padding:3px 10px;font-weight:700;}
+  .band h4{margin:0 0 6px;font-size:11.5px;letter-spacing:.11em;text-transform:uppercase;opacity:.8;}
+  .band .col{padding:0 20px;border-left:1px solid rgba(255,255,255,.28);}
+  .band .col p{margin:0;font-size:13px;line-height:1.55;}
+  .band .col ul{margin:0;padding-left:17px;font-size:13px;line-height:1.6;}
+
+  /* ---- the board ---- */
+  .scrollzone{overflow-x:auto;scrollbar-width:thin;}
+  .board{display:grid;grid-template-columns:var(--railw) repeat(13,var(--colw));padding:14px 18px 20px 0;
+         width:max-content;transition:opacity .16s ease-out;}
+  .rail{position:sticky;left:0;z-index:5;background:#fff;display:flex;align-items:center;justify-content:center;}
+  .rail span{writing-mode:vertical-rl;transform:rotate(180deg);font-size:10px;letter-spacing:.14em;
+             text-transform:uppercase;color:var(--label);font-weight:700;white-space:nowrap;}
+  /* stage chevrons (3 phases) */
+  .stg{position:relative;color:#fff;font-size:13.5px;font-weight:700;text-align:center;padding:12px 20px 12px 26px;
+       margin:2px;display:flex;align-items:center;justify-content:center;line-height:1.25;min-height:44px;cursor:default;
+       letter-spacing:.02em;text-transform:uppercase;
+       clip-path:polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%, 14px 50%);}
+  /* curve */
+  .curvecell{grid-column:2 / -1;position:relative;height:270px;}
+  .curvecell svg{position:absolute;inset:0;width:100%;height:100%;display:block;}
+  .quote{position:absolute;width:190px;margin-left:-95px;text-align:center;font-size:10.5px;line-height:1.35;
+         color:#555;font-style:italic;pointer-events:none;}
+  .railcurve{flex-direction:column;justify-content:space-between;padding:52px 0 46px;}
+  .railcurve small{font-size:8.5px;color:#b3b8c0;letter-spacing:.05em;text-transform:uppercase;writing-mode:vertical-rl;transform:rotate(180deg);}
+  /* content cells */
+  .cell{border-radius:9px;padding:10px 12px;margin:3px 4px;font-size:12.5px;line-height:1.5;background:#f7f8fa;}
+  .cell.empty{background:transparent;}
+  .phasestart{border-left:2px dashed #dfe2e7;}
+  .notes textarea{width:calc(100% - 8px);min-height:52px;margin:3px 4px;font:inherit;font-size:12px;border:1px dashed #d7d9de;
+                  border-radius:8px;padding:7px 10px;color:#444;resize:vertical;background:#fcfcfb;line-height:1.45;}
   .notes textarea:focus{outline:none;border-color:var(--gold);background:#fffdf4;}
-  #foot{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.95);border-top:1px solid var(--line);
-        padding:7px 20px;font-size:11.5px;color:#999;display:flex;gap:14px;}
-  .pitch .job,.pitch .notes{display:none;}
-  .pitch .exp{font-size:15px;}
-  @media print{ #controls,.notes,#foot,header a.home{display:none;} .stage{break-inside:avoid;} }
+  @media(max-width:760px){ .band{grid-template-columns:1fr;gap:14px;} .band .col{border-left:none;padding:0;} }
+  @media print{
+    #controls{display:none;}
+    .scrollzone{overflow:visible;}
+    body{zoom:.42;background:#fff;}
+    .jcard{border:none;box-shadow:none;}
+  }
 </style>
 </head>
 <body>
-<header>
-  <div class="row">
-    <h1>WinterCon — Player Journey Map</h1>
-    <a class="home" href="index.html" title="Ops home" style="margin-left:auto;font-size:18px;border:none;padding:2px 6px;">🏠</a>
+<div id="wrap">
+  <div class="jcard">
+    <div class="band" id="band"></div>
+    <div class="scrollzone" id="zone"><div class="board" id="board"></div></div>
   </div>
-  <p>One promise drives this whole event: <b>at every moment, every attendee is comfortable, knows what happens next, and knows what they don’t want to miss.</b>
-     Pick a player below and walk their weekend from first rumor to “see you next year.” Use it to organize, to set expectations — and to show sponsors exactly where their money, food, and prizes touch real people.</p>
-</header>
+</div>
 
 <div id="controls">
-  <div class="personas" id="personas"></div>
-  <div class="pdesc" id="pdesc"></div>
-  <div class="toggles">
-    <label><input type="checkbox" id="tJob" checked> Our job (organizer checklist)</label>
-    <label><input type="checkbox" id="tPartner" checked> Partner opportunities (sponsor lens)</label>
-    <label><input type="checkbox" id="tNotes" checked> Working notes</label>
-    <label><input type="checkbox" id="tPitch"> Pitch mode (clean view for sponsors)</label>
-    <button onclick="window.print()" style="font:inherit;font-size:12px;border:1px solid #d5d5d2;background:#fbfbfa;border-radius:6px;padding:4px 10px;cursor:pointer;">Print / PDF</button>
-  </div>
-</div>
-
-<div id="curvewrap">
-  <h3>Comfort curve — how <span id="curvename"></span> feels at each step (click a point to jump)</h3>
-  <svg id="curve" preserveAspectRatio="none"></svg>
-</div>
-
-<main id="main"></main>
-<div id="foot">
-  <span>Journey content lives in this file (edit the STAGES/PERSONAS lists). Notes autosave in this browser.</span>
-  <span>Rule of thumb: any step scoring ≤2 for any player is a design problem to fix, not a fact to accept.</span>
+  <span id="personas" style="display:contents"></span>
+  <span class="spacer"></span>
+  <button class="ctl" id="orgToggle">Organizer view</button>
+  <button class="ctl" onclick="window.print()">Print / PDF</button>
+  <a class="ctl" href="index.html" title="Ops home" style="text-decoration:none">🏠</a>
 </div>
 
 <script>
 const PERSONAS=[
- {id:'first',em:'🌱',name:'First-Timer',color:'#2F5496',
-  desc:'A UTM student who has watched Stranger Things and half a campaign on YouTube but has never rolled a d20 in public. Curious, excited, and quietly terrified of looking dumb. There are hundreds of these within a mile of the venue — they are how we get to 300.'},
- {id:'veteran',em:'⚔️',name:'Veteran Player',color:'#1f7a6d',
-  desc:'Fifteen years of characters. Drives in from Jackson with a dice bag older than some attendees. Wants great DMs, a tight schedule, and zero wasted time. If the con is good, they bring their whole table next year.'},
- {id:'family',em:'👨‍👧‍👦',name:'Parent with Kids',color:'#2e8b57',
-  desc:'A parent bringing a 9- and a 12-year-old. Deciding factors: price ×3, bathrooms, food a kid will eat, and whether anyone will be weird to their children. If we win this family, we win the town.'},
- {id:'tcg',em:'🃏',name:'Tournament Player',color:'#c0504d',
-  desc:'Here for the Magic tournament first, everything else second. Cares about formats, start times, prize support, and a fair judge. Store regulars — the sponsors’ own customers — travel in packs.'},
- {id:'social',em:'🎭',name:'Cosplayer / Social Fan',color:'#7a4fb0',
-  desc:'Spent three weekends on the costume. Comes for the contest, the photos, and the people. Their posts ARE our viral marketing — every comfort we give them multiplies our reach.'},
- {id:'far',em:'🚗',name:'Long-Distance Superfan',color:'#e0a526',
-  desc:'Found us on Reddit, driving 2 hours from Memphis or Paducah, staying overnight. Spending the most to be here — needs the most reassurance that the trip is worth it. Their verdict travels far online.'},
+ {id:'first',em:'🌱',name:'The First-Timer',role:'UTM student · never played',color:'#2F5496',dark:'#1c2c4d',
+  desc:'Has watched Stranger Things and half a campaign on YouTube, but has never rolled a d20 in public. Curious, excited, quietly terrified of looking dumb. Hundreds of them live within a mile of the venue — they are how we get to 300.',
+  goals:['Feel welcome, not judged','Actually learn to play','Leave with people to play with again']},
+ {id:'veteran',em:'⚔️',name:'The Veteran',role:'15 years of characters · drives in from Jackson',color:'#1f7a6d',dark:'#123f38',
+  desc:'Dice bag older than some attendees. Wants great DMs, a tight schedule, and zero wasted time. If the con is good, they bring their whole table next year.',
+  goals:['Great DMs and a tight schedule','Signature events worth coveting','Scout it for the whole table']},
+ {id:'family',em:'👨‍👧‍👦',name:'The Parent with Kids',role:'Kids aged 9 & 12 · price ×3',color:'#2e8b57',dark:'#174a2e',
+  desc:'Deciding factors: price times three, bathrooms, food a kid will eat, and whether anyone will be weird to their children. Win this family, win the town.',
+  goals:['A day both kids enjoy','Prices, food & bathrooms — no surprises','A safe, welcoming room']},
+ {id:'tcg',em:'🃏',name:'The Tournament Player',role:'Magic first · store regular',color:'#c0504d',dark:'#5e2321',
+  desc:'Here for the tournament first, everything else second. Cares about formats, start times, prize support, and a fair judge. Travels in packs with the store crew.',
+  goals:['A clean, fair tournament','Rounds on time, prizes worth it','Hang with the store crew']},
+ {id:'social',em:'🎭',name:'The Cosplayer',role:'Three weekends on the costume',color:'#7a4fb0',dark:'#3a2359',
+  desc:'Comes for the contest, the photos, and the people. Their posts ARE our viral marketing — every comfort we give them multiplies our reach.',
+  goals:['The on-stage moment','Photos that do the costume justice','Find their people']},
+ {id:'far',em:'🚗',name:'The Long-Distance Superfan',role:'2 hours out · staying over',color:'#c78f13',dark:'#5c4106',
+  desc:'Found us on Reddit, driving in from Memphis or Paducah, staying overnight. Spending the most to be here, needing the most reassurance. Their verdict travels far online.',
+  goals:['A weekend worth the drive','Zero logistical surprises','A story worth posting']},
 ];
 
+// c: comfort 1–5 · q: thought on the curve · exp: the moment · need: what we owe them · miss: don't-miss
 const STAGES=[
- // ---------- BEFORE ----------
  {id:'hear',phase:'Before the con',title:'They hear about it',
-  job:'Be everywhere our people already are: flyers + sign-up nights in every game store within 100 miles, UTM clubs & dorm RAs, local radio, a charity angle for press, and 2–3 genuinely shareable pieces (a hype video, a meme-able poster, a “DM wanted” call to arms).',
-  partner:'Stores hang posters, post to their communities, and host sign-up nights. Sponsors are named in every ad from day one — founding partners get months of exposure, not just one weekend.',
-  p:{first:{c:3,exp:'Sees a poster in the dining hall or a friend says “you’d love this.” Intrigued but assumes it’s for experts.',need:'Every ad must say <b>“never played? perfect.”</b> Beginner-friendliness in the headline, not the fine print.'},
-     veteran:{c:4,exp:'Hears from their game store or a con listing. Immediately asks: who’s DMing and what’s on the schedule?',need:'Name real events early — “Battle Interactive,” “Curse of Strahd one-shot” — so there’s something to covet.',miss:'Early-bird badge before reserved campaign seats sell out.'},
-     family:{c:3,exp:'Hears from a school friend’s parent or the library board. First question: “is this for kids?”',need:'“Family D&D · kids 8+ welcome · $X family cap” visible in the first thing they ever see.'},
-     tcg:{c:4,exp:'Sees the tournament poster at Dragons and Mages. Format and prize pool decide everything.',need:'Format, entry fee, prize support, and judge named on the tournament flyer itself.'},
-     social:{c:4,exp:'Catches a cosplay-contest reel on Instagram. Starts planning a costume that night.',need:'Contest categories, prizes, and photo-op promises announced early — costumes take weeks.',miss:'Contest rules drop — enough lead time to build.'},
-     far:{c:3,exp:'Finds a Reddit thread or podcast mention. “A new con 2 hours away… is it real? Is it good?”',need:'Social proof: photos, named DMs, a real venue, a real schedule. New cons die by vagueness.'}}},
+  job:'Be everywhere our people already are: game-store flyers and sign-up nights within 100 miles, UTM clubs & RAs, local radio, a charity press angle, and 2–3 genuinely shareable pieces.',
+  partner:'Stores hang posters and host sign-up nights. Sponsors are named in every ad from day one — months of exposure, not one weekend.',
+  p:{first:{c:3,q:'“You’d love this… but isn’t it for experts?”',exp:'A poster in the dining hall; a friend’s nudge. Intrigued, assumes it’s for experts.',need:'“Never played? Perfect.” In the headline, not the fine print.'},
+     veteran:{c:4,q:'“Who’s DMing, and what’s the schedule?”',exp:'Hears via the game store and immediately judges the lineup.',need:'Name real events early — give them something to covet.',miss:'Early-bird badge before reserved seats sell out.'},
+     family:{c:3,q:'“Is this for kids?”',exp:'Hears from another parent. One question decides everything.',need:'“Family D&D · kids 8+ · family cap” in the first thing they ever see.'},
+     tcg:{c:4,q:'“What’s the format and prize pool?”',exp:'Sees the tournament poster at Dragons and Mages.',need:'Format, entry fee, prizes, and judge — on the flyer itself.'},
+     social:{c:4,q:'“I’m starting the costume tonight.”',exp:'Catches the contest reel on Instagram.',need:'Categories and prizes announced early — costumes take weeks.',miss:'Contest rules drop with build time to spare.'},
+     far:{c:3,q:'“A new con 2 hours away… is it real?”',exp:'Finds a Reddit thread and wants proof. New cons die by vagueness.',need:'Social proof: photos, named DMs, a real venue, a real schedule.'}}},
  {id:'web',phase:'Before the con',title:'They check the website',
-  job:'One fast public page (separate from this organizing site): what it is, when, where, prices, live schedule, photos, FAQ, and a huge “I’m new” section. Every unanswered question here is a lost badge.',
-  partner:'Sponsor logos on the site from the moment it launches. Each store gets a trackable link (UTM codes) so we can prove exactly how many badges they drove — receipts for next year’s ask.',
-  p:{first:{c:2,exp:'Scans nervously for evidence people like them belong. Jargon (“AL legal,” “tier 2”) scares them off.',need:'A <b>“Never played D&D?”</b> box above the fold: we teach you, everything provided, here’s what a session looks like.'},
-     veteran:{c:3,exp:'Goes straight for the schedule grid and DM lineup. Judges the con by how specific we are.',need:'Full event grid with times, systems, and DM names — plus how seat reservations work.',miss:'Signature events with limited seats, clearly flagged.'},
-     family:{c:2,exp:'Hunts for prices ×3, age rules, food, and how long things run. Ambiguity = “maybe next year.”',need:'A family FAQ: kid pricing/family cap, Family D&D times, food options, quiet space, code of conduct.'},
-     tcg:{c:3,exp:'Wants the tournament page: format, reg time, rounds, prizes. Everything else is noise.',need:'A dedicated tournament page they can screenshot to the group chat.'},
-     social:{c:3,exp:'Looks for contest rules, a hashtag, and whether the venue will photograph well.',need:'Contest page + official hashtag + named photo spots (“the throne,” banner wall).'},
-     far:{c:2,exp:'Weighs 4 hours of driving against what the site proves. Lodging info is make-or-break.',need:'A “coming from out of town” section: hotels, parking, what a full weekend looks like hour by hour.'}}},
+  job:'One fast public page: what, when, where, prices, live schedule, photos, FAQ, and a huge “I’m new” section. Every unanswered question is a lost badge.',
+  partner:'Sponsor logos from launch. Each store gets a trackable link — receipts for next year’s ask.',
+  p:{first:{c:2,q:'“Do people like me belong here?”',exp:'Scans nervously for evidence. Jargon (“AL legal, tier 2”) scares them off.',need:'A “Never played D&D?” box above the fold: we teach you, everything provided.'},
+     veteran:{c:3,q:'“How specific is this schedule?”',exp:'Goes straight to the grid and the DM lineup, and judges us by precision.',need:'Full event grid — times, systems, DM names, and how reservations work.',miss:'Limited-seat signature events, clearly flagged.'},
+     family:{c:2,q:'“What does this cost, times three?”',exp:'Hunts for prices, age rules, food, timings. Ambiguity means “maybe next year.”',need:'A family FAQ: kid pricing, Family D&D times, food, quiet space, conduct code.'},
+     tcg:{c:3,q:'“Just show me the tournament page.”',exp:'Format, reg time, rounds, prizes. Everything else is noise.',need:'A dedicated tournament page they can screenshot to the group chat.'},
+     social:{c:3,q:'“Will this venue photograph well?”',exp:'Looks for contest rules, a hashtag, and backdrops.',need:'Contest page + official hashtag + named photo spots.'},
+     far:{c:2,q:'“Is this worth 4 hours of driving?”',exp:'Weighs the drive against what the site proves. Lodging info is make-or-break.',need:'A “coming from out of town” section: hotels, parking, the weekend hour by hour.'}}},
  {id:'reg',phase:'Before the con',title:'They decide & register',
-  job:'Frictionless checkout, clear badge tiers ($30 reserved campaign seat / $20 general), instant confirmation email that says exactly what happens next. Capture emails properly — the list is a permanent asset.',
-  partner:'Sponsor promo codes (“FREQ10”) reward store communities and prove conversion. Stores can sell badge + dice bundles at the counter.',
-  p:{first:{c:3,exp:'Hovers over the buy button. $20 feels fair; commitment feels scary.',need:'Confirmation email in plain language: what to bring (nothing), where to go, “you will not be the only new person.”'},
-     veteran:{c:4,exp:'Buys the reserved seat, immediately wants to lock in specific tables.',need:'Event sign-up (even a simple form) at or soon after purchase — don’t make them wait for con day.',miss:'Reserved campaign seats — only ~30 exist.'},
-     family:{c:3,exp:'Buys 3 badges as one decision. Wants a receipt that feels organized.',need:'Family pricing at checkout and one email covering the whole crew’s plan.'},
-     tcg:{c:4,exp:'Registers for the badge + tournament in one motion, or gets annoyed.',need:'Tournament entry purchasable with the badge, with a confirmed player list they can check.'},
-     social:{c:4,exp:'Badge bought, costume budget mentally doubled.',need:'Contest pre-registration so we can plan staging — and they can plan the reveal.'},
-     far:{c:3,exp:'Buys badge and books lodging in the same sitting — or abandons both.',need:'Hotel info ON the confirmation page, not buried in a later email.'}}},
- {id:'wait',phase:'Before the con',title:'The wait (anticipation)',
-  job:'Drip the excitement: a countdown email series, DM & event spotlights, the player packet a week out (map, schedule, parking, food truck lineup), and a Discord/group chat where the community starts before the doors open.',
-  partner:'Sponsor giveaways inside the countdown emails; stores host “road to WinterCon” game nights that convert fence-sitters into badge-holders.',
-  p:{first:{c:3,exp:'Excitement grows, but so does “what if I do it wrong?”',need:'A “your first con, step by step” email. Pre-con Discord with a #newbies channel where organizers actually answer.'},
-     veteran:{c:4,exp:'Plans their weekend like a heist. Reads every spotlight.',need:'Schedule stability — or loud, early notice of changes.',miss:'Seat-reservation window for signature events.'},
-     family:{c:4,exp:'Puts it on the family calendar; kids start asking daily.',need:'A kid-facing teaser (character sheet coloring page, “make your hero” night) to build the countdown at home.'},
-     tcg:{c:4,exp:'Testing decks. Watching the player count climb.',need:'Meta info: confirmed format, round count, promo/prize reveals.'},
-     social:{c:5,exp:'Deep in fabric and foam. The happiest human in this document.',need:'Progress-share channel + judge criteria published. Feature their WIP posts — free marketing.'},
-     far:{c:4,exp:'Room booked, playlist made. Checking the site weekly for reasons to feel smart.',need:'A “worth the drive” email: everything happening, hour by hour, plus where to eat Friday night.'}}},
- // ---------- GETTING THERE ----------
- {id:'travel',phase:'Getting there',title:'Travel day',
-  job:'Directions that assume zero local knowledge, a parking map published in advance, road signage on the day, and a carpool thread for each region (Jackson, Paducah, Memphis).',
-  partner:'Partner stores organize caravans (“store meetup 8am, roll out together”) — travel becomes part of the event and nobody arrives alone.',
-  p:{first:{c:4,exp:'Walks or drives 5 minutes across town. Easiest trip in the room.',need:'Campus-specific walking directions and where students park free.'},
-     veteran:{c:4,exp:'50 minutes of podcasts from Jackson. Routine.',need:'Accurate arrival-time guidance so they don’t miss a 10am table.'},
-     family:{c:4,exp:'Minivan logistics: snacks, chargers, “are we there yet.”',need:'Drop-off point close to the door; know before arriving whether there’s a line.'},
-     tcg:{c:4,exp:'Rides with the store crew, decks in a backpack like nuclear codes.',need:'Confirmed tournament check-in time so the carpool plans around it.'},
-     social:{c:3,exp:'Transports a costume that does not fold. Prays about weather.',need:'Advance notice of a changing/staging room so the costume rides in a bag, not on their body.'},
-     far:{c:2,exp:'Two hours each way is the biggest tax on their weekend. Every hiccup gets amplified.',need:'Zero surprises: perfect directions, guaranteed parking, and a schedule that makes Saturday alone worth it.',miss:'Leaving early enough for Friday night one-shots — the “bonus” that doubles trip value.'}}},
- {id:'lodge',phase:'Getting there',title:'Lodging',
-  job:'Negotiate a hotel block or rate code in Martin/Union City, list every option with drive times on the site, and explore UTM guest-housing angles for students visiting friends.',
-  partner:'A hotel partner IS a sponsor tier: their code on our site, their lobby gets our poster, our attendees fill their Saturday rooms in the off-season.',
-  p:{first:{c:5,exp:'Sleeps in their own dorm bed. No journey here.',need:'Nothing — but their visiting friends need the “crash options” list.'},
-     veteran:{c:4,exp:'Day-trips it, or splits a room to stay for the evening marathon.',need:'A clear “worth staying over” pitch: what happens after 7pm.'},
-     family:{c:3,exp:'If staying over, needs a family room and a pool as a bribe.',need:'Family-friendly hotel flagged explicitly in the lodging list.'},
-     tcg:{c:4,exp:'Splits a room four ways with the store crew if day two matters.',need:'Sunday-morning content worth the second day (side events, casual drafts).'},
-     social:{c:3,exp:'Hotel room doubles as costume repair station and staging area.',need:'Late checkout intel and an iron. Seriously.'},
-     far:{c:2,exp:'The overnight decision is the whole ballgame — a bad lodging experience poisons the review.',need:'A trustworthy hotel block at a fair rate, walkable food nearby, booked in two clicks from our site.',miss:'Friday-night arrival = Friday one-shots + first pick of everything Saturday.'}}},
- // ---------- THE DAY ----------
- {id:'arrive',phase:'The day',title:'Arrival & check-in',
-  job:'Signage from the parking lot to the door, a badge line that moves in under 5 minutes, a greeter who says “welcome home,” and a program + facility map in every hand. Flag first-timers (a bead on the badge) so every volunteer knows to be extra kind.',
-  partner:'The sponsor banner is the first thing everyone photographs. Welcome bags carry store coupons and product — the walk from door to table is prime sponsor real estate.',
-  p:{first:{c:2,exp:'<b>The scariest moment of the whole journey.</b> Standing alone at the door of a room full of strangers who all seem to know each other.',need:'A human greeter, a “first con?” welcome, and a concrete first destination: “Learn to Play starts at 7 in the Adjacent Room — right through there.”',miss:'Learn to Play D&D — the on-ramp built for exactly them.'},
-     veteran:{c:4,exp:'Badge, program, beeline for the schedule board to verify their plan survived contact.',need:'A printed grid + a “changes since printing” board. Respect their plan.'},
-     family:{c:3,exp:'Arrives carrying 40% of a household. Scanning for bathrooms, exits, and vibes.',need:'Family check-in lane, bathroom locations on the map, and a marked quiet corner for meltdowns.'},
-     tcg:{c:3,exp:'Two check-ins (badge + tournament) had better not be in two mystery locations.',need:'Tournament check-in signposted from the front door; reg desk staff know the answer.'},
-     social:{c:3,exp:'Arrives half-in-costume, needs staging space before the reveal.',need:'A changing room with a mirror, and a bag/prop check so they aren’t hauling cases all day.'},
-     far:{c:4,exp:'Walks in braced for disappointment and gets a real con. Relief becomes delight fast.',need:'The room must look like the photos promised: banners up, tables full, energy on.'}}},
- {id:'morning',phase:'The day',title:'Morning: first sessions',
-  job:'Sessions start ON TIME — the single loudest signal of a well-run con. Info desk staffed, board-game library open for drifters, a “next up” board by the door, and floor staff who can answer “what should I do?” in one sentence.',
-  partner:'Store-run demos and sponsored morning tables carry this block. “The 10am Battle Interactive, presented by One Frequency Games” — their name on the best thing in the room.',
-  p:{first:{c:3,exp:'Sits down at their first real table. Ten minutes in, they’re fighting a goblin and grinning.',need:'Beginner tables with pregens, dice provided, and DMs briefed to teach kindly. Comfort skyrockets here if the table is good.'},
-     veteran:{c:5,exp:'Locked into the Battle Interactive, exactly where they planned to be.',need:'The signature event delivering on its promise — this is what they came for.',miss:'Battle Interactive: The Siege — the story everyone retells at dinner.'},
-     family:{c:4,exp:'Kids at Family D&D rolling dice; parent finally exhales, maybe even plays.',need:'A DM who is great with kids, session length ≤2 hours, and a parent seat at or near the table.',miss:'Family D&D — the reason this family came.'},
-     tcg:{c:3,exp:'Tournament’s at 1pm; morning is limbo. Bored money walks away.',need:'Morning side drafts or casual play space near the vendor tables — keep them in the building.'},
-     social:{c:3,exp:'Cosplay meetup, first photos, finding their people.',need:'A scheduled meetup slot + a good photo backdrop before the crowd wilts the costume.'},
-     far:{c:5,exp:'Booked wall-to-wall since 9am. Living their best weekend.',need:'Back-to-back sessions that actually run — an empty slot 2 hours from home is a small tragedy.'}}},
- {id:'food',phase:'The day',title:'Midday: food & rest',
-  job:'Food trucks confirmed IN WRITING with posted hours, outdoor seating, water stations inside, and a schedule that gives everyone a real lunch window. Feed the DMs first in the green room — they are the machine.',
-  partner:'Food trucks pay a pitch fee or a cut; nearby restaurants buy a program coupon (“10% off with badge”). Feeding 300 people is somebody’s great Saturday — make them a partner.',
-  p:{first:{c:4,exp:'Tacos in the sun, debriefing the goblin fight with strangers who are now friends.',need:'Communal tables outside — lunch is where first-timers get adopted by the community.'},
-     veteran:{c:3,exp:'Annoyed if the line eats their break between sessions.',need:'Enough truck capacity for the rush, and a posted “order by 12:40 to make the 1pm” warning.'},
-     family:{c:3,exp:'One kid eats anything, the other eats exactly four foods.',need:'At least one plain option (fries/quesadilla/pizza), listed on the site beforehand so the family plans.'},
-     tcg:{c:4,exp:'Eats at 12 sharp — round one is at 1 and nothing else matters.',need:'Fast service before the tournament; a grab-and-go option.'},
-     social:{c:2,exp:'Cannot eat a bracket-buster burger in foam armor.',need:'Cosplay-friendly food (skewers, cups, straws) and somewhere to sit that isn’t the ground.'},
-     far:{c:4,exp:'Local food IS part of the trip. A great truck becomes part of the story.',need:'A “taste of Martin” angle — make lunch a feature, not a pit stop.'}}},
- {id:'afternoon',phase:'The day',title:'Afternoon: the main event',
-  job:'The marquee block: MTG tournament running clean, afternoon one-shots, DM workshop, vendor hall humming. No dead zones — a “happening right now” board and floor staff steering anyone who looks adrift.',
-  partner:'Prize support everywhere: sponsored tournament top-8, store product on the prize table, vendor hall at max energy. This is the block sponsors should come see in person.',
-  p:{first:{c:4,exp:'Braver now — browses vendors, buys first dice set, maybe joins a second session.',need:'A visible “open seats right now” board so momentum never dies. First dice purchase = a customer born (sponsors, take note).',miss:'Dice Goblin at 2pm — chaotic, beginner-friendly, pure joy.'},
-     veteran:{c:5,exp:'Second session, then holds court in the vendor hall between games.',need:'Depth: enough simultaneous tables that even they haven’t done it all.'},
-     family:{c:3,exp:'Kid #1 wants more; kid #2 hit the wall at 2:30.',need:'The quiet corner (board games, coloring, beanbags) that lets the family stay two more hours instead of leaving.'},
-     tcg:{c:5,exp:'In the tank. Round three. This is the whole reason they exist today.',need:'Rounds on time, standings posted, a real judge, prizes worth the entry.',miss:'Top 8 — and the crowd it draws.'},
-     social:{c:4,exp:'Golden-hour photos, hallway compliments, building hype for the 5pm contest.',need:'A staging area near the contest space and a hype person announcing the countdown.'},
-     far:{c:5,exp:'Mid-weekend peak. Already drafting the Reddit trip report in their head.',need:'Keep the hits coming — their afternoon is our five-star review.'}}},
- {id:'evening',phase:'The day',title:'Evening: social peak',
-  job:'Shift the energy: cosplay contest with real staging and sound at 5, dinner trucks, then the evening marathon and Strahd one-shot. Lighting and music matter — evening is when a room full of strangers becomes a community.',
-  partner:'A sponsor judges the cosplay contest and hands over the prize on stage, by name, in every photo. Cheapest hero moment in marketing.',
-  p:{first:{c:5,exp:'Stays for the contest, cheers for strangers, gets invited to an evening table. <b>They belong now.</b>',need:'An easy on-ramp into evening play — “open table, all welcome” signs do the work.'},
-     veteran:{c:5,exp:'Four hours of Strahd with a great DM. The session they’ll talk about all year.',need:'Protect the marquee evening tables: right room, right DM, no noise bleed from the contest.',miss:'One-Shot: Curse of Strahd, 7pm.'},
-     family:{c:2,exp:'Kids are done. Family heads home before the best part — unless we plan for them.',need:'Either a 6–8pm family block (kids’ costume walk, family board games) or a graceful exit: “thanks for coming, here’s tomorrow’s family schedule.”'},
-     tcg:{c:3,exp:'Tournament over. Half the grinders drift toward the exit with prize packs.',need:'A pull to stay: casual commander tables, a chaos draft, or just good pizza and their store crowd hanging out.'},
-     social:{c:5,exp:'ON STAGE. The moment three weekends of work were for.',need:'A real MC, decent sound, good stage light, and a photographer whose shots they’ll actually get.',miss:'The contest itself — and the group photo after.'},
-     far:{c:5,exp:'Evening one-shot with five new friends, hotel bed 10 minutes away. Zero regrets.',need:'Evening programming strong enough to justify the hotel night — it already is; tell them so in advance.'}}},
- {id:'farewell',phase:'The day',title:'Farewell & the trip home',
-  job:'Sunday winds down warm, not sad: coffee & bagels, lighter sessions, then Awards & Farewell at noon — thank DMs and sponsors BY NAME from the stage, announce next year’s date, and put the feedback QR on every table.',
-  partner:'Sponsors thanked from the stage in front of everyone, plus a “thanks for coming” exit email carrying store coupons — measurable foot traffic in the week after. That’s the ROI slide for next year.',
-  p:{first:{c:5,exp:'Leaves with dice, a character they love, and three Discord handles.',need:'A “what now?” card: local game nights, the store’s beginner league, next event date. Convert the spark.'},
-     veteran:{c:4,exp:'Tired and satisfied. Quietly grading us against bigger cons — and we did fine.',need:'Ask them directly: “what would make you bring your whole table next year?”'},
-     family:{c:4,exp:'Kids slept the whole drive home. Parent calls it a win.',need:'A family photo from Family D&D in their inbox by Tuesday.'},
-     tcg:{c:4,exp:'Placed decently, got packs, already asking if this is annual.',need:'Announce next year’s tournament (bigger prize pool) before they leave the building.'},
-     social:{c:4,exp:'Costume packed, memory card full, followers pending.',need:'Official photos delivered fast, with our hashtag and their handle credited.'},
-     far:{c:3,exp:'The long drive home is where the verdict gets written.',need:'Send them off personally if we can — “you drove from Memphis? Thank you.” They will remember it.'}}},
- // ---------- AFTER ----------
+  job:'Frictionless checkout, clear tiers ($30 reserved seat / $20 general), instant plain-language confirmation. Capture emails — the list is a permanent asset.',
+  partner:'Store promo codes reward communities and prove conversion. Badge + dice bundles at the counter.',
+  p:{first:{c:3,q:'“Okay. I’m doing this.”',exp:'Hovers over the buy button. $20 feels fair; commitment feels scary.',need:'A confirmation email that says: bring nothing, go here, you won’t be the only new person.'},
+     veteran:{c:4,q:'“Now let me lock in my tables.”',exp:'Buys the reserved seat, immediately wants specific tables.',need:'Event sign-up at purchase — don’t make them wait for con day.',miss:'Reserved campaign seats — only ~30 exist.'},
+     family:{c:3,q:'“Three badges, one decision.”',exp:'Buys for the whole crew and wants a receipt that feels organized.',need:'Family pricing at checkout; one email covering everyone’s plan.'},
+     tcg:{c:4,q:'“Badge and tournament in one motion.”',exp:'Registers for both at once — or gets annoyed.',need:'Tournament entry bundled with the badge, plus a visible player list.'},
+     social:{c:4,q:'“Costume budget: doubled.”',exp:'Badge bought; planning the reveal.',need:'Contest pre-registration so we can plan staging and they can plan the moment.'},
+     far:{c:3,q:'“Badge and hotel, same sitting.”',exp:'Books both together — or abandons both.',need:'Hotel info ON the confirmation page, not buried in a later email.'}}},
+ {id:'wait',phase:'Before the con',title:'The wait',
+  job:'Drip the excitement: countdown emails, DM & event spotlights, the player packet a week out (map, parking, food lineup), and a Discord where community starts before the doors open.',
+  partner:'Sponsor giveaways inside countdown emails; stores host “road to WinterCon” game nights that convert fence-sitters.',
+  p:{first:{c:3,q:'“What if I do it wrong?”',exp:'Excitement grows — and so does the fear.',need:'A “your first con, step by step” email + a #newbies channel with real answers.'},
+     veteran:{c:4,q:'“Planning this like a heist.”',exp:'Reads every spotlight; maps the weekend.',need:'Schedule stability — or loud, early notice of changes.',miss:'Seat-reservation window for signature events.'},
+     family:{c:4,q:'“The kids ask about it daily.”',exp:'It’s on the family calendar; the countdown runs at home.',need:'A kid-facing teaser: coloring-page character sheets, a “make your hero” night.'},
+     tcg:{c:4,q:'“Deck’s tested. Who’s coming?”',exp:'Watching the player count climb.',need:'Confirmed format, round count, promo & prize reveals.'},
+     social:{c:5,q:'“Three weekends of foam and fabric.”',exp:'Deep in the build — the happiest human in this document.',need:'A WIP-share channel + published judge criteria. Repost their progress.'},
+     far:{c:4,q:'“Checking the site weekly.”',exp:'Room booked, playlist made, wanting reasons to feel smart.',need:'A “worth the drive” email: everything happening, plus where to eat Friday night.'}}},
+ {id:'travel',phase:'Before the con',title:'Travel day',
+  job:'Directions that assume zero local knowledge, a parking map published in advance, road signage on the day, and carpool threads per region (Jackson, Paducah, Memphis).',
+  partner:'Store caravans — “meet at 8, roll out together.” Travel becomes part of the event; nobody arrives alone.',
+  p:{first:{c:4,q:'“It’s a five-minute walk.”',exp:'Easiest trip in the room.',need:'Campus walking directions and free student parking.'},
+     veteran:{c:4,q:'“Fifty minutes of podcasts.”',exp:'Routine drive in from Jackson.',need:'Accurate arrival guidance so they don’t miss a 10am table.'},
+     family:{c:4,q:'“Snacks, chargers, are-we-there-yet.”',exp:'Minivan logistics in full effect.',need:'Drop-off near the door; line status known before arriving.'},
+     tcg:{c:4,q:'“Decks ride like nuclear codes.”',exp:'Rides with the store crew.',need:'A confirmed check-in time the carpool can plan around.'},
+     social:{c:3,q:'“Please don’t rain. Please.”',exp:'Transporting a costume that does not fold.',need:'Advance notice of a changing room — the costume rides in a bag, not on their body.'},
+     far:{c:2,q:'“Two hours. This better be good.”',exp:'The drive is the biggest tax on the weekend; every hiccup amplifies.',need:'Zero surprises: perfect directions, guaranteed parking, a Saturday that carries itself.',miss:'Leave early for Friday one-shots — doubles the trip’s value.'}}},
+ {id:'lodge',phase:'Before the con',title:'Lodging',
+  job:'Negotiate a hotel block or rate code in Martin / Union City, list every option with drive times, and explore UTM guest-housing angles.',
+  partner:'A hotel partner IS a sponsor tier: their code on our site, our attendees filling their off-season Saturday rooms.',
+  p:{first:{c:5,q:'“I sleep in my own bed.”',exp:'No journey here.',need:'Nothing — but visiting friends need the “crash options” list.'},
+     veteran:{c:4,q:'“Worth staying for the evening?”',exp:'Day-trips it, or splits a room for the marathon.',need:'A clear pitch for what happens after 7pm.'},
+     family:{c:3,q:'“Does the hotel have a pool?”',exp:'If staying over: family room, plus a pool as a bribe.',need:'The family-friendly hotel flagged explicitly in the list.'},
+     tcg:{c:4,q:'“Four ways, if day two matters.”',exp:'Splits a room with the store crew.',need:'Sunday-morning content worth the second day.'},
+     social:{c:3,q:'“The room is a repair station.”',exp:'Hotel doubles as costume staging area.',need:'Late-checkout intel and an iron. Seriously.'},
+     far:{c:2,q:'“The overnight is the ballgame.”',exp:'A bad lodging experience poisons the whole review.',need:'A trustworthy block at a fair rate, walkable food, booked in two clicks.',miss:'Friday arrival = Friday one-shots + first pick Saturday.'}}},
+ {id:'arrive',phase:'The con',title:'Arrival & check-in',
+  job:'Signage from lot to door, a badge line under 5 minutes, a greeter who says “welcome home,” a program + map in every hand. Bead-flag first-timers so every volunteer knows to be extra kind.',
+  partner:'The sponsor banner is the first thing everyone photographs. Welcome bags carry store coupons — door-to-table is prime real estate.',
+  p:{first:{c:2,q:'“Everyone here knows each other.”',exp:'The scariest moment of the whole journey: alone at the door of a full room.',need:'A human greeter, a “first con?” welcome, and a concrete first destination.',miss:'Learn to Play — the on-ramp built for exactly them.'},
+     veteran:{c:4,q:'“Did my plan survive contact?”',exp:'Badge, program, beeline to the schedule board.',need:'A printed grid + a “changes since printing” board. Respect the plan.'},
+     family:{c:3,q:'“Bathrooms. Exits. Vibes.”',exp:'Arrives carrying 40% of a household, scanning the room.',need:'A family check-in lane, bathrooms on the map, a marked quiet corner.'},
+     tcg:{c:3,q:'“Two check-ins, zero mysteries, please.”',exp:'Badge desk and tournament desk had better not be in two mystery locations.',need:'Tournament check-in signposted from the front door.'},
+     social:{c:3,q:'“I need a mirror and ten minutes.”',exp:'Arrives half-in-costume, needing staging before the reveal.',need:'A changing room with a mirror, and a bag & prop check.'},
+     far:{c:4,q:'“Oh — this is a real con.”',exp:'Walks in braced for disappointment; relief becomes delight fast.',need:'The room must look like the photos promised: banners up, tables full.'}}},
+ {id:'morning',phase:'The con',title:'Morning sessions',
+  job:'Sessions start ON TIME — the loudest signal of a well-run con. Info desk staffed, board-game library open, a “next up” board, floor staff who answer “what should I do?” in one sentence.',
+  partner:'Store-run demos and sponsored tables carry the block: “the 10am Battle Interactive, presented by One Frequency Games.”',
+  p:{first:{c:3,q:'“I’m fighting a goblin. Grinning.”',exp:'First real table. Comfort skyrockets here if the table is good.',need:'Beginner tables: pregens, dice provided, DMs briefed to teach kindly.'},
+     veteran:{c:5,q:'“Exactly where I planned to be.”',exp:'Locked into the signature event.',need:'The Battle Interactive delivering on its promise.',miss:'Battle Interactive: The Siege — retold at dinner.'},
+     family:{c:4,q:'“She’s rolling dice. I can exhale.”',exp:'Kids at Family D&D; the parent finally relaxes, maybe even plays.',need:'A kid-great DM, sessions ≤2 hours, a parent seat at the table.',miss:'Family D&D — the reason this family came.'},
+     tcg:{c:3,q:'“Tournament’s at 1. Now what?”',exp:'Morning is limbo, and bored money walks away.',need:'Morning side drafts or casual space near the vendor tables.'},
+     social:{c:3,q:'“Found my people already.”',exp:'Cosplay meetup, first photos.',need:'A scheduled meetup slot + a good backdrop before the crowd wilts the costume.'},
+     far:{c:5,q:'“Booked solid since 9am.”',exp:'Living their best weekend.',need:'Back-to-back sessions that actually run — an empty slot is a small tragedy.'}}},
+ {id:'food',phase:'The con',title:'Midday: food & rest',
+  job:'Food trucks confirmed IN WRITING with posted hours, outdoor seating, water stations inside, a real lunch window. Feed the DMs first — they are the machine.',
+  partner:'Trucks pay a pitch fee or a cut; nearby restaurants buy a program coupon. Feeding 300 people is somebody’s great Saturday.',
+  p:{first:{c:4,q:'“Tacos with strangers — no, friends.”',exp:'Lunch is where first-timers get adopted by the community.',need:'Communal tables outside.'},
+     veteran:{c:3,q:'“This line is eating my break.”',exp:'A slow line threatens the 1pm session.',need:'Enough truck capacity + a posted “order by 12:40” warning.'},
+     family:{c:3,q:'“One kid eats exactly four foods.”',exp:'Menu roulette with real stakes.',need:'At least one plain option, listed on the site beforehand.'},
+     tcg:{c:4,q:'“Eat at 12. Round one at 1.”',exp:'Nothing else matters.',need:'Fast service and a grab-and-go option before the tournament.'},
+     social:{c:2,q:'“I can’t eat a burger in foam armor.”',exp:'The hardest lunch in the building.',need:'Cosplay-friendly food — skewers, cups, straws — and a real place to sit.'},
+     far:{c:4,q:'“The food truck is part of the story.”',exp:'Local flavor becomes trip lore.',need:'Make lunch a feature, not a pit stop — a “taste of Martin.”'}}},
+ {id:'afternoon',phase:'The con',title:'Afternoon: main event',
+  job:'The marquee block: tournament running clean, one-shots, DM workshop, vendor hall humming. No dead zones — a “happening right now” board and floor staff steering anyone adrift.',
+  partner:'Prize support everywhere: sponsored top-8, store product on the prize table. This is the block sponsors should come see in person.',
+  p:{first:{c:4,q:'“I bought my first dice set.”',exp:'Braver now — browses vendors, maybe joins a second session. A customer is born.',need:'A visible “open seats right now” board so momentum never dies.',miss:'Dice Goblin at 2pm — chaotic, beginner-friendly, pure joy.'},
+     veteran:{c:5,q:'“Even I haven’t done it all.”',exp:'Second session, then holds court in the vendor hall.',need:'Depth: enough simultaneous tables to surprise even them.'},
+     family:{c:3,q:'“One kid soaring, one kid done.”',exp:'The 2:30 wall arrives on schedule.',need:'A quiet corner (board games, beanbags) that buys the family two more hours.'},
+     tcg:{c:5,q:'“Round three. In the tank.”',exp:'The whole reason today exists.',need:'Rounds on time, standings posted, a real judge, prizes worth the entry.',miss:'Top 8 — and the crowd it draws.'},
+     social:{c:4,q:'“Golden hour. Contest at 5.”',exp:'Hallway compliments building toward the reveal.',need:'A staging area near the contest space + a hype person on the countdown.'},
+     far:{c:5,q:'“Already drafting the trip report.”',exp:'Mid-weekend peak.',need:'Keep the hits coming — this afternoon is our five-star review.'}}},
+ {id:'evening',phase:'The con',title:'Evening: social peak',
+  job:'Shift the energy: cosplay contest with real staging and sound at 5, dinner trucks, then the evening marathon. Lighting and music turn a room of strangers into a community.',
+  partner:'A sponsor judges the contest and hands over the prize on stage, by name, in every photo — the cheapest hero moment in marketing.',
+  p:{first:{c:5,q:'“They saved me a seat.”',exp:'Cheers for strangers, gets invited to an evening table. They belong now.',need:'An easy on-ramp: “open table, all welcome” signs do the work.'},
+     veteran:{c:5,q:'“The session I’ll talk about all year.”',exp:'Four hours of Strahd with a great DM.',need:'Protect the marquee tables: right room, right DM, no noise bleed.',miss:'One-Shot: Curse of Strahd, 7pm.'},
+     family:{c:2,q:'“The kids are done. We’re leaving.”',exp:'Heads home before the best part — unless we plan for them.',need:'A 6–8pm family block, or a graceful exit with tomorrow’s family schedule.'},
+     tcg:{c:3,q:'“Packs in hand… now what?”',exp:'Tournament over; half the grinders drift toward the exit.',need:'A pull to stay: commander tables, a chaos draft, good pizza, their crowd.'},
+     social:{c:5,q:'“ON STAGE.”',exp:'The moment three weekends of work were for.',need:'A real MC, decent sound, good light, and a photographer whose shots they’ll get.',miss:'The contest — and the group photo after.'},
+     far:{c:5,q:'“Five new friends. Bed’s ten minutes away.”',exp:'Zero regrets.',need:'Evening programming strong enough to justify the hotel night — tell them in advance.'}}},
+ {id:'farewell',phase:'The con',title:'Farewell & trip home',
+  job:'Sunday winds down warm, not sad: coffee & bagels, lighter sessions, Awards & Farewell at noon. Thank DMs and sponsors BY NAME, announce next year’s date, feedback QR on every table.',
+  partner:'Stage thanks in front of everyone + an exit email with store coupons — measurable foot traffic the week after. That’s the ROI slide.',
+  p:{first:{c:5,q:'“I have three new Discord handles.”',exp:'Leaves with dice and a character they love.',need:'A “what now?” card: local game nights, the beginner league, the next date.'},
+     veteran:{c:4,q:'“Honestly? They did fine.”',exp:'Tired, satisfied, quietly grading us against bigger cons.',need:'Ask directly: “what would make you bring your whole table next year?”'},
+     family:{c:4,q:'“Both kids asleep by mile two.”',exp:'The parent calls it a win.',need:'The Family D&D photo in their inbox by Tuesday.'},
+     tcg:{c:4,q:'“Is this annual?”',exp:'Placed decently, got packs, already asking.',need:'Announce next year’s bigger tournament before they leave the building.'},
+     social:{c:4,q:'“Memory card: full.”',exp:'Costume packed, followers pending.',need:'Official photos delivered fast, hashtagged, handles credited.'},
+     far:{c:3,q:'“The drive home writes the verdict.”',exp:'Two quiet hours of judgment.',need:'Send them off personally: “You drove from Memphis? Thank you.” They’ll remember.'}}},
  {id:'after',phase:'After the con',title:'Afterglow & next year',
-  job:'Within 72 hours: photo dump, thank-you email, survey results honestly acknowledged, save-the-date for the mid-summer con, and a DM Academy invitation to every attendee who wondered “could I run a table?” The end of this con is the launch of the next one.',
-  partner:'Recap posts tag every sponsor; attendance and referral data goes to partners as a report. Founding sponsors get first right of renewal at this year’s price — lock in next year while the glow is warm.',
-  p:{first:{c:5,exp:'Tells everyone. Joins the store’s game night. Six months later, maybe takes the DM Academy.',need:'The pipeline: newbie → regular → volunteer → DM. Each first-timer is a future table.'},
-     veteran:{c:4,exp:'Posts a measured, credible review that recruits other veterans.',need:'Give them something concrete to praise: numbers, improvements planned, dates locked.'},
-     family:{c:4,exp:'“We’re doing that again” becomes a family tradition.',need:'Family early-bird pricing announced first — traditions book early.'},
-     tcg:{c:4,exp:'The store crew debates next year’s format at Friday night Magic.',need:'Feed the store chatter: post standings, photos, and next year’s format poll.'},
-     social:{c:5,exp:'The photo set does numbers for weeks. Every like is an impression we didn’t pay for.',need:'Share, credit, and repost. Make our cosplayers famous; they make us famous back.'},
-     far:{c:4,exp:'Writes the trip report that convinces ten more people the drive is worth it.',need:'Reply to that Reddit post as organizers — gratitude in public is marketing gold.'}}},
+  job:'Within 72 hours: photo dump, thank-you email, survey results honestly acknowledged, save-the-date for the summer con, and a DM Academy invite to everyone who wondered “could I run a table?”',
+  partner:'Recap posts tag every sponsor; attendance and referral data goes out as a report. Founding sponsors renew at this year’s price while the glow is warm.',
+  p:{first:{c:5,q:'“So… could I run a table?”',exp:'Joins the store’s game night. Six months later, maybe DM Academy.',need:'The pipeline: newbie → regular → volunteer → DM.'},
+     veteran:{c:4,q:'“Credible review: posted.”',exp:'A measured write-up that recruits other veterans.',need:'Concrete things to praise: numbers, improvements, locked dates.'},
+     family:{c:4,q:'“We’re doing that again.”',exp:'A family tradition is born.',need:'Family early-bird pricing announced first — traditions book early.'},
+     tcg:{c:4,q:'“Next year’s format?”',exp:'The store crew debates it at Friday night Magic.',need:'Post standings, photos, and a format poll — feed the chatter.'},
+     social:{c:5,q:'“The photo set is doing numbers.”',exp:'Weeks of impressions we didn’t pay for.',need:'Share, credit, repost. Make our cosplayers famous; they return the favor.'},
+     far:{c:4,q:'“Trip report: worth the drive.”',exp:'Convinces ten more people the drive is worth it.',need:'Reply to that Reddit post as organizers — public gratitude is marketing gold.'}}},
 ];
 
-// ------- state -------
+// ---------- state ----------
 let cur='first';
 const K='wincon_journey_notes';
 let notes={}; try{notes=JSON.parse(localStorage.getItem(K)||'{}');}catch(e){}
-function saveNotes(){try{localStorage.setItem(K,JSON.stringify(notes));}catch(e){}}
+const saveNotes=()=>{try{localStorage.setItem(K,JSON.stringify(notes));}catch(e){}};
 const persona=id=>PERSONAS.find(p=>p.id===id);
+const N=STAGES.length, COLW=230, RAILW=46;
+const mix=(hue,pct)=>`color-mix(in oklab, ${hue} ${pct}%, #eef0f4)`;
 
 function buildChips(){
   const box=document.getElementById('personas'); box.innerHTML='';
   PERSONAS.forEach(p=>{
-    const b=document.createElement('button'); b.className='pchip'+(p.id===cur?' on':'');
+    const b=document.createElement('button'); b.className='pick'+(p.id===cur?' on':'');
     if(p.id===cur){b.style.background=p.color;b.style.borderColor=p.color;}
-    b.innerHTML=`<span class="em">${p.em}</span>${p.name}`;
-    b.onclick=()=>{cur=p.id;renderAll();};
+    b.innerHTML=`<span>${p.em}</span>${p.name.replace('The ','')}`;
+    b.onclick=()=>{if(p.id!==cur){cur=p.id;renderAll();}};
     box.appendChild(b);
   });
-  document.getElementById('pdesc').innerHTML=`<b style="color:${persona(cur).color}">${persona(cur).em} ${persona(cur).name}:</b> ${persona(cur).desc}`;
 }
 
-function comfortDots(c,color){
-  let h='<span class="cdots">';
-  for(let i=1;i<=5;i++)h+=`<span style="${i<=c?`background:${color}`:''}"></span>`;
-  return h+'</span>';
-}
-const CLABEL={1:'distressed',2:'uneasy',3:'okay',4:'comfortable',5:'delighted'};
-
-function renderCurve(){
+function renderBand(){
   const p=persona(cur);
-  document.getElementById('curvename').textContent=p.em+' '+p.name;
-  const svg=document.getElementById('curve');
-  const W=1000,H=120,padL=14,padR=14,padT=14,padB=26;
-  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
-  const n=STAGES.length;
-  const x=i=>padL+(W-padL-padR)*(n===1?0:i/(n-1));
+  const band=document.getElementById('band');
+  band.style.background=`linear-gradient(115deg, #14161d 0%, ${p.dark} 42%, ${p.color} 100%)`;
+  band.innerHTML=`
+    <div class="who">
+      <div class="avatar">${p.em}</div>
+      <div><b>${p.name}</b><span class="rolechip">${p.role}</span></div>
+    </div>
+    <div class="col"><h4>Scenario</h4><p>${p.desc}</p></div>
+    <div class="col"><h4>Goals</h4><ul>${p.goals.map(g=>`<li>${g}</li>`).join('')}</ul></div>`;
+}
+
+function curveHTML(){
+  const p=persona(cur);
+  const W=N*COLW, H=270, padT=56, padB=52;
+  const x=i=>COLW*i+COLW/2;
   const y=c=>padT+(H-padT-padB)*(1-(c-1)/4);
+  const pts=STAGES.map((st,i)=>({x:x(i),y:y(st.p[cur].c),c:st.p[cur].c,q:st.p[cur].q}));
   let s='';
-  for(let g=1;g<=5;g++) s+=`<line x1="${padL}" y1="${y(g)}" x2="${W-padR}" y2="${y(g)}" stroke="#eef0f3" stroke-width="1"/>`;
-  let d='';
-  STAGES.forEach((st,i)=>{ const c=st.p[cur].c; d+=(i?' L ':'M ')+x(i)+' '+y(c); });
+  for(let g=1;g<=5;g++) s+=`<line x1="0" y1="${y(g)}" x2="${W}" y2="${y(g)}" stroke="#f0f1f4" stroke-width="1"/>`;
+  // phase boundaries
+  let ph='';STAGES.forEach((st,i)=>{if(i&&st.phase!==STAGES[i-1].phase)ph+=`<line x1="${COLW*i}" y1="10" x2="${COLW*i}" y2="${H-44}" stroke="#dfe2e7" stroke-width="1.5" stroke-dasharray="3 5"/>`;});
+  s+=ph;
+  // smooth curve (catmull-rom → bezier)
+  let d=`M ${pts[0].x} ${pts[0].y}`;
+  for(let i=0;i<N-1;i++){
+    const p0=pts[Math.max(0,i-1)],p1=pts[i],p2=pts[i+1],p3=pts[Math.min(N-1,i+2)];
+    d+=` C ${p1.x+(p2.x-p0.x)/6} ${p1.y+(p2.y-p0.y)/6}, ${p2.x-(p3.x-p1.x)/6} ${p2.y-(p3.y-p1.y)/6}, ${p2.x} ${p2.y}`;
+  }
+  s+=`<path d="${d} L ${W} ${H-padB+22} L 0 ${H-padB+22} Z" fill="${p.color}" opacity="0.05"/>`;
   s+=`<path d="${d}" fill="none" stroke="${p.color}" stroke-width="3" stroke-linejoin="round"/>`;
-  STAGES.forEach((st,i)=>{
-    const c=st.p[cur].c;
-    s+=`<circle cx="${x(i)}" cy="${y(c)}" r="${c<=2?7:5.5}" fill="${c<=2?'#c0504d':p.color}" stroke="#fff" stroke-width="2" style="cursor:pointer" data-st="${st.id}"/>`;
-    s+=`<text x="${x(i)}" y="${H-8}" font-size="9.5" fill="#9a9aa0" text-anchor="middle" style="cursor:pointer" data-st="${st.id}">${st.title.split(':')[0].replace('They ','')}</text>`;
+  let quotes='';
+  pts.forEach((pt,i)=>{
+    const bad=pt.c<=2, above=pt.c<=3, stag=(i%2)*20;
+    s+=`<line x1="${pt.x}" y1="${above?pt.y-9:pt.y+9}" x2="${pt.x}" y2="${above?pt.y-22-stag:pt.y+22+stag}" stroke="#c3c8cf" stroke-width="1" stroke-dasharray="2 3"/>`;
+    s+=`<circle cx="${pt.x}" cy="${pt.y}" r="${bad?7:5.5}" fill="${bad?'var(--red)':p.color}" stroke="#fff" stroke-width="2.5"/>`;
+    s+=`<text x="${pt.x}" y="${H-12}" text-anchor="middle" font-size="10.5" font-weight="700" fill="#8a909a">${STAGES[i].title}</text>`;
+    quotes+=`<div class="quote" style="left:${pt.x}px;${above?`bottom:${H-pt.y+26+stag}px`:`top:${pt.y+26+stag}px`}">${STAGES[i].p[cur].q}</div>`;
   });
-  svg.innerHTML=s;
-  svg.querySelectorAll('[data-st]').forEach(el=>el.addEventListener('click',()=>{
-    const t=document.getElementById('st-'+el.getAttribute('data-st'));
-    if(t)t.scrollIntoView({behavior:'smooth',block:'center'});
-  }));
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" width="${W}" height="${H}">${s}</svg>${quotes}`;
 }
 
-function renderStages(){
+const rail=(txt,cls='')=>`<div class="rail ${cls}"><span>${txt}</span></div>`;
+
+function renderBoard(){
   const p=persona(cur);
-  const showJob=document.getElementById('tJob').checked;
-  const showPartner=document.getElementById('tPartner').checked;
-  const showNotes=document.getElementById('tNotes').checked;
-  const main=document.getElementById('main'); main.innerHTML='';
-  let phase='';
-  STAGES.forEach((st,i)=>{
-    if(st.phase!==phase){ phase=st.phase; const h=document.createElement('div'); h.className='phase'; h.textContent=phase; main.appendChild(h); }
-    const cell=st.p[cur], c=cell.c;
-    const sec=document.createElement('div'); sec.className='stage'; sec.id='st-'+st.id;
-    let h=`<h2><span class="num" style="background:${p.color}">${i+1}</span>${st.title}
-      <span class="comfort">${CLABEL[c]} ${comfortDots(c,c<=2?'#c0504d':p.color)}</span></h2>`;
-    h+=`<div class="exp">${cell.exp}</div>`;
-    if(cell.need)h+=`<div class="need"><b>They need:</b> ${cell.need}</div>`;
-    if(cell.miss)h+=`<div class="miss"><b>Don’t miss:</b> ${cell.miss}</div>`;
-    if(showJob&&st.job)h+=`<div class="job"><b>Our job:</b> ${st.job}</div>`;
-    if(showPartner&&st.partner)h+=`<div class="partner"><b>Partners plug in:</b> ${st.partner}</div>`;
-    sec.innerHTML=h;
-    if(showNotes){
-      const nd=document.createElement('div'); nd.className='notes';
-      const ta=document.createElement('textarea'); ta.placeholder='Working notes for this step…';
-      ta.value=notes[st.id]||'';
-      ta.addEventListener('input',()=>{notes[st.id]=ta.value;saveNotes();});
-      nd.appendChild(ta); sec.appendChild(nd);
-    }
-    main.appendChild(sec);
-  });
+  const board=document.getElementById('board');
+  document.documentElement.style.setProperty('--needbg',mix(p.color,9));
+  let h='';
+  // stage chevrons — one per phase, spanning its columns
+  h+=rail('Stages');
+  const spans={}, order=[];
+  STAGES.forEach(st=>{ if(!spans[st.phase])order.push(st.phase); spans[st.phase]=(spans[st.phase]||0)+1; });
+  order.forEach((ph,i)=>{
+    const t=35+Math.round(60*i/(order.length-1));
+    h+=`<div class="stg" style="grid-column:span ${spans[ph]};background:color-mix(in oklab, ${p.color} ${t}%, #aab3c2)">${ph}</div>`;});
+  // curve
+  h+=`<div class="rail railcurve"><small>delighted</small><span style="writing-mode:vertical-rl;transform:rotate(180deg)">Feeling</span><small>distressed</small></div>`;
+  h+=`<div class="curvecell">${curveHTML()}</div>`;
+  // The moment
+  h+=rail('The moment');
+  STAGES.forEach((st,i)=>{const ps=(i&&st.phase!==STAGES[i-1].phase)?' phasestart':'';h+=`<div class="cell${ps}">${st.p[cur].exp}</div>`;});
+  // They need
+  h+=rail('They need');
+  STAGES.forEach((st,i)=>{const ps=(i&&st.phase!==STAGES[i-1].phase)?' phasestart':'';h+=`<div class="cell need${ps}" style="background:${mix(p.color,9)}">${st.p[cur].need}</div>`;});
+  // Don't miss
+  h+=rail('Not to miss');
+  STAGES.forEach((st,i)=>{const ps=(i&&st.phase!==STAGES[i-1].phase)?' phasestart':'';const v=st.p[cur].miss;
+    h+=v?`<div class="cell miss${ps}" style="background:#fdf6e4"><b style="color:var(--gold)">★</b> ${v}</div>`:`<div class="cell empty${ps}"></div>`;});
+  // organizer rows
+  h+=rail('Our job','orgrail');
+  STAGES.forEach((st,i)=>{const ps=(i&&st.phase!==STAGES[i-1].phase)?' phasestart':'';h+=`<div class="cell orgcell${ps}" style="background:#eef2f6;font-size:12px">${st.job}</div>`;});
+  h+=rail('Partners','orgrail');
+  STAGES.forEach((st,i)=>{const ps=(i&&st.phase!==STAGES[i-1].phase)?' phasestart':'';h+=`<div class="cell orgcell${ps}" style="background:#f5f0fb;font-size:12px">${st.partner}</div>`;});
+  h+=rail('Notes','orgrail');
+  STAGES.forEach(st=>{h+=`<div class="orgcell notes"><textarea data-st="${st.id}" placeholder="Working notes…">${(notes[st.id]||'').replace(/</g,'&lt;')}</textarea></div>`;});
+  board.innerHTML=h;
+  board.querySelectorAll('textarea[data-st]').forEach(ta=>ta.addEventListener('input',()=>{notes[ta.dataset.st]=ta.value;saveNotes();}));
+  applyOrg();
 }
 
-function renderAll(){ buildChips(); renderCurve(); renderStages();
-  document.body.classList.toggle('pitch',document.getElementById('tPitch').checked); }
-['tJob','tPartner','tNotes'].forEach(id=>document.getElementById(id).addEventListener('change',renderStages));
-document.getElementById('tPitch').addEventListener('change',()=>{
-  const on=document.getElementById('tPitch').checked;
-  if(on){document.getElementById('tJob').checked=false;document.getElementById('tNotes').checked=false;}
-  else{document.getElementById('tJob').checked=true;document.getElementById('tNotes').checked=true;}
-  renderAll();
+function applyOrg(){
+  const on=document.body.classList.contains('org');
+  document.querySelectorAll('.orgrail,.orgcell').forEach(el=>el.style.display=on?'':'none');
+}
+
+function renderAll(){
+  const board=document.getElementById('board');
+  board.style.opacity=0;
+  buildChips(); renderBand();
+  setTimeout(()=>{renderBoard(); board.style.opacity=1;},80);
+}
+
+document.getElementById('orgToggle').addEventListener('click',e=>{
+  document.body.classList.toggle('org');
+  e.target.classList.toggle('on',document.body.classList.contains('org'));
+  applyOrg();
 });
 renderAll();
 </script>
