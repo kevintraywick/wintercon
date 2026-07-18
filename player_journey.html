@@ -53,12 +53,11 @@
   .curvecell svg{position:absolute;inset:0;width:100%;height:100%;display:block;}
   .quote{position:absolute;width:190px;margin-left:-95px;text-align:center;font-size:10.5px;line-height:1.35;
          color:#555;font-style:italic;pointer-events:none;}
-  .railcurve{flex-direction:column;justify-content:space-between;padding:46px 0 44px;}
-  .railcurve small{font-size:14px;line-height:1;}
   /* content cells */
   .cell{border-radius:9px;padding:10px 12px;margin:3px 4px;font-size:12.5px;line-height:1.5;background:#f7f8fa;}
   .cell.empty{background:transparent;}
-  .cell.dot::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:#E0353B;margin:0 7px 1px 0;}
+  .cell.dot::before,.titem::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--pc,#E0353B);margin:0 7px 1px 0;}
+  .titem{margin:2px 0;}
   .phasestart{border-left:2px dashed #dfe2e7;}
   .notes textarea{width:calc(100% - 8px);min-height:52px;margin:3px 4px;font:inherit;font-size:12px;border:1px dashed #d7d9de;
                   border-radius:8px;padding:7px 10px;color:#444;resize:vertical;background:#fcfcfb;line-height:1.45;}
@@ -88,22 +87,22 @@
 
 <script>
 const PERSONAS=[
- {id:'first',em:'🌱',name:'The First-Timer',color:'#3B7BFF',dark:'#1F3FA8',
+ {id:'first',em:'🌱',name:'First-Timer',color:'#3B7BFF',dark:'#1F3FA8',
   desc:'A UTM student who has watched Stranger Things and half a campaign on YouTube, but has never rolled a d20 in public. Curious, excited, quietly terrified of looking dumb. Hundreds of them live within a mile of the venue — they are how we get to 300.',
   goals:['Feel welcome, not judged','Actually learn to play','Leave with people to play with again']},
- {id:'veteran',em:'⚔️',name:'The Veteran',color:'#0FB5A3',dark:'#0A6E63',
+ {id:'veteran',em:'⚔️',name:'Veteran',color:'#0FB5A3',dark:'#0A6E63',
   desc:'Fifteen years of characters and a dice bag older than some attendees. Drives in from Jackson wanting great DMs, a tight schedule, and zero wasted time. If the con is good, they bring their whole table next year.',
   goals:['Great DMs and a tight schedule','Signature events worth coveting','Scout it for the whole table']},
- {id:'family',em:'👨‍👧‍👦',name:'The Parent with Kids',color:'#2ECC71',dark:'#177A45',
+ {id:'family',em:'👨‍👧‍👦',name:'Parent with Kids',color:'#2ECC71',dark:'#177A45',
   desc:'Bringing a 9- and a 12-year-old. Deciding factors: price times three, bathrooms, food a kid will eat, and whether anyone will be weird to their children. Win this family, win the town.',
   goals:['A day both kids enjoy','Prices, food & bathrooms — no surprises','A safe, welcoming room']},
- {id:'tcg',em:'🃏',name:'The Tournament Player',color:'#F0524D',dark:'#8E211E',
+ {id:'tcg',em:'🃏',name:'Tournament Player',color:'#F0524D',dark:'#8E211E',
   desc:'A store regular here for the Magic tournament first, everything else second. Cares about formats, start times, prize support, and a fair judge. Travels in packs with the store crew.',
   goals:['A clean, fair tournament','Rounds on time, prizes worth it','Hang with the store crew']},
- {id:'social',em:'🎭',name:'The Cosplayer',color:'#A55BF0',dark:'#5B2C91',
+ {id:'social',em:'🎭',name:'Cosplayer',color:'#A55BF0',dark:'#5B2C91',
   desc:'Three weekends went into the costume. Comes for the contest, the photos, and the people. Their posts ARE our viral marketing — every comfort we give them multiplies our reach.',
   goals:['The on-stage moment','Photos that do the costume justice','Find their people']},
- {id:'far',em:'🚗',name:'The Long-Distance Superfan',color:'#F5A623',dark:'#8F5C0A',
+ {id:'far',em:'🚗',name:'Long-Distance Superfan',color:'#F5A623',dark:'#8F5C0A',
   desc:'Found us on Reddit, driving two hours from Memphis or Paducah and staying overnight. Spending the most to be here, needing the most reassurance. Their verdict travels far online.',
   goals:['A weekend worth the drive','Zero logistical surprises','A story worth posting']},
 ];
@@ -303,6 +302,7 @@ const rail=(txt,cls='')=>`<div class="rail ${cls}" style="min-height:${txt?txt.l
 function renderBoard(){
   const p=persona(cur);
   const board=document.getElementById('board');
+  document.documentElement.style.setProperty('--pc',p.color);
   let h='';
   // stage chevrons — one per phase, spanning its columns
   h+=rail('Stages');
@@ -316,11 +316,11 @@ function renderBoard(){
   h+=rail('The moment');
   STAGES.forEach((st,i)=>h+=`<div class="cell dot${ps(i)}">${st.p[cur].exp}</div>`);
   // emotions & thoughts curve
-  h+=`<div class="rail railcurve"><small>❤️</small><span>Emotions &amp; Thoughts</span><small>⁉️</small></div>`;
+  h+=`<div class="rail"><span>Emotions &amp; Thoughts</span></div>`;
   h+=`<div class="curvecell">${curveHTML()}</div>`;
   // touchpoints
   h+=rail('Touchpoints');
-  STAGES.forEach((st,i)=>h+=`<div class="cell${ps(i)}" style="font-size:12px;background:#f4f6fa">${st.touch}</div>`);
+  STAGES.forEach((st,i)=>h+=`<div class="cell${ps(i)}" style="font-size:12px;background:#f4f6fa">${st.touch.split(' · ').map(t=>`<div class="titem">${t}</div>`).join('')}</div>`);
   // motivations
   h+=rail('Motivations');
   STAGES.forEach((st,i)=>h+=`<div class="cell dot${ps(i)}" style="background:${mix(p.color,12)}">${st.p[cur].mot}</div>`);
