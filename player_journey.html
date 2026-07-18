@@ -40,9 +40,9 @@
   .scrollzone{overflow-x:auto;scrollbar-width:thin;}
   .board{display:grid;grid-template-columns:var(--railw) repeat(13,var(--colw));padding:14px 18px 20px 0;
          width:max-content;transition:opacity .16s ease-out;}
-  .rail{position:sticky;left:0;z-index:5;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;}
-  .rail span{writing-mode:vertical-rl;transform:rotate(180deg);font-size:8px;letter-spacing:.03em;
-             text-transform:uppercase;color:var(--label);font-weight:700;white-space:nowrap;}
+  .rail{position:sticky;left:0;z-index:5;background:#fff;display:flex;align-items:center;justify-content:center;}
+  .rail span{writing-mode:vertical-rl;transform:rotate(180deg);font-size:11.5px;letter-spacing:.12em;
+             text-transform:uppercase;color:#2b2f36;font-weight:800;white-space:nowrap;}
   /* stage chevrons (3 phases) */
   .stg{position:relative;color:#fff;font-size:13.5px;font-weight:700;text-align:center;padding:12px 20px 12px 26px;
        margin:2px;display:flex;align-items:center;justify-content:center;line-height:1.25;min-height:44px;cursor:default;
@@ -53,11 +53,12 @@
   .curvecell svg{position:absolute;inset:0;width:100%;height:100%;display:block;}
   .quote{position:absolute;width:190px;margin-left:-95px;text-align:center;font-size:10.5px;line-height:1.35;
          color:#555;font-style:italic;pointer-events:none;}
-  .railcurve{flex-direction:column;justify-content:space-between;padding:52px 0 46px;}
-  .railcurve small{font-size:8.5px;color:#b3b8c0;letter-spacing:.05em;text-transform:uppercase;writing-mode:vertical-rl;transform:rotate(180deg);}
+  .railcurve{flex-direction:column;justify-content:space-between;padding:46px 0 44px;}
+  .railcurve small{font-size:14px;line-height:1;}
   /* content cells */
   .cell{border-radius:9px;padding:10px 12px;margin:3px 4px;font-size:12.5px;line-height:1.5;background:#f7f8fa;}
   .cell.empty{background:transparent;}
+  .cell.dot::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:#E0353B;margin:0 7px 1px 0;}
   .phasestart{border-left:2px dashed #dfe2e7;}
   .notes textarea{width:calc(100% - 8px);min-height:52px;margin:3px 4px;font:inherit;font-size:12px;border:1px dashed #d7d9de;
                   border-radius:8px;padding:7px 10px;color:#444;resize:vertical;background:#fcfcfb;line-height:1.45;}
@@ -87,22 +88,22 @@
 
 <script>
 const PERSONAS=[
- {id:'first',em:'🌱',name:'The First-Timer',color:'#2F5496',dark:'#1c2c4d',
+ {id:'first',em:'🌱',name:'The First-Timer',color:'#3B7BFF',dark:'#1F3FA8',
   desc:'A UTM student who has watched Stranger Things and half a campaign on YouTube, but has never rolled a d20 in public. Curious, excited, quietly terrified of looking dumb. Hundreds of them live within a mile of the venue — they are how we get to 300.',
   goals:['Feel welcome, not judged','Actually learn to play','Leave with people to play with again']},
- {id:'veteran',em:'⚔️',name:'The Veteran',color:'#1f7a6d',dark:'#123f38',
+ {id:'veteran',em:'⚔️',name:'The Veteran',color:'#0FB5A3',dark:'#0A6E63',
   desc:'Fifteen years of characters and a dice bag older than some attendees. Drives in from Jackson wanting great DMs, a tight schedule, and zero wasted time. If the con is good, they bring their whole table next year.',
   goals:['Great DMs and a tight schedule','Signature events worth coveting','Scout it for the whole table']},
- {id:'family',em:'👨‍👧‍👦',name:'The Parent with Kids',color:'#2e8b57',dark:'#174a2e',
+ {id:'family',em:'👨‍👧‍👦',name:'The Parent with Kids',color:'#2ECC71',dark:'#177A45',
   desc:'Bringing a 9- and a 12-year-old. Deciding factors: price times three, bathrooms, food a kid will eat, and whether anyone will be weird to their children. Win this family, win the town.',
   goals:['A day both kids enjoy','Prices, food & bathrooms — no surprises','A safe, welcoming room']},
- {id:'tcg',em:'🃏',name:'The Tournament Player',color:'#c0504d',dark:'#5e2321',
+ {id:'tcg',em:'🃏',name:'The Tournament Player',color:'#F0524D',dark:'#8E211E',
   desc:'A store regular here for the Magic tournament first, everything else second. Cares about formats, start times, prize support, and a fair judge. Travels in packs with the store crew.',
   goals:['A clean, fair tournament','Rounds on time, prizes worth it','Hang with the store crew']},
- {id:'social',em:'🎭',name:'The Cosplayer',color:'#7a4fb0',dark:'#3a2359',
+ {id:'social',em:'🎭',name:'The Cosplayer',color:'#A55BF0',dark:'#5B2C91',
   desc:'Three weekends went into the costume. Comes for the contest, the photos, and the people. Their posts ARE our viral marketing — every comfort we give them multiplies our reach.',
   goals:['The on-stage moment','Photos that do the costume justice','Find their people']},
- {id:'far',em:'🚗',name:'The Long-Distance Superfan',color:'#c78f13',dark:'#5c4106',
+ {id:'far',em:'🚗',name:'The Long-Distance Superfan',color:'#F5A623',dark:'#8F5C0A',
   desc:'Found us on Reddit, driving two hours from Memphis or Paducah and staying overnight. Spending the most to be here, needing the most reassurance. Their verdict travels far online.',
   goals:['A weekend worth the drive','Zero logistical surprises','A story worth posting']},
 ];
@@ -288,16 +289,16 @@ function curveHTML(){
   s+=`<path d="${d}" fill="none" stroke="${p.color}" stroke-width="3" stroke-linejoin="round"/>`;
   let quotes='';
   pts.forEach((pt,i)=>{
-    const bad=pt.c<=2, above=pt.c<=3, stag=(i%2)*20;
+    const above=pt.c<=3, stag=(i%2)*20;
     s+=`<line x1="${pt.x}" y1="${above?pt.y-9:pt.y+9}" x2="${pt.x}" y2="${above?pt.y-22-stag:pt.y+22+stag}" stroke="#c3c8cf" stroke-width="1" stroke-dasharray="2 3"/>`;
-    s+=`<circle cx="${pt.x}" cy="${pt.y}" r="${bad?7:5.5}" fill="${bad?'var(--red)':p.color}" stroke="#fff" stroke-width="2.5"/>`;
+    s+=`<circle cx="${pt.x}" cy="${pt.y}" r="5.5" fill="${p.color}" stroke="#fff" stroke-width="2.5"/>`;
     s+=`<text x="${pt.x}" y="${H-12}" text-anchor="middle" font-size="10.5" font-weight="700" fill="#8a909a">${STAGES[i].title}</text>`;
     quotes+=`<div class="quote" style="left:${pt.x}px;${above?`bottom:${H-pt.y+26+stag}px`:`top:${pt.y+26+stag}px`}">${STAGES[i].p[cur].q}</div>`;
   });
   return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" width="${W}" height="${H}">${s}</svg>${quotes}`;
 }
 
-const rail=(txt,cls='')=>`<div class="rail ${cls}"><span>${txt}</span></div>`;
+const rail=(txt,cls='')=>`<div class="rail ${cls}" style="min-height:${txt?txt.length*13+22:0}px"><span>${txt}</span></div>`;
 
 function renderBoard(){
   const p=persona(cur);
@@ -308,31 +309,31 @@ function renderBoard(){
   const spans={}, order=[];
   STAGES.forEach(st=>{ if(!spans[st.phase])order.push(st.phase); spans[st.phase]=(spans[st.phase]||0)+1; });
   order.forEach((ph,i)=>{
-    const t=35+Math.round(60*i/(order.length-1));
-    h+=`<div class="stg" style="grid-column:span ${spans[ph]};background:color-mix(in oklab, ${p.color} ${t}%, #aab3c2)">${ph}</div>`;});
+    const t=45+Math.round(55*i/(order.length-1));
+    h+=`<div class="stg" style="grid-column:span ${spans[ph]};background:color-mix(in oklab, ${p.color} ${t}%, #e9edf5)">${ph}</div>`;});
   const ps=i=>(i&&STAGES[i].phase!==STAGES[i-1].phase)?' phasestart':'';
   // the moment — above the chart
   h+=rail('The moment');
-  STAGES.forEach((st,i)=>h+=`<div class="cell${ps(i)}">${st.p[cur].exp}</div>`);
-  // feeling curve
-  h+=`<div class="rail railcurve"><small>delighted</small><span style="writing-mode:vertical-rl;transform:rotate(180deg)">Feeling</span><small>distressed</small></div>`;
+  STAGES.forEach((st,i)=>h+=`<div class="cell dot${ps(i)}">${st.p[cur].exp}</div>`);
+  // emotions & thoughts curve
+  h+=`<div class="rail railcurve"><small>❤️</small><span>Emotions &amp; Thoughts</span><small>⁉️</small></div>`;
   h+=`<div class="curvecell">${curveHTML()}</div>`;
   // touchpoints
   h+=rail('Touchpoints');
-  STAGES.forEach((st,i)=>h+=`<div class="cell${ps(i)}" style="font-size:12px">${st.touch}</div>`);
+  STAGES.forEach((st,i)=>h+=`<div class="cell${ps(i)}" style="font-size:12px;background:#f4f6fa">${st.touch}</div>`);
   // motivations
   h+=rail('Motivations');
-  STAGES.forEach((st,i)=>h+=`<div class="cell${ps(i)}" style="background:${mix(p.color,7)}">${st.p[cur].mot}</div>`);
+  STAGES.forEach((st,i)=>h+=`<div class="cell dot${ps(i)}" style="background:${mix(p.color,12)}">${st.p[cur].mot}</div>`);
   // pain points
   h+=rail('Pain points');
-  STAGES.forEach((st,i)=>h+=`<div class="cell${ps(i)}" style="background:#fbf0ef">${st.p[cur].pain}</div>`);
+  STAGES.forEach((st,i)=>h+=`<div class="cell dot${ps(i)}" style="background:#ffe9e6">${st.p[cur].pain}</div>`);
   // opportunities
   h+=rail('Opportunities');
-  STAGES.forEach((st,i)=>h+=`<div class="cell${ps(i)}" style="background:#ecf5f0">${st.p[cur].opp}</div>`);
+  STAGES.forEach((st,i)=>h+=`<div class="cell dot${ps(i)}" style="background:#e0f6e9">${st.p[cur].opp}</div>`);
   // not to miss
   h+=rail('Not to miss');
   STAGES.forEach((st,i)=>{const v=st.p[cur].miss;
-    h+=v?`<div class="cell${ps(i)}" style="background:#fdf6e4"><b style="color:var(--gold)">★</b> ${v}</div>`:`<div class="cell empty${ps(i)}"></div>`;});
+    h+=v?`<div class="cell${ps(i)}" style="background:#ffefc9"><b style="color:var(--gold)">★</b> ${v}</div>`:`<div class="cell empty${ps(i)}"></div>`;});
   // organizer rows
   h+=rail('Our job','orgrail');
   STAGES.forEach((st,i)=>h+=`<div class="cell orgcell${ps(i)}" style="background:#eef2f6;font-size:12px">${st.job}</div>`);
