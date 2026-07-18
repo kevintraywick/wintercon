@@ -8,7 +8,7 @@
 <style>
   :root{--navy:#2F5496;--navy2:#22406f;--gold:#e0a526;--red:#c0504d;
         --bg:#f4f5f7;--ink:#242424;--line:#e4e6ea;--label:#8a909a;
-        --colw:230px;--railw:46px;}
+        --colw:207px;--railw:46px;}
   *{box-sizing:border-box;}
   html,body{margin:0;font-family:'Helvetica Neue',Arial,sans-serif;color:var(--ink);background:var(--bg);}
 
@@ -90,7 +90,7 @@ const PERSONAS=[
  {id:'first',em:'🌱',name:'First-Timer',color:'#3B7BFF',dark:'#1F3FA8',
   desc:'A UTM student who has watched Stranger Things and half a campaign on YouTube, but has never rolled a d20 in public. Curious, excited, quietly terrified of looking dumb. Hundreds of them live within a mile of the venue — they are how we get to 300.',
   goals:['Feel welcome, not judged','Actually learn to play','Leave with people to play with again']},
- {id:'veteran',em:'⚔️',name:'Veteran',color:'#0FB5A3',dark:'#0A6E63',
+ {id:'veteran',em:'⚔️',name:'Experienced Player',color:'#F2711C',dark:'#8F3E08',
   desc:'Fifteen years of characters and a dice bag older than some attendees. Drives in from Jackson wanting great DMs, a tight schedule, and zero wasted time. If the con is good, they bring their whole table next year.',
   goals:['Great DMs and a tight schedule','Signature events worth coveting','Scout it for the whole table']},
  {id:'family',em:'👨‍👧‍👦',name:'Parent with Kids',color:'#2ECC71',dark:'#177A45',
@@ -248,7 +248,7 @@ const K='wincon_journey_notes';
 let notes={}; try{notes=JSON.parse(localStorage.getItem(K)||'{}');}catch(e){}
 const saveNotes=()=>{try{localStorage.setItem(K,JSON.stringify(notes));}catch(e){}};
 const persona=id=>PERSONAS.find(p=>p.id===id);
-const N=STAGES.length, COLW=230;
+const N=STAGES.length, COLW=207;
 const mix=(hue,pct)=>`color-mix(in oklab, ${hue} ${pct}%, #eef0f4)`;
 
 function renderBand(){
@@ -331,7 +331,7 @@ function renderBoard(){
   h+=rail('Opportunities');
   STAGES.forEach((st,i)=>h+=`<div class="cell dot${ps(i)}" style="background:#e0f6e9">${st.p[cur].opp}</div>`);
   // not to miss
-  h+=rail('Not to miss');
+  h+=rail('Emphasize');
   STAGES.forEach((st,i)=>{const v=st.p[cur].miss;
     h+=v?`<div class="cell${ps(i)}" style="background:#ffefc9"><b style="color:var(--gold)">★</b> ${v}</div>`:`<div class="cell empty${ps(i)}"></div>`;});
   // organizer rows
