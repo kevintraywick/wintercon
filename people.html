@@ -6,92 +6,148 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>WinterCon — People</title>
 <style>
-  :root{--navy:#2F5496;--teal:#1f7a6d;--gold:#e0a526;--purple:#7a4fb0;--green:#2e8b57;--red:#c0504d;
-        --bg:#f4f5f7;--ink:#242424;--line:#e4e6ea;}
+  :root{
+    --bg:#fbfaf7;          /* warm ivory — not parchment, not gray */
+    --ink:#26282e;         /* deep charcoal */
+    --quiet:#8f8c84;       /* quiet labels */
+    --hair:#e7e3da;        /* thin warm borders */
+    --navy:#2c4468;        /* dark navy */
+    --green:#2e6b4f;       /* forest green */
+    --burgundy:#7d2c3a;    /* deep burgundy */
+    --pine:#1f5e5a;        /* deep pine for allies */
+    --goldink:#a97b12;     /* gold, used sparingly */
+    --gold:#c9971f;
+  }
   *{box-sizing:border-box;}
-  html,body{margin:0;font-family:'Helvetica Neue',Arial,sans-serif;color:var(--ink);background:var(--bg);}
-  header{background:var(--navy);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-  header h1{margin:0;font-size:19px;}
-  header p{margin:2px 0 0;font-size:12px;opacity:.85;flex-basis:100%;}
-  header a.home{color:#fff;opacity:.85;font-size:13px;text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:6px;padding:4px 10px;}
-  header a.home:hover{opacity:1;background:rgba(255,255,255,.12);}
-  #bar{display:flex;gap:8px;align-items:center;padding:10px 20px;background:#fff;border-bottom:1px solid var(--line);flex-wrap:wrap;}
-  #bar input[type=search]{flex:1;min-width:180px;font:inherit;font-size:14px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;}
-  button{font:inherit;font-size:13px;border:1px solid #d5d5d2;background:#fbfbfa;border-radius:7px;padding:6px 11px;cursor:pointer;}
-  button:hover{background:#f0f0ee;}
-  button.primary{background:var(--navy);color:#fff;border-color:var(--navy);}
-  #counts{font-size:12px;color:#888;margin-left:auto;}
-  main{padding:16px 20px 60px;max-width:1180px;margin:0 auto;}
-  section.cat{background:#fff;border:1px solid var(--line);border-radius:10px;margin-bottom:18px;overflow:hidden;}
-  section.cat > h2{margin:0;padding:11px 16px;font-size:15px;color:#fff;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;}
-  section.cat > h2 small{font-weight:400;opacity:.85;font-size:12px;}
-  section.cat > h2 .n{margin-left:auto;background:rgba(255,255,255,.22);border-radius:12px;padding:1px 10px;font-size:12px;}
-  section.cat .body{padding:6px 12px 12px;}
-  section.cat.closed .body{display:none;}
-  .desc{font-size:12.5px;color:#777;margin:8px 4px 10px;}
-  table{width:100%;border-collapse:collapse;font-size:13.5px;}
-  th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#8a8f98;text-align:left;padding:6px 8px;border-bottom:2px solid var(--line);}
-  td{padding:6px 8px;border-bottom:1px solid #f0f1f3;vertical-align:top;}
-  td[contenteditable]{outline:none;min-width:60px;border-radius:4px;}
-  td[contenteditable]:focus{background:#fffbe8;box-shadow:inset 0 0 0 1.5px var(--gold);}
-  td.name{font-weight:600;}
-  td.notes{color:#555;font-size:12.5px;max-width:280px;}
-  select.status{font:inherit;font-size:12px;border:1px solid var(--line);border-radius:12px;padding:2px 6px;background:#fff;cursor:pointer;}
-  .s-idea{color:#8a8f98;} .s-contact{color:#b26a00;} .s-talking{color:#2F5496;} .s-committed{color:#2e8b57;font-weight:700;} .s-declined{color:#c0504d;}
-  td.rowbtns{white-space:nowrap;text-align:right;}
-  td.rowbtns button{padding:2px 8px;font-size:12px;border-radius:5px;color:#999;border-color:#e6e6e3;}
-  td.rowbtns button:hover{color:#c0504d;border-color:#c0504d;background:#fff5f5;}
-  .addrow{margin:9px 4px 0;}
-  .addrow button{border-style:dashed;color:#666;}
-  .empty{padding:10px 8px;color:#aaa;font-size:13px;font-style:italic;}
-  #foot{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.95);border-top:1px solid var(--line);
-        padding:7px 20px;font-size:11.5px;color:#999;display:flex;gap:16px;align-items:center;}
-  @media(max-width:760px){ td.notes{max-width:none;} #counts{flex-basis:100%;margin:0;} }
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Helvetica Neue',Arial,sans-serif;}
+  .serif{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;}
+  #page{max-width:920px;padding:38px 52px 60px;}
+
+  /* ---- masthead ---- */
+  #crumb{font-size:12px;letter-spacing:.14em;text-transform:uppercase;}
+  #crumb a{color:var(--quiet);text-decoration:none;}
+  #crumb a:hover{color:var(--navy);}
+  #crumb .flake{color:var(--gold);margin:0 2px;}
+  h1{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+     font-size:42px;font-weight:600;margin:10px 0 6px;letter-spacing:.01em;}
+  #sub{font-size:14.5px;color:var(--quiet);margin:0;}
+  #mastrule{margin-top:18px;border-top:1px solid var(--ink);border-bottom:3px double var(--hair);height:5px;}
+
+  /* ---- toolbar ---- */
+  #bar{display:flex;gap:14px;align-items:baseline;margin:20px 0 8px;flex-wrap:wrap;}
+  #q{font:inherit;font-size:14px;padding:8px 12px;border:1px solid var(--hair);border-radius:6px;
+     background:#fff;min-width:260px;transition:border-color .15s;}
+  #q:focus{outline:none;border-color:var(--navy);}
+  #counts{margin-left:auto;font-size:13px;color:var(--quiet);}
+  #counts b{color:var(--green);font-weight:600;}
+
+  /* ---- chapters ---- */
+  section.cat{margin-top:34px;}
+  .chap{display:flex;align-items:baseline;gap:12px;cursor:pointer;user-select:none;}
+  .chap svg{width:19px;height:19px;flex:none;transform:translateY(3px);}
+  .chap h2{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+           font-size:24px;font-weight:600;margin:0;}
+  .chap .tally{font-size:12.5px;color:var(--quiet);}
+  .chap .tally b{font-weight:600;}
+  .chap .line{flex:1;border-top:1px solid var(--hair);transform:translateY(-4px);}
+  .chap .fold{font-size:11px;color:var(--quiet);transition:transform .15s;}
+  section.closed .fold{transform:rotate(-90deg);}
+  .whisper{margin:6px 0 2px 31px;font-size:13px;color:var(--quiet);font-style:italic;}
+  section.closed .body{display:none;}
+
+  /* ---- roster rows ---- */
+  .row{position:relative;padding:14px 8px 13px 31px;border-bottom:1px solid var(--hair);
+       animation:rise .18s ease-out;transition:background .15s;}
+  .row:hover{background:#fff;}
+  @keyframes rise{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+  .row .top{display:flex;align-items:baseline;gap:14px;}
+  .pname{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+         font-size:17.5px;font-weight:600;min-width:40px;outline:none;border-radius:4px;padding:0 3px;}
+  .pname:empty::before{content:'Open seat — add a name';font-style:italic;font-weight:400;color:#b9b5aa;}
+  .prole{font-size:13.5px;color:#55524b;outline:none;border-radius:4px;padding:0 3px;flex:1;}
+  .prole:empty::before{content:'role';color:#c4c0b5;font-style:italic;}
+  select.status{font:inherit;font-size:12.5px;font-weight:600;border:none;background:transparent;
+                cursor:pointer;text-align:right;padding:0 2px;appearance:none;-webkit-appearance:none;}
+  .s-idea{color:#8f8c84;} .s-contact{color:var(--goldink);} .s-talking{color:var(--navy);}
+  .s-committed{color:var(--green);} .s-declined{color:#9c8288;}
+  .pnotes{font-size:13px;color:#6d6a62;line-height:1.55;margin-top:4px;outline:none;border-radius:4px;padding:0 3px;}
+  .pnotes:empty::before{content:'notes';color:#c4c0b5;font-style:italic;}
+  .meta{display:flex;gap:18px;margin-top:5px;font-size:12px;color:var(--quiet);}
+  .meta span{outline:none;border-radius:4px;padding:0 3px;min-width:30px;}
+  .meta .pcontact:empty::before{content:'contact';color:#c9c5ba;font-style:italic;}
+  .meta .ploc:empty::before{content:'location';color:#c9c5ba;font-style:italic;}
+  [contenteditable]:focus{background:#fff;box-shadow:inset 0 0 0 1.5px var(--gold);}
+  .del{position:absolute;top:12px;right:6px;border:none;background:none;color:#c9c5ba;font-size:15px;
+       cursor:pointer;opacity:0;transition:opacity .15s;padding:2px 6px;}
+  .row:hover .del{opacity:1;}
+  .del:hover{color:var(--burgundy);}
+
+  .recruit{margin:10px 0 0 31px;}
+  .recruit button{font:inherit;font-size:13.5px;font-weight:600;border:none;background:none;cursor:pointer;
+                  padding:4px 0;transition:transform .15s;}
+  .recruit button:hover{transform:translateY(-1px);text-decoration:underline;}
+  .empty{margin:10px 0 0 31px;font-size:13px;font-style:italic;color:var(--quiet);}
+
+  /* ---- quiet tools ---- */
+  #tools{margin-top:50px;padding-top:14px;border-top:1px solid var(--hair);display:flex;gap:20px;align-items:baseline;flex-wrap:wrap;}
+  #tools .lbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--quiet);}
+  #tools button{font:inherit;font-size:12.5px;border:none;background:none;color:#77746b;cursor:pointer;padding:0;}
+  #tools button:hover{color:var(--navy);text-decoration:underline;}
+  @media(max-width:700px){ #page{padding:26px 22px 50px;} .row{padding-left:0;} .whisper,.recruit,.empty{margin-left:0;} }
 </style>
 </head>
 <body>
-<header>
-  <h1>WinterCon — People</h1>
-  <a class="home" href="index.html" title="Ops home" style="margin-left:auto;font-size:18px;border:none;padding:2px 6px;background:none;">🏠</a>
-  <p>Everyone who makes the con happen: players, con workers, volunteers, allies, and sponsors. Click any cell to edit — changes autosave in this browser. Use Export to share or back up.</p>
-</header>
-<div id="bar">
-  <input type="search" id="q" placeholder="Search people, stores, notes…"/>
-  <button id="exp">Export JSON</button>
-  <button id="expcsv">Export CSV</button>
-  <button id="imp">Import</button>
-  <input type="file" id="file" accept="application/json" style="display:none"/>
-  <button id="reset">Reset to starter list</button>
-  <span id="counts"></span>
-</div>
-<main id="main"></main>
-<div id="foot">
-  <span><b>Statuses:</b> Idea → Contacted → Talking → Committed (or Declined).</span>
-  <span>Data lives in this browser (localStorage). Export regularly.</span>
+<div id="page">
+  <div id="crumb"><a href="index.html">WinterCon<span class="flake">❄</span></a> <span style="color:var(--hair)">/</span> <span style="color:var(--quiet)">People</span></div>
+  <h1>People</h1>
+  <p id="sub">Everyone who makes WinterCon happen.</p>
+  <div id="mastrule"></div>
+
+  <div id="bar">
+    <input type="search" id="q" placeholder="Search the roster…"/>
+    <span id="counts"></span>
+  </div>
+
+  <main id="main"></main>
+
+  <div id="tools">
+    <span class="lbl">Ledger</span>
+    <button id="exp">Export JSON</button>
+    <button id="expcsv">Export CSV</button>
+    <button id="imp">Import</button>
+    <button id="reset">Reset to starter list</button>
+    <input type="file" id="file" accept="application/json" style="display:none"/>
+  </div>
 </div>
 
 <script>
+const ICONS={
+ tent:'<path d="M3 20 12 4l9 16M12 6v14M3 20h18" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
+ shield:'<path d="M12 3l7 2.6v5.2c0 4.6-3.1 7.6-7 10.2-3.9-2.6-7-5.6-7-10.2V5.6z" fill="none" stroke-width="1.6" stroke-linejoin="round"/>',
+ torch:'<path d="M12 2.5c2 2.8 3.6 3.9 3.6 6.3a3.6 3.6 0 1 1-7.2 0c0-2.4 1.6-3.5 3.6-6.3zM10.6 13.5h2.8l-.9 8h-1z" fill="none" stroke-width="1.5" stroke-linejoin="round"/>',
+ compass:'<circle cx="12" cy="12" r="8.6" fill="none" stroke-width="1.6"/><path d="M15.2 8.8l-2.1 4.3-4.3 2.1 2.1-4.3z" fill="none" stroke-width="1.4" stroke-linejoin="round"/>',
+ banner:'<path d="M6 3.5h12v14l-6-3.8-6 3.8z" fill="none" stroke-width="1.6" stroke-linejoin="round"/>',
+};
 const CATS=[
- {id:'players', name:'Players', color:'#2F5496',
-  desc:'The audience. Track early superfans, table captains, campus contacts, and anyone who says “sign me up.” These are also your word-of-mouth engine — note who can bring a group.'},
- {id:'workers', name:'Con Workers', color:'#c0504d',
-  desc:'People with a defined job and real responsibility: registration desk, floor manager, AV/sound, safety lead, vendor coordinator, social media. Paid, comped, or trusted-volunteer — they own something.'},
- {id:'volunteers', name:'Volunteers', color:'#2e8b57',
-  desc:'Helping hands and, above all, DMs — the rate limiter. Every DM ≈ 5 more paying seats. Also table facilitators for battle interactives, setup/teardown crews, greeters, photographers.'},
- {id:'allies', name:'Allies', color:'#7a4fb0',
-  desc:'People and orgs who open doors but aren’t writing checks: the Martin Public Library / Event Center staff, UTM student clubs, faculty, city/chamber, press & radio, podcasters, church/school contacts, other cons.'},
- {id:'sponsors', name:'Sponsors', color:'#e0a526',
-  desc:'Cash and in-kind partners. Tiers: Community Supporter $150–250 · Game Store Partner $500 · Presenting Sponsor $1,000+. In-kind counts: product, prizes, food, or bringing their DMs.'},
+ {id:'players', name:'Players', color:'var(--navy)', icon:'tent', cta:'Add a player',
+  desc:'The audience — and the word-of-mouth engine. Note who can bring a group.'},
+ {id:'workers', name:'Con Workers', color:'var(--burgundy)', icon:'shield', cta:'Add a crew member',
+  desc:'People who own something: registration, floor, AV, safety, vendors, social.'},
+ {id:'volunteers', name:'Volunteers', color:'var(--green)', icon:'torch', cta:'Recruit a volunteer',
+  desc:'Helping hands — above all DMs. Every DM ≈ five more seats.'},
+ {id:'allies', name:'Allies', color:'var(--pine)', icon:'compass', cta:'Add an ally',
+  desc:'Door-openers: the venue, campus, press, city.'},
+ {id:'sponsors', name:'Sponsors', color:'var(--goldink)', icon:'banner', cta:'Welcome a sponsor',
+  desc:'Cash &amp; in-kind partners — $150 community tier to $1,000+ presenting.'},
 ];
-const STATUSES=['Idea','Contacted','Talking','Committed','Declined'];
-const FIELDS=[
- {k:'name',label:'Name',cls:'name'},
- {k:'role',label:'Role / Affiliation'},
- {k:'contact',label:'Contact'},
- {k:'loc',label:'Location'},
- {k:'status',label:'Status',type:'status'},
- {k:'notes',label:'Notes',cls:'notes'},
+const STATUSES=[
+ {v:'Idea',label:'To approach',cls:'s-idea'},
+ {v:'Contacted',label:'Reached out',cls:'s-contact'},
+ {v:'Talking',label:'In conversation',cls:'s-talking'},
+ {v:'Committed',label:'On board',cls:'s-committed'},
+ {v:'Declined',label:'Not this year',cls:'s-declined'},
 ];
+const stat=v=>STATUSES.find(s=>s.v===v)||STATUSES[0];
 
 function starter(){ return {
  players:[
@@ -122,66 +178,80 @@ function starter(){ return {
 let data=load()||starter();
 function save(){try{localStorage.setItem('wincon_people',JSON.stringify(data));}catch(e){}}
 function load(){try{const s=localStorage.getItem('wincon_people');if(s){const d=JSON.parse(s);if(d&&d.sponsors)return d;}}catch(e){}return null;}
+const closedCats=new Set();
+
+function editable(el,rec,key){
+  el.setAttribute('contenteditable','true');
+  el.addEventListener('blur',()=>{rec[key]=el.textContent.trim();save();});
+  el.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();el.blur();}});
+}
 
 const main=document.getElementById('main');
 function render(){
   const q=(document.getElementById('q').value||'').toLowerCase();
   main.innerHTML='';
-  let total=0, shown=0;
+  let total=0;
   CATS.forEach(cat=>{
     const rows=data[cat.id]||[];
     total+=rows.length;
-    const sec=document.createElement('section'); sec.className='cat'+(closedCats.has(cat.id)?' closed':'');
-    const vis=rows.map((r,i)=>({r,i})).filter(({r})=>!q||FIELDS.some(f=>String(r[f.k]||'').toLowerCase().includes(q)));
-    shown+=vis.length;
-    sec.innerHTML=`<h2 style="background:${cat.color}">${cat.name}<small>${q?'' :''}</small><span class="n">${rows.length}</span></h2>`;
+    const onboard=rows.filter(r=>r.status==='Committed').length;
+    const vis=rows.map((r,i)=>({r,i})).filter(({r})=>!q||['name','role','contact','loc','notes','status'].some(k=>String(r[k]||'').toLowerCase().includes(q)));
+    const sec=document.createElement('section');
+    sec.className='cat'+(closedCats.has(cat.id)?' closed':'');
+    sec.innerHTML=`
+      <div class="chap" style="color:${cat.color}">
+        <svg viewBox="0 0 24 24" stroke="currentColor">${ICONS[cat.icon]}</svg>
+        <h2>${cat.name}</h2>
+        <span class="tally">${rows.length} tracked${onboard?` · <b style="color:var(--green)">${onboard} on board</b>`:''}</span>
+        <span class="line"></span><span class="fold">▾</span>
+      </div>
+      <div class="whisper">${cat.desc}</div>`;
     const body=document.createElement('div'); body.className='body';
-    body.innerHTML=`<div class="desc">${cat.desc}</div>`;
     if(vis.length){
-      const tbl=document.createElement('table');
-      tbl.innerHTML='<thead><tr>'+FIELDS.map(f=>`<th>${f.label}</th>`).join('')+'<th></th></tr></thead>';
-      const tb=document.createElement('tbody');
       vis.forEach(({r,i})=>{
-        const tr=document.createElement('tr');
-        FIELDS.forEach(f=>{
-          const td=document.createElement('td');
-          if(f.type==='status'){
-            const sel=document.createElement('select'); sel.className='status s-'+String(r.status||'Idea').toLowerCase().slice(0,9).replace(/ .*/,'');
-            STATUSES.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;if(s===(r.status||'Idea'))o.selected=true;sel.appendChild(o);});
-            sel.className='status s-'+({Idea:'idea',Contacted:'contact',Talking:'talking',Committed:'committed',Declined:'declined'}[r.status||'Idea']);
-            sel.onchange=()=>{r.status=sel.value;save();render();};
-            td.appendChild(sel);
-          }else{
-            td.textContent=r[f.k]||'';
-            if(f.cls)td.className=f.cls;
-            td.setAttribute('contenteditable','true');
-            td.addEventListener('blur',()=>{r[f.k]=td.textContent.trim();save();});
-            td.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();td.blur();}});
-          }
-          tr.appendChild(td);
-        });
-        const tdb=document.createElement('td'); tdb.className='rowbtns';
-        const del=document.createElement('button'); del.textContent='✕'; del.title='Remove';
-        del.onclick=()=>{if(confirm('Remove "'+(r.name||r.role||'this row')+'"?')){data[cat.id].splice(i,1);save();render();}};
-        tdb.appendChild(del); tr.appendChild(tdb);
-        tb.appendChild(tr);
+        const row=document.createElement('div'); row.className='row';
+        const top=document.createElement('div'); top.className='top';
+        const nm=document.createElement('span'); nm.className='pname'; nm.textContent=r.name||'';
+        editable(nm,r,'name');
+        const rl=document.createElement('span'); rl.className='prole'; rl.textContent=r.role||'';
+        editable(rl,r,'role');
+        const sel=document.createElement('select'); sel.className='status '+stat(r.status).cls;
+        STATUSES.forEach(s=>{const o=document.createElement('option');o.value=s.v;o.textContent=s.label;if(s.v===(r.status||'Idea'))o.selected=true;sel.appendChild(o);});
+        sel.onchange=()=>{r.status=sel.value;save();render();};
+        top.append(nm,rl,sel);
+        row.appendChild(top);
+        const nt=document.createElement('div'); nt.className='pnotes'; nt.textContent=r.notes||'';
+        editable(nt,r,'notes');
+        row.appendChild(nt);
+        const meta=document.createElement('div'); meta.className='meta';
+        const ct=document.createElement('span'); ct.className='pcontact'; ct.textContent=r.contact||'';
+        editable(ct,r,'contact');
+        const lc=document.createElement('span'); lc.className='ploc'; lc.textContent=r.loc||'';
+        editable(lc,r,'loc');
+        meta.append(ct,lc);
+        row.appendChild(meta);
+        const del=document.createElement('button'); del.className='del'; del.innerHTML='✕'; del.title='Remove';
+        del.onclick=()=>{if(confirm('Remove "'+(r.name||r.role||'this entry')+'"?')){data[cat.id].splice(i,1);save();render();}};
+        row.appendChild(del);
+        body.appendChild(row);
       });
-      tbl.appendChild(tb); body.appendChild(tbl);
     } else {
-      body.innerHTML+=`<div class="empty">${q?'No matches in this category.':'Nobody here yet — add the first one.'}</div>`;
+      body.innerHTML+=`<div class="empty">${q?'No matches here.':'Nobody yet — recruit the first.'}</div>`;
     }
-    const add=document.createElement('div'); add.className='addrow';
-    const btn=document.createElement('button'); btn.textContent='+ Add to '+cat.name;
+    const add=document.createElement('div'); add.className='recruit';
+    const btn=document.createElement('button'); btn.style.color=cat.color; btn.textContent='+ '+cat.cta;
     btn.onclick=()=>{data[cat.id].push({name:'',role:'',contact:'',loc:'',status:'Idea',notes:''});save();render();
-      const rows=sec.querySelectorAll('tbody tr'); const last=rows[rows.length-1]; if(last){last.querySelector('td').focus();}};
+      const rowsEls=sec.querySelectorAll('.row .pname'); const last=rowsEls[rowsEls.length-1]; if(last)last.focus();};
     add.appendChild(btn); body.appendChild(add);
-    sec.querySelector('h2').onclick=()=>{ if(closedCats.has(cat.id))closedCats.delete(cat.id); else closedCats.add(cat.id); render(); };
+    sec.querySelector('.chap').onclick=e=>{
+      if(e.target.closest('select,[contenteditable]'))return;
+      if(closedCats.has(cat.id))closedCats.delete(cat.id); else closedCats.add(cat.id); render();
+    };
     sec.appendChild(body); main.appendChild(sec);
   });
   const committed=CATS.reduce((n,c)=>n+(data[c.id]||[]).filter(r=>r.status==='Committed').length,0);
-  document.getElementById('counts').textContent=`${total} people tracked · ${committed} committed`;
+  document.getElementById('counts').innerHTML=`${total} people · <b>${committed} on board</b>`;
 }
-const closedCats=new Set();
 document.getElementById('q').addEventListener('input',render);
 
 document.getElementById('exp').onclick=()=>{
@@ -199,6 +269,8 @@ document.getElementById('file').onchange=e=>{const f=e.target.files[0];if(!f)ret
   rd.onload=()=>{try{const d=JSON.parse(rd.result);if(d&&d.sponsors){data=d;save();render();}else alert('Not a people file.');}catch(err){alert('Could not read file.');}};rd.readAsText(f);};
 document.getElementById('reset').onclick=()=>{if(confirm('Reset to the starter list? Your edits will be lost (export first!).')){data=starter();save();render();}};
 
+// re-render when sync.js pulls fresh shared data
+window.addEventListener('storage',e=>{if(e.key==='wincon_people'){data=load()||data;render();}});
 render();
 </script>
 </body>
