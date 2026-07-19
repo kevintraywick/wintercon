@@ -7,28 +7,29 @@
 <title>Outreach Map — WinterCon</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
 <style>
-  :root{ --navy:#2F5496; --teal:#1f7a6d; --gold:#e0a526; --purple:#7a4fb0; --grey:#8a8f98; --bg:#f5f6f8; }
+  :root{ --navy:#2c4468; --teal:#1f5e5a; --gold:#c9971f; --purple:#7a4fb0; --green:#2e6b4f; --grey:#8f8c84; --bg:#fbfaf7; }
   *{ box-sizing:border-box; }
   html,body{ margin:0; height:100%; font-family:'Helvetica Neue',Arial,sans-serif; color:#222; }
   #app{ display:flex; height:100vh; }
-  #sidebar{ width:350px; min-width:350px; background:#fff; border-right:1px solid #e2e4e8; display:flex; flex-direction:column; }
-  #sidebar header{ padding:14px 18px; background:var(--navy); color:#fff; }
-  #sidebar header h1{ margin:0 0 4px; font-size:18px; }
-  #sidebar header p{ margin:0; font-size:12px; opacity:.85; }
-  #sidebar header a.home{ display:inline-block; margin-top:8px; color:#fff; opacity:.85; font-size:12px; text-decoration:none;
-    border:1px solid rgba(255,255,255,.4); border-radius:6px; padding:3px 9px; }
-  #sidebar header a.home:hover{ opacity:1; }
+  #sidebar{ width:350px; min-width:350px; background:#fbfaf7; border-right:1px solid #e7e3da; display:flex; flex-direction:column; }
+  #sidebar header{ padding:16px 18px 12px; background:#fbfaf7; color:#26282e; border-bottom:3px double #e7e3da; }
+  #sidebar header h1{ margin:0 0 3px; font-size:24px; font-weight:600;
+    font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif; }
+  #sidebar header p{ margin:0; font-size:12px; color:#8f8c84; }
+  #sidebar header a.home{ display:inline-block; margin-top:6px; color:#8f8c84; font-size:11px; letter-spacing:.12em;
+    text-transform:uppercase; text-decoration:none; }
+  #sidebar header a.home:hover{ color:var(--navy); }
   .filters{ padding:10px 18px; border-bottom:1px solid #eee; font-size:13px; display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; }
   .filters label{ display:flex; align-items:center; gap:6px; cursor:pointer; }
-  .filters button{ font:inherit; font-size:12.5px; border:1px dashed #b9c4d8; background:#f6f8fc; color:var(--navy);
-    border-radius:7px; padding:4px 10px; cursor:pointer; }
-  .filters button:hover{ background:#eaf0fa; }
+  .filters button{ font:inherit; font-size:12.5px; font-weight:600; border:none; background:none; color:var(--green);
+    padding:4px 0; cursor:pointer; }
+  .filters button:hover{ text-decoration:underline; }
   .filters button.arm{ background:var(--navy); color:#fff; border-style:solid; }
   #addbanner{ display:none; padding:8px 18px; background:#fff7e2; border-bottom:1px solid #f0e2b8; font-size:12.5px; color:#8a6d1a; }
   .list{ overflow-y:auto; flex:1; }
-  .band{ padding:8px 18px 4px; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#8a8f98; background:#fafbfc; border-bottom:1px solid #f0f1f3; }
+  .band{ padding:8px 18px 4px; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:#8f8c84; background:#fbfaf7; border-bottom:1px solid #f0ede5; }
   .store{ padding:9px 18px; border-bottom:1px solid #f2f3f5; cursor:pointer; }
-  .store:hover{ background:#f3f7ff; }
+  .store:hover{ background:#fff; }
   .store .nm{ font-weight:600; font-size:14px; display:flex; align-items:center; gap:7px; }
   .store .meta{ font-size:12px; color:#666; margin-top:2px; }
   .dot{ display:inline-block; width:10px; height:10px; border-radius:50%; flex:none; }

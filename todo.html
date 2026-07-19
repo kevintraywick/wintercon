@@ -5,60 +5,68 @@
 <script src="/sync.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>WinterCon — To-Do</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" rel="stylesheet"/>
 <style>
-  :root{--navy:#2F5496;--bg:#f4f5f7;--ink:#242424;--line:#e4e6ea;--done:#2e8b57;}
+  :root{--bg:#fbfaf7;--ink:#26282e;--quiet:#8f8c84;--hair:#e7e3da;
+        --navy:#2c4468;--green:#2e6b4f;--burgundy:#7d2c3a;--gold:#c9971f;}
   *{box-sizing:border-box;}
-  html,body{margin:0;font-family:'Helvetica Neue',Arial,sans-serif;color:var(--ink);background:var(--bg);}
-  header{background:var(--navy);color:#fff;padding:18px 24px;position:relative;}
-  header h1{margin:0;font-size:23px;}
-  header p{margin:5px 0 0;font-size:13px;opacity:.85;}
-  #homeBtn{position:absolute;top:14px;right:16px;font-size:20px;text-decoration:none;
-           background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.35);
-           border-radius:8px;padding:4px 9px;line-height:1;}
-  #wrap{padding:22px 24px;max-width:620px;margin:0 auto;}
-  #card{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
-  #card h2{margin:0;padding:11px 16px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#fff;background:var(--navy);}
-  ul{list-style:none;margin:0;padding:6px 0;}
-  li{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid #f0f1f4;}
-  li:last-child{border-bottom:none;}
-  .circ{width:26px;height:26px;min-width:26px;border-radius:50%;border:2px solid #b9c2d0;background:#fff;
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Helvetica Neue',Arial,sans-serif;}
+  #page{max-width:720px;padding:38px 52px 60px;}
+  #crumb{font-size:12px;letter-spacing:.14em;text-transform:uppercase;}
+  #crumb a{color:var(--quiet);text-decoration:none;}
+  #crumb a:hover{color:var(--navy);}
+  h1{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+     font-size:42px;font-weight:600;margin:10px 0 6px;letter-spacing:.01em;}
+  #sub{font-family:'Caveat',cursive;font-size:27px;color:var(--burgundy);margin:0;transform:rotate(-1.2deg);display:inline-block;}
+  #mastrule{margin-top:18px;border-top:1px solid var(--ink);border-bottom:3px double var(--hair);height:5px;}
+
+  ul{list-style:none;margin:14px 0 0;padding:0;}
+  li{display:flex;align-items:center;gap:14px;padding:13px 4px;border-bottom:1px solid var(--hair);
+     animation:rise .18s ease-out;transition:background .15s;position:relative;}
+  li:hover{background:#fff;}
+  @keyframes rise{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+  .circ{width:26px;height:26px;min-width:26px;border-radius:50%;border:1.5px solid #b9b5aa;background:transparent;
         cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff;
         transition:background .15s,border-color .15s;}
-  .circ.done{background:var(--done);border-color:var(--done);}
-  .txt{flex:1;font-size:15.5px;}
-  li.done .txt{color:#9aa0a8;text-decoration:line-through;}
-  .del{border:none;background:none;color:#c9ced6;font-size:17px;cursor:pointer;padding:2px 6px;}
-  .del:hover{color:#c0504d;}
-  .own{border:1px dashed #b9c2d0;background:none;color:#8a8f98;font-size:12px;border-radius:4px;
-       padding:3px 10px;cursor:pointer;white-space:nowrap;}
+  .circ:hover{border-color:var(--ink);}
+  .circ.done{background:var(--green);border-color:var(--green);}
+  .txt{flex:1;font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;font-size:16.5px;}
+  li.done .txt{color:#a49e8d;text-decoration:line-through;}
+  .vol{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--quiet);cursor:pointer;white-space:nowrap;user-select:none;}
+  .vol input{accent-color:var(--green);width:15px;height:15px;cursor:pointer;}
+  .vol.on{color:var(--green);font-weight:600;}
+  .own{border:1px dashed #b9b5aa;background:none;color:var(--quiet);font-size:12px;border-radius:4px;
+       padding:3px 10px;cursor:pointer;white-space:nowrap;font:inherit;font-size:12px;}
   .own:hover{border-color:var(--navy);color:var(--navy);}
-  .own.has{border:1px solid #dbe4f5;background:#eef3fc;color:var(--navy);font-weight:600;}
-  .vol{display:flex;align-items:center;gap:5px;font-size:11.5px;color:#8a8f98;cursor:pointer;white-space:nowrap;user-select:none;}
-  .vol input{accent-color:var(--done);width:15px;height:15px;cursor:pointer;}
-  .vol.on{color:var(--done);font-weight:600;}
+  .own.has{border:1px solid var(--hair);background:#fff;color:var(--navy);font-weight:600;}
   li.done .own{opacity:.55;}
-  #addRow{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--line);background:#fafbfc;}
-  #addRow input{flex:1;font-size:14.5px;padding:9px 12px;border:1px solid #ccd2db;border-radius:8px;}
-  #addRow button{font-size:14px;padding:9px 16px;border:none;border-radius:8px;background:var(--navy);color:#fff;cursor:pointer;}
-  #empty{padding:22px 16px;font-size:13.5px;color:#9aa0a8;text-align:center;}
+  .del{border:none;background:none;color:#c9c5ba;font-size:15px;cursor:pointer;padding:2px 6px;opacity:0;transition:opacity .15s;}
+  li:hover .del{opacity:1;}
+  .del:hover{color:var(--burgundy);}
+  #addRow{display:flex;gap:10px;margin-top:18px;}
+  #addRow input{flex:1;font:inherit;font-size:14.5px;padding:9px 12px;border:1px solid var(--hair);border-radius:6px;background:#fff;}
+  #addRow input:focus{outline:none;border-color:var(--navy);}
+  #addRow button{font:inherit;font-size:13.5px;font-weight:600;padding:9px 16px;border:none;border-radius:6px;
+                 background:var(--green);color:#fff;cursor:pointer;transition:transform .15s;}
+  #addRow button:hover{transform:translateY(-1px);}
+  #empty{padding:22px 4px;font-size:13.5px;color:var(--quiet);font-style:italic;}
+  @media(max-width:700px){ #page{padding:26px 22px 50px;} }
 </style>
 </head>
 <body>
-<header>
-  <a id="homeBtn" href="index.html" title="Ops home">🏠</a>
+<div id="page">
+  <div id="crumb"><a href="index.html">WinterCon</a> <span style="color:var(--hair)">/</span> <span style="color:var(--quiet)">To-Do</span></div>
   <h1>To-Do</h1>
-  <p>Shared checklist — tap the circle when it's done.</p>
-</header>
+  <p id="sub">the quest log</p>
+  <div id="mastrule"></div>
 
-<div id="wrap">
-  <div id="card">
-    <h2>Checklist</h2>
-    <ul id="list"></ul>
-    <div id="empty" style="display:none">Nothing here yet — add your first item below.</div>
-    <div id="addRow">
-      <input id="newTxt" type="text" placeholder="Add an item…" />
-      <button onclick="addItem()">Add</button>
-    </div>
+  <ul id="list"></ul>
+  <div id="empty" style="display:none">Nothing on the log — add the first quest below.</div>
+  <div id="addRow">
+    <input id="newTxt" type="text" placeholder="What needs doing?" />
+    <button onclick="addItem()">Add to the log</button>
   </div>
 </div>
 
@@ -103,9 +111,9 @@ function render(){
     o.textContent=it.owner?it.owner:'＋ own this';
     o.title=it.owner?'Tap to change or release (leave blank to release)':'Take ownership';
     o.onclick=()=>{
-      const v=prompt(it.owner?'Owner (clear to release):':'Your name:',it.owner||'');
-      if(v===null)return;
-      it.owner=v.trim();
+      const val=prompt(it.owner?'Owner (clear to release):':'Your name:',it.owner||'');
+      if(val===null)return;
+      it.owner=val.trim();
       save(items);render();
     };
     const d=document.createElement('button');
@@ -123,7 +131,6 @@ function addItem(){
   save(items);inp.value='';render();
 }
 document.getElementById('newTxt').addEventListener('keydown',e=>{if(e.key==='Enter')addItem();});
-// re-render if sync.js pulls fresh server state
 window.addEventListener('storage',e=>{if(e.key===KEY){items=load()||[];render();}});
 render();
 </script>

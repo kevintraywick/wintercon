@@ -3,50 +3,53 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>WinterCon — Image Lab 🍌</title>
+<title>WinterCon — Image Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" rel="stylesheet"/>
 <style>
-  :root{--navy:#2F5496;--gold:#e0a526;--red:#c0504d;--bg:#f4f5f7;--ink:#242424;--line:#e4e6ea;}
+  :root{--navy:#2c4468;--gold:#c9971f;--goldink:#a97b12;--red:#b3362e;--green:#2e6b4f;--burgundy:#7d2c3a;
+        --bg:#fbfaf7;--ink:#26282e;--line:#e7e3da;--quiet:#8f8c84;}
   *{box-sizing:border-box;}
   html,body{margin:0;font-family:'Helvetica Neue',Arial,sans-serif;color:var(--ink);background:var(--bg);}
-  header{background:linear-gradient(150deg,#22406f,#2F5496);color:#fff;padding:22px 24px;position:relative;}
-  #homeBtn{position:absolute;top:14px;right:16px;font-size:20px;text-decoration:none;
-           background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.35);
-           border-radius:8px;padding:4px 9px;line-height:1;}
-  header h1{margin:0;font-size:23px;}
-  header p{margin:5px 0 0;font-size:13px;opacity:.86;}
-  #wrap{max-width:760px;margin:0 auto;padding:22px;}
-  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;}
+  #crumb{font-size:12px;letter-spacing:.14em;text-transform:uppercase;}
+  #crumb a{color:var(--quiet);text-decoration:none;}
+  #crumb a:hover{color:var(--navy);}
+  h1{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+     font-size:42px;font-weight:600;margin:10px 0 6px;letter-spacing:.01em;}
+  #sub{font-family:'Caveat',cursive;font-size:27px;color:var(--burgundy);margin:0;transform:rotate(-1.2deg);display:inline-block;}
+  #mastrule{margin-top:18px;border-top:1px solid var(--ink);border-bottom:3px double var(--line);height:5px;margin-bottom:22px;}
+  #wrap{max-width:760px;padding:38px 52px 60px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:20px;margin-bottom:16px;}
   /* unlock */
   #unlock .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
-  #unlock .chip{font-size:22px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:#fafbfc;cursor:pointer;}
+  #unlock .chip{font-size:22px;padding:8px 12px;border:1px solid var(--line);border-radius:6px;background:#fff;cursor:pointer;}
   #unlock .picked{font-size:22px;min-height:34px;margin-top:8px;letter-spacing:4px;}
   #unlock small{color:#8a909a;}
   /* lab */
-  textarea{width:100%;min-height:90px;font:inherit;font-size:14.5px;border:1px solid var(--line);border-radius:10px;padding:12px;resize:vertical;}
+  textarea{width:100%;min-height:90px;font:inherit;font-size:14.5px;border:1px solid var(--line);border-radius:6px;padding:12px;resize:vertical;background:#fff;}
   .row{display:flex;gap:12px;align-items:center;margin-top:12px;flex-wrap:wrap;}
-  select,button.go{font:inherit;font-size:14px;padding:9px 14px;border-radius:10px;border:1px solid var(--line);background:#fff;}
-  .qtoggle{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+  select,button.go{font:inherit;font-size:14px;padding:9px 14px;border-radius:6px;border:1px solid var(--line);background:#fff;}
+  .qtoggle{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;}
   .qtoggle button{font:inherit;font-size:13.5px;padding:9px 16px;border:none;background:#fff;cursor:pointer;}
   .qtoggle button.on{background:var(--navy);color:#fff;font-weight:700;}
-  button.go{background:var(--gold);border-color:var(--gold);color:#fff;font-weight:800;cursor:pointer;margin-left:auto;}
+  button.go{background:var(--green);border-color:var(--green);color:#fff;font-weight:700;cursor:pointer;margin-left:auto;}
   button.go:disabled{opacity:.5;cursor:wait;}
-  .hint{font-size:12px;color:#8a909a;margin-top:10px;line-height:1.5;}
+  .hint{font-size:12px;color:var(--quiet);margin-top:10px;line-height:1.5;}
   #err{color:var(--red);font-size:13.5px;font-weight:600;margin-top:12px;min-height:18px;}
   #out{text-align:center;}
-  #out img{max-width:100%;border-radius:10px;border:1px solid var(--line);}
+  #out img{max-width:100%;border-radius:8px;border:1px solid var(--line);}
   #out a{display:inline-block;margin-top:10px;font-size:13.5px;}
   .spin{display:inline-block;animation:sp 1s linear infinite;}
   @keyframes sp{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
-<header>
-  <a id="homeBtn" href="index.html" title="Ops home">🏠</a>
-  <h1>Image Lab 🍌</h1>
-  <p>Nano Banana image generation — same engine as Blackmoor. Pro for print-quality, Lite (~3¢/image) for quick art.</p>
-</header>
-
 <div id="wrap">
+  <div id="crumb"><a href="index.html">WinterCon</a> <span style="color:var(--line)">/</span> <span style="color:var(--quiet)">Image Lab</span></div>
+  <h1>Image Lab</h1>
+  <p id="sub">art for the con</p>
+  <div id="mastrule"></div>
   <div class="card" id="unlock">
     <b>Unlock with the DM passcode</b>
     <div class="picked" id="picked"></div>

@@ -6,17 +6,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Wintercon — Idea Canvas</title>
 <style>
-  :root{--bg:#f3f2ee;--ink:#2a2a2a;}
+  :root{--bg:#fbfaf7;--ink:#26282e;}
   *{box-sizing:border-box;}
   html,body{margin:0;height:100%;font-family:'Helvetica Neue',Arial,sans-serif;color:var(--ink);overflow:hidden;background:var(--bg);}
-  #toolbar{position:fixed;top:0;left:0;right:0;height:48px;background:#fff;border-bottom:1px solid #e2e2df;
-    display:flex;align-items:center;gap:8px;padding:0 12px;z-index:20;box-shadow:0 1px 4px rgba(0,0,0,.05);}
-  #toolbar .title{font-weight:700;margin-right:8px;font-size:15px;color:#2F5496;}
-  button{font:inherit;font-size:13px;border:1px solid #d5d5d2;background:#fbfbfa;border-radius:7px;padding:6px 10px;cursor:pointer;}
-  button:hover{background:#f0f0ee;}
-  button.primary{background:#2F5496;color:#fff;border-color:#2F5496;}
-  .hint{margin-left:auto;font-size:12px;color:#999;}
-  #stage{position:absolute;inset:48px 0 0 0;cursor:grab;overflow:hidden;}
+  #toolbar{position:fixed;top:0;left:0;right:0;height:50px;background:#fbfaf7;border-bottom:1px solid #26282e;
+    display:flex;align-items:center;gap:8px;padding:0 16px;z-index:20;}
+  #toolbar .title{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+    font-weight:600;margin-right:10px;font-size:18px;color:#26282e;}
+  button{font:inherit;font-size:13px;border:1px solid #e7e3da;background:#fff;border-radius:6px;padding:6px 10px;cursor:pointer;}
+  button:hover{border-color:#8f8c84;}
+  button.primary{background:#2e6b4f;color:#fff;border-color:#2e6b4f;}
+  .hint{margin-left:auto;font-size:12px;color:#8f8c84;}
+  #stage{position:absolute;inset:50px 0 0 0;cursor:grab;overflow:hidden;}
   #stage.panning{cursor:grabbing;}
   #links{position:absolute;inset:0;pointer-events:none;overflow:visible;}
   .node{position:absolute;left:0;top:0;transform-origin:center center;user-select:none;cursor:grab;
@@ -29,7 +30,7 @@
   #help{position:fixed;bottom:12px;left:12px;background:rgba(255,255,255,.92);border:1px solid #e2e2df;border-radius:8px;
     padding:9px 12px;font-size:12px;color:#555;line-height:1.6;z-index:15;max-width:250px;}
   #help b{color:#333;}
-  #panel{position:fixed;top:48px;right:0;bottom:0;width:340px;background:#fff;border-left:1px solid #e2e2df;
+  #panel{position:fixed;top:50px;right:0;bottom:0;width:340px;background:#fff;border-left:1px solid #e2e2df;
     z-index:18;display:none;flex-direction:column;box-shadow:-2px 0 10px rgba(0,0,0,.06);}
   #panel.open{display:flex;}
   #panel .phead{padding:12px 14px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:8px;}
@@ -43,7 +44,7 @@
     background:#ff8c42;border:2px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,.25);}
   body.panel-open #stage{right:340px;}
   body.panel-open #help{display:none;}
-  button.active{background:#2F5496;color:#fff;border-color:#2F5496;}
+  button.active{background:#2c4468;color:#fff;border-color:#2c4468;}
   #links .linkhit{stroke:transparent;stroke-width:16;fill:none;pointer-events:stroke;cursor:pointer;}
   #links .link{fill:none;pointer-events:none;}
   #links .handle{pointer-events:all;cursor:grab;}
@@ -57,7 +58,7 @@
 </head>
 <body>
 <div id="toolbar">
-  <span class="title">Wintercon (WinCon) — Idea Canvas</span>
+  <span class="title">Idea Canvas</span>
   <button class="primary" id="addChild">+ Child</button>
   <button id="addIdea">+ Idea</button>
   <button id="connect">Connect</button>

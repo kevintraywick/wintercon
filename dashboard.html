@@ -143,6 +143,24 @@ h2 .hint{font-weight:400;font-family:'Public Sans',sans-serif;font-size:12px;col
 .addtask input,.addtask select{border:1px solid var(--line);border-radius:6px;padding:7px 9px}
 @media (max-width:700px){.addtask{grid-template-columns:1fr 1fr}}
 
+/* today's pulse */
+.pulse{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media (max-width:760px){.pulse{grid-template-columns:1fr}}
+.pulse .plabel{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--slate);font-weight:600;margin-bottom:8px}
+.pline{display:flex;gap:8px;align-items:baseline;padding:4px 0;font-size:13.5px;position:relative}
+.pline .mk{flex:none;font-weight:700}
+.pulse .prior .mk{color:var(--accent)}
+.pulse .wins .mk{color:var(--green)}
+.pulse .wins .ptxt{color:var(--green)}
+.pulse .needs .mk{color:var(--flame)}
+.pline .ptxt{outline:none;border-radius:4px;padding:0 2px;flex:1}
+.pline .ptxt:focus{background:#F4F7FA;box-shadow:inset 0 0 0 1.5px var(--accent)}
+.pline .px{border:none;background:none;color:#C3CFDA;font-size:13px;cursor:pointer;opacity:0;padding:0 3px}
+.pline:hover .px{opacity:1}
+.pline .px:hover{color:var(--red)}
+.padd{border:none;background:none;color:var(--slate);font-size:12.5px;cursor:pointer;padding:4px 0 0;font-family:inherit}
+.padd:hover{color:var(--accent);text-decoration:underline}
+
 /* my plate */
 .plate-empty{color:var(--slate);font-size:13.5px}
 .plate-task{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px;flex-wrap:wrap}
@@ -192,7 +210,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 24px 40px;font-size:12px;color:v
 
 <header>
   <div class="countstrip">
-    <div class="count-label">Time to WinterCon</div>
+    <div class="count-label" id="greet" style="font-size:15px;letter-spacing:.02em;text-transform:none;color:#EAF1F8;margin-bottom:6px"></div>
     <div class="countdown" id="countdown" aria-live="off"></div>
     <div class="condate" id="condate"></div>
   </div>
@@ -227,6 +245,11 @@ footer{max-width:1180px;margin:0 auto;padding:0 24px 40px;font-size:12px;color:v
 
 <main>
   <div class="colmain">
+
+    <section>
+      <h2>Today</h2>
+      <div class="pulse" id="pulse"></div>
+    </section>
 
     <section>
       <h2>This week <span class="hint">the short list — everything else can wait</span></h2>
@@ -382,6 +405,11 @@ const App = {
 
   async init(){
     this.s = await Store.load() || seed();
+    if(!this.s.pulse) this.s.pulse = {
+      priorities:["Confirm registration desk staffing","Print room signage","Finalize vendor map"],
+      victories:["AV equipment confirmed","Tavern sponsor onboard","Schedule published"],
+      needs:["Two DMs still needed","Volunteer dinner not finalized"]
+    };
     await Store.save(this.s);
     this.renderAll();
     setInterval(()=>this.tickCountdown(), 1000);
@@ -395,7 +423,7 @@ const App = {
 
   renderAll(){
     this.renderUsers(); this.tickCountdown(); this.renderReadiness();
-    this.renderBeacons(); this.renderTimeline(); this.renderWeek();
+    this.renderBeacons(); this.renderTimeline(); this.renderPulse(); this.renderWeek();
     this.renderPlate(); this.renderTabs(); this.renderTasks();
     this.renderBlockers(); this.renderDM();
     this.renderDecisions(); this.renderDirectory();
@@ -410,6 +438,8 @@ const App = {
   setUser(id){ this.s.currentUser=id; this.save(); this.renderUsers(); this.renderPlate(); this.renderTasks(); },
 
   tickCountdown(){
+    const hr=new Date().getHours();
+    document.getElementById('greet').textContent = hr<12?'Good morning.':hr<18?'Good afternoon.':'Good evening.';
     const el=document.getElementById('countdown');
     const target=new Date(this.s.conDate);
     let diff=target-new Date();
@@ -418,7 +448,8 @@ const App = {
     const pad=n=>String(n).padStart(2,'0');
     el.innerHTML=`<span>${d}</span><span class="unit">days</span><span>${pad(h)}</span><span class="unit">hrs</span><span>${pad(m)}</span><span class="unit">min</span><span>${pad(sec)}</span><span class="unit">sec</span>`;
     const cd=document.getElementById('condate');
-    cd.innerHTML=`${target.toLocaleDateString(undefined,{weekday:'short',year:'numeric',month:'long',day:'numeric'})}${this.s.conDatePlaceholder?' · placeholder':''} — <button onclick="App.setConDate()">change date</button>`;
+    const wd=target.toLocaleDateString(undefined,{weekday:'long'});
+    cd.innerHTML=`${wd} opens in ${d} day${d===1?'':'s'} · ${target.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'})}${this.s.conDatePlaceholder?' · placeholder':''} — <button onclick="App.setConDate()">change date</button>`;
   },
   setConDate(){
     const v=prompt("Con start date (YYYY-MM-DD):", this.s.conDate.slice(0,10));
@@ -496,6 +527,42 @@ const App = {
     const conP=((new Date(this.s.conDate)-min)/(max-min))*100;
     html+=`<div class="wp" style="left:${conP}%"><div class="dot" style="border-color:var(--flame)"></div><div class="wlabel" style="color:var(--flame)">WinterCon</div><div class="wdate">${this.fmt(this.s.conDate.slice(0,10))}</div></div>`;
     el.innerHTML=html;
+  },
+
+  /* ---- today's pulse ---- */
+  renderPulse(){
+    const cols=[
+      {k:'priorities', cls:'prior', label:"Today's priorities", mk:'•', add:'+ add a priority'},
+      {k:'victories',  cls:'wins',  label:'Recent victories',   mk:'✓', add:'+ add a victory'},
+      {k:'needs',      cls:'needs', label:'Needs help',         mk:'⚠', add:'+ raise a hand'},
+    ];
+    const el=document.getElementById('pulse');
+    el.innerHTML='';
+    cols.forEach(col=>{
+      const box=document.createElement('div'); box.className=col.cls;
+      box.innerHTML=`<div class="plabel">${col.label}</div>`;
+      (this.s.pulse[col.k]||[]).forEach((txt,i)=>{
+        const line=document.createElement('div'); line.className='pline';
+        line.innerHTML=`<span class="mk">${col.mk}</span>`;
+        const t=document.createElement('span'); t.className='ptxt'; t.textContent=txt;
+        t.setAttribute('contenteditable','true');
+        t.addEventListener('blur',()=>{
+          const v=t.textContent.trim();
+          if(v) this.s.pulse[col.k][i]=v; else this.s.pulse[col.k].splice(i,1);
+          this.save(); this.renderPulse();
+        });
+        t.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();t.blur();}});
+        const x=document.createElement('button'); x.className='px'; x.textContent='✕'; x.title='Remove';
+        x.onclick=()=>{this.s.pulse[col.k].splice(i,1);this.save();this.renderPulse();};
+        line.append(t,x); box.appendChild(line);
+      });
+      const add=document.createElement('button'); add.className='padd'; add.textContent=col.add;
+      add.onclick=()=>{this.s.pulse[col.k].push('');this.save();this.renderPulse();
+        const lines=document.querySelectorAll('.pulse .'+col.cls+' .ptxt');
+        const last=lines[lines.length-1]; if(last)last.focus();};
+      box.appendChild(add);
+      el.appendChild(box);
+    });
   },
 
   /* ---- this week ---- */
