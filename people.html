@@ -5,6 +5,9 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>WinterCon — People</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" rel="stylesheet"/>
 <style>
   :root{
     --bg:#fbfaf7;          /* warm ivory — not parchment, not gray */
@@ -28,15 +31,17 @@
   #crumb a{color:var(--quiet);text-decoration:none;}
   #crumb a:hover{color:var(--navy);}
   #crumb .flake{color:var(--gold);margin:0 2px;}
+  #titlerow{display:flex;align-items:baseline;gap:20px;}
   h1{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
      font-size:42px;font-weight:600;margin:10px 0 6px;letter-spacing:.01em;}
-  #sub{font-size:14.5px;color:var(--quiet);margin:0;}
+  #titlerow #q{margin-left:auto;}
+  #sub{font-family:'Caveat',cursive;font-size:27px;color:var(--burgundy);margin:0;transform:rotate(-1.2deg);display:inline-block;}
   #mastrule{margin-top:18px;border-top:1px solid var(--ink);border-bottom:3px double var(--hair);height:5px;}
 
   /* ---- toolbar ---- */
-  #bar{display:flex;gap:14px;align-items:baseline;margin:20px 0 8px;flex-wrap:wrap;}
+  #bar{display:flex;margin:14px 0 0;}
   #q{font:inherit;font-size:14px;padding:8px 12px;border:1px solid var(--hair);border-radius:6px;
-     background:#fff;min-width:260px;transition:border-color .15s;}
+     background:#fff;min-width:250px;transition:border-color .15s;}
   #q:focus{outline:none;border-color:var(--navy);}
   #counts{margin-left:auto;font-size:13px;color:var(--quiet);}
   #counts b{color:var(--green);font-weight:600;}
@@ -63,7 +68,7 @@
   .row .top{display:flex;align-items:baseline;gap:14px;}
   .pname{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
          font-size:17.5px;font-weight:600;min-width:40px;outline:none;border-radius:4px;padding:0 3px;}
-  .pname:empty::before{content:'Open seat — add a name';font-style:italic;font-weight:400;color:#b9b5aa;}
+  .pname:empty::before{content:'add a name';font-style:italic;font-weight:400;color:#b9b5aa;}
   .prole{font-size:13.5px;color:#55524b;outline:none;border-radius:4px;padding:0 3px;flex:1;}
   .prole:empty::before{content:'role';color:#c4c0b5;font-style:italic;}
   select.status{font:inherit;font-size:12.5px;font-weight:600;border:none;background:transparent;
@@ -98,15 +103,15 @@
 </head>
 <body>
 <div id="page">
-  <div id="crumb"><a href="index.html">WinterCon<span class="flake">❄</span></a> <span style="color:var(--hair)">/</span> <span style="color:var(--quiet)">People</span></div>
-  <h1>People</h1>
-  <p id="sub">Everyone who makes WinterCon happen.</p>
+  <div id="crumb"><a href="index.html">WinterCon</a> <span style="color:var(--hair)">/</span> <span style="color:var(--quiet)">People</span></div>
+  <div id="titlerow">
+    <h1>People</h1>
+    <input type="search" id="q" placeholder="Search the roster…"/>
+  </div>
+  <p id="sub">the D&amp;D crew</p>
   <div id="mastrule"></div>
 
-  <div id="bar">
-    <input type="search" id="q" placeholder="Search the roster…"/>
-    <span id="counts"></span>
-  </div>
+  <div id="bar"><span id="counts"></span></div>
 
   <main id="main"></main>
 
@@ -129,16 +134,10 @@ const ICONS={
  banner:'<path d="M6 3.5h12v14l-6-3.8-6 3.8z" fill="none" stroke-width="1.6" stroke-linejoin="round"/>',
 };
 const CATS=[
- {id:'players', name:'Players', color:'var(--navy)', icon:'tent', cta:'Add a player',
-  desc:'The audience — and the word-of-mouth engine. Note who can bring a group.'},
- {id:'workers', name:'Con Workers', color:'var(--burgundy)', icon:'shield', cta:'Add a crew member',
-  desc:'People who own something: registration, floor, AV, safety, vendors, social.'},
- {id:'volunteers', name:'Volunteers', color:'var(--green)', icon:'torch', cta:'Recruit a volunteer',
-  desc:'Helping hands — above all DMs. Every DM ≈ five more seats.'},
- {id:'allies', name:'Allies', color:'var(--pine)', icon:'compass', cta:'Add an ally',
-  desc:'Door-openers: the venue, campus, press, city.'},
- {id:'sponsors', name:'Sponsors', color:'var(--goldink)', icon:'banner', cta:'Welcome a sponsor',
-  desc:'Cash &amp; in-kind partners — $150 community tier to $1,000+ presenting.'},
+ {id:'workers', name:'Con Workers', color:'var(--burgundy)', icon:'shield', cta:'Add a crew member'},
+ {id:'volunteers', name:'Volunteers', color:'var(--green)', icon:'torch', cta:'Recruit a volunteer'},
+ {id:'allies', name:'Allies', color:'var(--pine)', icon:'compass', cta:'Add an ally'},
+ {id:'sponsors', name:'Sponsors', color:'var(--goldink)', icon:'banner', cta:'Welcome a sponsor'},
 ];
 const STATUSES=[
  {v:'Idea',label:'To approach',cls:'s-idea'},
@@ -205,7 +204,7 @@ function render(){
         <span class="tally">${rows.length} tracked${onboard?` · <b style="color:var(--green)">${onboard} on board</b>`:''}</span>
         <span class="line"></span><span class="fold">▾</span>
       </div>
-      <div class="whisper">${cat.desc}</div>`;
+      `;
     const body=document.createElement('div'); body.className='body';
     if(vis.length){
       vis.forEach(({r,i})=>{

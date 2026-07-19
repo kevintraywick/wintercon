@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="/sync.js"></script>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WinterCon — Store Outreach</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --bg:#fbfaf7;--ink:#26282e;--quiet:#8f8c84;--hair:#e7e3da;
+    --navy:#2c4468;--green:#2e6b4f;--burgundy:#7d2c3a;--goldink:#a97b12;--gold:#c9971f;
+    --red:#b3362e;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Helvetica Neue',Arial,sans-serif;}
+  #page{max-width:1080px;padding:38px 52px 60px;}
+
+  /* masthead */
+  #crumb{font-size:12px;letter-spacing:.14em;text-transform:uppercase;}
+  #crumb a{color:var(--quiet);text-decoration:none;}
+  #crumb a:hover{color:var(--navy);}
+  #titlerow{display:flex;align-items:baseline;gap:20px;}
+  h1{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+     font-size:42px;font-weight:600;margin:10px 0 6px;letter-spacing:.01em;}
+  #tally{margin-left:auto;font-size:13px;color:var(--quiet);}
+  #tally b{color:var(--green);font-weight:600;}
+  #sub{font-family:'Caveat',cursive;font-size:27px;color:var(--burgundy);margin:0;transform:rotate(-1.2deg);display:inline-block;}
+  #mastrule{margin-top:18px;border-top:1px solid var(--ink);border-bottom:3px double var(--hair);height:5px;}
+
+  /* layout */
+  #cols{display:grid;grid-template-columns:1fr 400px;gap:44px;margin-top:26px;align-items:start;}
+  @media(max-width:940px){ #cols{grid-template-columns:1fr;} #mapwrap{position:static;max-width:440px;} }
+
+  /* ---- the map ---- */
+  #mapwrap{position:sticky;top:24px;}
+  #map{background:#fff;border:1px solid var(--ink);border-radius:8px;display:block;width:100%;height:auto;}
+  #maplegend{display:flex;gap:22px;margin-top:9px;font-size:12px;color:var(--quiet);}
+  .key{display:flex;gap:7px;align-items:center;}
+  .key i{width:9px;height:9px;border-radius:50%;display:inline-block;}
+  #mapnote{font-family:'Caveat',cursive;font-size:19px;color:var(--quiet);margin-top:2px;transform:rotate(-.8deg);}
+
+  /* ---- store entries ---- */
+  .row{position:relative;padding:16px 8px 15px 0;border-bottom:1px solid var(--hair);
+       animation:rise .18s ease-out;transition:background .15s;}
+  .row:hover{background:#fff;}
+  .row.flash{background:#fdf7e6;}
+  @keyframes rise{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+  .top{display:flex;align-items:baseline;gap:12px;}
+  .sname{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+         font-size:19px;font-weight:600;outline:none;border-radius:4px;padding:0 3px;min-width:40px;}
+  .sname:empty::before{content:'store name';font-style:italic;font-weight:400;color:#b9b5aa;}
+  .stown{font-size:13px;color:var(--quiet);outline:none;border-radius:4px;padding:0 3px;flex:1;}
+  .stown:empty::before{content:'town · drive time';color:#c4c0b5;font-style:italic;}
+  select.status{font:inherit;font-size:12.5px;font-weight:600;border:none;background:transparent;
+                cursor:pointer;text-align:right;padding:0 2px;appearance:none;-webkit-appearance:none;}
+  .s-idea{color:#8f8c84;} .s-contact{color:var(--goldink);} .s-talking{color:var(--navy);}
+  .s-committed{color:var(--green);} .s-declined{color:#9c8288;}
+  .askline{margin-top:6px;font-size:13.5px;}
+  .askline .lbl{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--quiet);margin-right:8px;}
+  .sask{font-weight:600;outline:none;border-radius:4px;padding:0 3px;}
+  .sask:empty::before{content:'what we’re asking for';font-weight:400;color:#c4c0b5;font-style:italic;}
+  .snotes{font-size:13px;color:#6d6a62;line-height:1.55;margin-top:5px;outline:none;border-radius:4px;padding:0 3px;}
+  .snotes:empty::before{content:'notes';color:#c4c0b5;font-style:italic;}
+  .meta{margin-top:5px;font-size:12px;color:var(--quiet);}
+  .meta span{outline:none;border-radius:4px;padding:0 3px;min-width:40px;}
+  .scontact:empty::before{content:'contact';color:#c9c5ba;font-style:italic;}
+  [contenteditable]:focus{background:#fff;box-shadow:inset 0 0 0 1.5px var(--gold);}
+  .del{position:absolute;top:14px;right:4px;border:none;background:none;color:#c9c5ba;font-size:15px;
+       cursor:pointer;opacity:0;transition:opacity .15s;padding:2px 6px;}
+  .row:hover .del{opacity:1;}
+  .del:hover{color:var(--burgundy);}
+  #scout{margin-top:14px;}
+  #scout button{font:inherit;font-size:13.5px;font-weight:600;border:none;background:none;color:var(--green);
+                cursor:pointer;padding:4px 0;transition:transform .15s;}
+  #scout button:hover{transform:translateY(-1px);text-decoration:underline;}
+
+  #tools{margin-top:46px;padding-top:14px;border-top:1px solid var(--hair);display:flex;gap:20px;align-items:baseline;flex-wrap:wrap;}
+  #tools .lbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--quiet);}
+  #tools button{font:inherit;font-size:12.5px;border:none;background:none;color:#77746b;cursor:pointer;padding:0;}
+  #tools button:hover{color:var(--navy);text-decoration:underline;}
+  @media(max-width:700px){ #page{padding:26px 22px 50px;} }
+</style>
+</head>
+<body>
+<div id="page">
+  <div id="crumb"><a href="index.html">WinterCon</a> <span style="color:var(--hair)">/</span> <span style="color:var(--quiet)">Store Outreach</span></div>
+  <div id="titlerow">
+    <h1>Store Outreach</h1>
+    <span id="tally"></span>
+  </div>
+  <p id="sub">the sponsor trail</p>
+  <div id="mastrule"></div>
+
+  <div id="cols">
+    <div id="list"></div>
+    <div id="mapwrap">
+      <svg id="map" viewBox="0 0 400 372"></svg>
+      <div id="maplegend">
+        <span class="key"><i style="background:var(--red)"></i> to win</span>
+        <span class="key"><i style="background:var(--green)"></i> on board</span>
+        <span class="key"><i style="background:#c9c5ba"></i> not this year</span>
+      </div>
+      <div id="mapnote">every dot is a drive worth making</div>
+    </div>
+  </div>
+
+  <div id="scout"><button onclick="scout()">+ Scout a new store</button></div>
+
+  <div id="tools">
+    <span class="lbl">Ledger</span>
+    <button id="exp">Export JSON</button>
+    <button id="reset">Reset to starter list</button>
+  </div>
+</div>
+
+<script>
+const KEY='wincon_stores';
+const STATUSES=[
+ {v:'Idea',label:'To approach',cls:'s-idea'},
+ {v:'Contacted',label:'Reached out',cls:'s-contact'},
+ {v:'Talking',label:'In conversation',cls:'s-talking'},
+ {v:'Committed',label:'On board',cls:'s-committed'},
+ {v:'Declined',label:'Not this year',cls:'s-declined'},
+];
+const stat=v=>STATUSES.find(s=>s.v===v)||STATUSES[0];
+
+function starter(){ return [
+ {id:'ofg',name:'One Frequency Games',town:'Martin · in town',lat:36.343,lon:-88.850,contact:'',status:'Idea',
+  ask:'$500 or in-kind + 3–4 DMs',notes:'The only in-town store. Court as co-organizer, not just sponsor — everything hinges here.'},
+ {id:'dnm',name:'Dragons and Mages',town:'Union City · ~25 min',lat:36.424,lon:-89.057,contact:'',status:'Idea',
+  ask:'$500 + 2 DMs + run the Magic tournament',notes:'Best D&D/RPG fit after One Frequency.'},
+ {id:'hd',name:'Hobby Dungeon',town:'Fulton, KY · ~30 min',lat:36.504,lon:-88.874,contact:'',status:'Idea',
+  ask:'$250',notes:'Good for prizes and product in-kind.'},
+ {id:'bcg',name:'Battle City Gaming',town:'Paris, TN · ~50 min',lat:36.302,lon:-88.327,contact:'',status:'Idea',
+  ask:'$250 or in-kind',notes:'Board-game library = zero-DM content.'},
+ {id:'nv',name:'Nerdvana',town:'Jackson · ~1 hr 30',lat:35.615,lon:-88.814,contact:'',status:'Idea',
+  ask:'$500–$1,000',notes:'Events-savvy, big audience draw — aspirational presenting sponsor.'},
+ {id:'cp',name:'Centerpoint Toys & Games',town:'Millington · ~1 hr 40',lat:35.341,lon:-89.897,contact:'',status:'Idea',
+  ask:'$250 or in-kind',notes:'Warhammer and Pokémon demos.'},
+];}
+
+let stores=load()||starter();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(stores));}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(Array.isArray(d))return d;}catch(e){}return null;}
+
+// ---------- the map (pen & ink, B/W with red/green dots) ----------
+const B={lonMin:-90.18,lonMax:-88.15,latMin:35.18,latMax:36.72,W:400,H:372,pad:14};
+const px=lon=>B.pad+(lon-B.lonMin)/(B.lonMax-B.lonMin)*(B.W-2*B.pad);
+const py=lat=>B.pad+(B.latMax-lat)/(B.latMax-B.latMin)*(B.H-2*B.pad);
+
+function drawMap(){
+  const svg=document.getElementById('map');
+  let s='';
+  // Mississippi River, pen stroke down the west edge
+  const river=[[37.0,-89.18],[36.75,-89.13],[36.57,-89.20],[36.40,-89.52],[36.19,-89.68],[35.95,-89.72],[35.70,-89.90],[35.40,-90.06],[35.15,-90.06]];
+  s+='<path d="'+river.map((p,i)=>(i?'L':'M')+px(p[1]).toFixed(1)+' '+py(p[0]).toFixed(1)).join(' ')+'" fill="none" stroke="#9a978f" stroke-width="2.4" stroke-linecap="round"/>';
+  s+='<path d="'+river.map((p,i)=>(i?'L':'M')+(px(p[1])+4).toFixed(1)+' '+(py(p[0])+2).toFixed(1)).join(' ')+'" fill="none" stroke="#d8d5cc" stroke-width="1" stroke-linecap="round"/>';
+  s+=`<text x="${px(-89.95)}" y="${py(35.85)}" font-size="9.5" fill="#9a978f" font-style="italic" transform="rotate(-62 ${px(-89.95)} ${py(35.85)})">Mississippi R.</text>`;
+  // KY / TN state line
+  const ly=py(36.4995);
+  s+=`<line x1="${B.pad}" y1="${ly}" x2="${B.W-B.pad}" y2="${ly}" stroke="#b6b2a8" stroke-width="1" stroke-dasharray="7 5"/>`;
+  s+=`<text x="${B.W-B.pad-4}" y="${ly-6}" font-size="8.5" letter-spacing="3" fill="#b6b2a8" text-anchor="end">KENTUCKY</text>`;
+  s+=`<text x="${B.W-B.pad-4}" y="${ly+13}" font-size="8.5" letter-spacing="3" fill="#b6b2a8" text-anchor="end">TENNESSEE</text>`;
+  // compass rose
+  const cx=B.W-34,cy=42;
+  s+=`<circle cx="${cx}" cy="${cy}" r="13" fill="none" stroke="#26282e" stroke-width="1"/>
+      <path d="M${cx} ${cy-11} L${cx+3} ${cy} L${cx} ${cy+11} L${cx-3} ${cy} Z" fill="#26282e"/>
+      <text x="${cx}" y="${cy-17}" font-size="9" text-anchor="middle" fill="#26282e" font-weight="600">N</text>`;
+  // HQ: Martin
+  const hx=px(-88.850),hy=py(36.343);
+  s+=`<path d="M${hx} ${hy-7} l1.8 3.8 4.2.5-3.1 2.9.8 4.1-3.7-2-3.7 2 .8-4.1-3.1-2.9 4.2-.5z" fill="var(--gold)" stroke="#26282e" stroke-width=".7"/>`;
+  s+=`<text x="${hx+9}" y="${hy+1}" font-size="10.5" font-weight="700" fill="#26282e">Martin</text>`;
+  s+=`<text x="${hx+9}" y="${hy+12}" font-size="8.5" fill="#8f8c84" font-style="italic">WinterCon HQ</text>`;
+  // store dots
+  stores.forEach(st=>{
+    if(typeof st.lat!=='number'||typeof st.lon!=='number')return;
+    const x=px(st.lon),y=py(st.lat);
+    const c=st.status==='Committed'?'var(--green)':(st.status==='Declined'?'#c9c5ba':'var(--red)');
+    const label=(st.town||st.name).split('·')[0].trim();
+    s+=`<circle cx="${x}" cy="${y}" r="6" fill="${c}" stroke="#fff" stroke-width="1.8" style="cursor:pointer" data-store="${st.id}"/>`;
+    if(label==='Martin')return; // HQ label already marks Martin
+    let lx,ly2,anchor;
+    if(Math.abs(y-hy)<16&&x>hx){ lx=x; ly2=y+17; anchor='middle'; }        // near the HQ text: drop below
+    else if(Math.abs(y-ly)<9){ lx=x-10; ly2=y-8; anchor='end'; }           // near the state line: lift above
+    else if(st.lon<-89.4){ lx=x+10; ly2=y+3.5; anchor='start'; }
+    else { lx=x-10; ly2=y+3.5; anchor='end'; }
+    s+=`<text x="${lx}" y="${ly2}" font-size="9.5" fill="#55524b" text-anchor="${anchor}" style="cursor:pointer" data-store="${st.id}">${label}</text>`;
+  });
+  svg.innerHTML=s;
+  svg.querySelectorAll('[data-store]').forEach(el=>el.addEventListener('click',()=>{
+    const row=document.getElementById('st-'+el.getAttribute('data-store'));
+    if(row){row.scrollIntoView({behavior:'smooth',block:'center'});
+      row.classList.add('flash');setTimeout(()=>row.classList.remove('flash'),900);}
+  }));
+}
+
+// ---------- store list ----------
+function editable(el,rec,key,after){
+  el.setAttribute('contenteditable','true');
+  el.addEventListener('blur',()=>{rec[key]=el.textContent.trim();save();if(after)after();});
+  el.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();el.blur();}});
+}
+
+function render(){
+  const list=document.getElementById('list');
+  list.innerHTML='';
+  stores.forEach((st,i)=>{
+    const row=document.createElement('div');row.className='row';row.id='st-'+st.id;
+    const top=document.createElement('div');top.className='top';
+    const nm=document.createElement('span');nm.className='sname';nm.textContent=st.name||'';
+    editable(nm,st,'name',drawMap);
+    const tn=document.createElement('span');tn.className='stown';tn.textContent=st.town||'';
+    editable(tn,st,'town',drawMap);
+    const sel=document.createElement('select');sel.className='status '+stat(st.status).cls;
+    STATUSES.forEach(s=>{const o=document.createElement('option');o.value=s.v;o.textContent=s.label;if(s.v===(st.status||'Idea'))o.selected=true;sel.appendChild(o);});
+    sel.onchange=()=>{st.status=sel.value;save();render();};
+    top.append(nm,tn,sel);
+    row.appendChild(top);
+    const ask=document.createElement('div');ask.className='askline';
+    const askSpan=document.createElement('span');askSpan.className='sask';askSpan.textContent=st.ask||'';
+    editable(askSpan,st,'ask');
+    ask.innerHTML='<span class="lbl">The ask</span>';ask.appendChild(askSpan);
+    row.appendChild(ask);
+    const nt=document.createElement('div');nt.className='snotes';nt.textContent=st.notes||'';
+    editable(nt,st,'notes');
+    row.appendChild(nt);
+    const meta=document.createElement('div');meta.className='meta';
+    const ct=document.createElement('span');ct.className='scontact';ct.textContent=st.contact||'';
+    editable(ct,st,'contact');
+    meta.appendChild(ct);
+    row.appendChild(meta);
+    const del=document.createElement('button');del.className='del';del.innerHTML='✕';del.title='Remove';
+    del.onclick=()=>{if(confirm('Remove "'+(st.name||'this store')+'"?')){stores.splice(i,1);save();render();}};
+    row.appendChild(del);
+    list.appendChild(row);
+  });
+  const onboard=stores.filter(s=>s.status==='Committed').length;
+  const talking=stores.filter(s=>s.status==='Talking').length;
+  document.getElementById('tally').innerHTML=
+    `${stores.length} stores · <b>${onboard} on board</b>${talking?` · ${talking} in conversation`:''}`;
+  drawMap();
+}
+
+function scout(){
+  stores.push({id:'s'+Date.now(),name:'',town:'',contact:'',status:'Idea',ask:'',notes:''});
+  save();render();
+  const names=document.querySelectorAll('.sname');const last=names[names.length-1];if(last)last.focus();
+}
+
+document.getElementById('exp').onclick=()=>{
+  const blob=new Blob([JSON.stringify(stores,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='wincon_stores.json';a.click();
+};
+document.getElementById('reset').onclick=()=>{if(confirm('Reset to the starter list? Your edits will be lost.')){stores=starter();save();render();}};
+window.addEventListener('storage',e=>{if(e.key===KEY){stores=load()||stores;render();}});
+render();
+</script>
+</body>
+</html>
