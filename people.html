@@ -71,8 +71,14 @@
   .pname:empty::before{content:'add a name';font-style:italic;font-weight:400;color:#b9b5aa;}
   .prole{font-size:13.5px;color:#55524b;outline:none;border-radius:4px;padding:0 3px;flex:1;}
   .prole:empty::before{content:'role';color:#c4c0b5;font-style:italic;}
-  select.status{font:inherit;font-size:12.5px;font-weight:600;border:none;background:transparent;
-                cursor:pointer;text-align:right;padding:0 2px;appearance:none;-webkit-appearance:none;}
+  .dots{display:flex;gap:5px;align-items:center;}
+  .dot{width:13px;height:13px;min-width:13px;border-radius:50%;border:1.5px solid #b9b5aa;background:transparent;
+       cursor:pointer;padding:0;transition:background .15s,border-color .15s;}
+  .dot:hover{border-color:var(--ink);}
+  .dot.y{background:#d9a520;border-color:#d9a520;}
+  .dot.g{background:var(--green);border-color:var(--green);}
+  .dot.x{background:#c9c5ba;border-color:#c9c5ba;}
+  .slab{font-size:12px;font-weight:600;margin-left:7px;min-width:96px;}
   .s-idea{color:#8f8c84;} .s-contact{color:var(--goldink);} .s-talking{color:var(--navy);}
   .s-committed{color:var(--green);} .s-declined{color:#9c8288;}
   .pnotes{font-size:13px;color:#6d6a62;line-height:1.55;margin-top:4px;outline:none;border-radius:4px;padding:0 3px;}
@@ -141,12 +147,30 @@ const CATS=[
 ];
 const STATUSES=[
  {v:'Idea',label:'To approach',cls:'s-idea'},
- {v:'Contacted',label:'Reached out',cls:'s-contact'},
+ {v:'Contacted',label:'Talked to',cls:'s-contact'},
  {v:'Talking',label:'In conversation',cls:'s-talking'},
  {v:'Committed',label:'On board',cls:'s-committed'},
  {v:'Declined',label:'Not this year',cls:'s-declined'},
 ];
 const stat=v=>STATUSES.find(s=>s.v===v)||STATUSES[0];
+const sIdx=v=>Math.max(0,STATUSES.findIndex(s=>s.v===v));
+function dotsWidget(rec,onChange){
+  const wrap=document.createElement('span');wrap.className='dots';
+  const idx=sIdx(rec.status||'Idea');
+  STATUSES.forEach((s,i)=>{
+    const d=document.createElement('button');d.className='dot';d.title=s.label;
+    if(rec.status==='Committed'&&i<=3)d.classList.add('g');
+    else if(rec.status==='Declined'&&i===4)d.classList.add('x');
+    else if(rec.status!=='Committed'&&rec.status!=='Declined'&&i<=idx)d.classList.add('y');
+    d.onclick=()=>{rec.status=s.v;onChange();};
+    wrap.appendChild(d);
+  });
+  const lab=document.createElement('span');
+  lab.className='slab '+STATUSES[idx].cls;
+  lab.textContent=STATUSES[idx].label;
+  wrap.appendChild(lab);
+  return wrap;
+}
 
 function starter(){ return {
  players:[
@@ -214,10 +238,7 @@ function render(){
         editable(nm,r,'name');
         const rl=document.createElement('span'); rl.className='prole'; rl.textContent=r.role||'';
         editable(rl,r,'role');
-        const sel=document.createElement('select'); sel.className='status '+stat(r.status).cls;
-        STATUSES.forEach(s=>{const o=document.createElement('option');o.value=s.v;o.textContent=s.label;if(s.v===(r.status||'Idea'))o.selected=true;sel.appendChild(o);});
-        sel.onchange=()=>{r.status=sel.value;save();render();};
-        top.append(nm,rl,sel);
+        top.append(nm,rl,dotsWidget(r,()=>{save();render();}));
         row.appendChild(top);
         const nt=document.createElement('div'); nt.className='pnotes'; nt.textContent=r.notes||'';
         editable(nt,r,'notes');
@@ -243,7 +264,7 @@ function render(){
       const rowsEls=sec.querySelectorAll('.row .pname'); const last=rowsEls[rowsEls.length-1]; if(last)last.focus();};
     add.appendChild(btn); body.appendChild(add);
     sec.querySelector('.chap').onclick=e=>{
-      if(e.target.closest('select,[contenteditable]'))return;
+      if(e.target.closest('.dots,[contenteditable]'))return;
       if(closedCats.has(cat.id))closedCats.delete(cat.id); else closedCats.add(cat.id); render();
     };
     sec.appendChild(body); main.appendChild(sec);
