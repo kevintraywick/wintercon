@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="/sync.js"></script>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WinterCon — Design Doc · Organizing Site</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root{--bg:#fbfaf7;--ink:#26282e;--quiet:#8f8c84;--hair:#e7e3da;
+        --navy:#2c4468;--green:#2e6b4f;--burgundy:#7d2c3a;--gold:#c9971f;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Helvetica Neue',Arial,sans-serif;}
+  #page{max-width:860px;padding:38px 52px 60px;}
+  #crumb{font-size:12px;letter-spacing:.14em;text-transform:uppercase;}
+  #crumb a{color:var(--quiet);text-decoration:none;}
+  #crumb a:hover{color:var(--navy);}
+  #titlerow{display:flex;align-items:baseline;gap:20px;}
+  h1{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+     font-size:40px;font-weight:600;margin:10px 0 6px;letter-spacing:.01em;}
+  #saved{margin-left:auto;font-size:12px;color:var(--green);opacity:0;transition:opacity .2s;}
+  #saved.on{opacity:1;}
+  #sub{font-family:'Caveat',cursive;font-size:27px;color:var(--burgundy);margin:0;transform:rotate(-1.2deg);display:inline-block;}
+  #mastrule{margin-top:16px;border-top:1px solid var(--ink);border-bottom:3px double var(--hair);height:5px;}
+  #doc{width:100%;min-height:75vh;margin-top:22px;font:15px/1.75 'Helvetica Neue',Arial,sans-serif;
+       color:var(--ink);border:none;background:transparent;resize:none;outline:none;padding:0 2px;}
+  #doc:focus{outline:none;}
+  @media(max-width:700px){ #page{padding:26px 22px 50px;} }
+</style>
+</head>
+<body>
+<div id="page">
+  <div id="crumb"><a href="index.html">WinterCon</a> <span style="color:var(--hair)">/</span> <span style="color:var(--quiet)">Design Doc</span></div>
+  <div id="titlerow">
+    <h1>Design Doc</h1>
+    <span id="saved">saved ✓</span>
+  </div>
+  <p id="sub">the organizing site</p>
+  <div id="mastrule"></div>
+  <textarea id="doc" spellcheck="false"></textarea>
+</div>
+
+<script>
+const KEY='wincon_design_org';
+const SEED=`DESIGN LANGUAGE — WINTERCON ORGANIZING SITE
+
+OVERALL GOAL
+This is not project management software. It is the headquarters for running a large Dungeons & Dragons convention. Every page should make staff feel like they are preparing for an exciting event rather than completing office work. The interface should encourage momentum, confidence, and camaraderie. Never resemble Excel, Airtable, Jira, or a generic Tailwind admin template.
+
+VISUAL PERSONALITY
+Professional. Friendly. Adventurous. Warm. Organized. Confident.
+Handcrafted rather than corporate.
+Think: Adventurer's Guild headquarters · National Park visitor center · beautiful tabletop RPG rulebook · premium board game companion app.
+Not: SaaS dashboard · banking website · spreadsheet · ERP software.
+
+TYPOGRAPHY
+Large welcoming page titles. Section headers feel like chapter headings. Excellent hierarchy. Long paragraphs uncommon. Labels quiet, content emphasized.
+House fonts: Iowan Old Style / Palatino (serif, titles & content) · Helvetica Neue (machinery) · Caveat (hand-lettered accents, used sparingly).
+
+SPACING
+Lots of breathing room. Cards sparingly — prefer grouped sections over floating boxes. Relaxed, never dense.
+
+COLOR
+Warm ivory background (#fbfaf7) — NO parchment, NO brown, NO dull colors.
+Deep charcoal text (#26282e). Dark navy #2c4468 · forest green #2e6b4f · deep burgundy #7d2c3a · pine #1f5e5a. Gold #c9971f for small accents only.
+Never saturated primaries. Success feels encouraging, warnings feel like gentle attention.
+
+CORNERS & BORDERS
+6–8px radius; nothing excessively rounded. NO PILLS — ever. Thin subtle borders; spacing over outlines.
+
+CONTROLS
+NO PULLDOWNS / dropdowns unless specifically requested.
+Status = five clickable dots: open circles → yellow as progress is made → green when on board (gray for "not this year"), with a status word beside them.
+Status language: To approach · Talked to · In conversation · On board · Not this year.
+Buttons feel inviting ("Welcome a sponsor", "Recruit a volunteer") — never Submit/Save/Update.
+
+ICONS & ILLUSTRATION
+Simple outline icons; tasteful fantasy motifs (shield, torch, map, scroll, banner, compass, tent, backpack, potion). No dragons, skulls, flaming swords, or clip art. Small pen-and-ink decorative illustrations welcome (e.g. the B/W outreach map); content always beats decoration.
+
+NAVIGATION
+Chapters of a guidebook: breadcrumb "WinterCon / Page" top-left, serif page title, Caveat subtitle, double-hairline masthead rule. Users always know where they are.
+
+MOTION
+Fast and subtle: 150–200ms, tiny fades, small vertical movement, gentle hover highlights. Nothing bounces.
+
+CONTENT
+Break information into missions / quest-log groupings, not giant tables. Facts only — no unverifiable opinions in data or copy. No over-explaining: it is easier to add than to anticipate. No cutesy captions. Delete before decorating.
+
+EMOTIONAL GOAL
+"I know exactly what needs to happen." "We're building something fun." "This event is coming together." — never "I have paperwork to finish."
+
+AVOID
+Generic Tailwind admin templates · large empty dashboards · tiny text · dense tables · corporate blue gradients · heavy drop shadows · overly medieval decoration · game UI aesthetics · anything resembling an MMORPG inventory screen · pills · pulldowns · colored marker dots in TOC lists.
+
+A modern productivity application inspired by tabletop adventures — not a fantasy game.`;
+
+const doc=document.getElementById('doc');
+const saved=document.getElementById('saved');
+function fit(){doc.style.height='auto';doc.style.height=Math.max(doc.scrollHeight,window.innerHeight*.7)+'px';}
+function loadDoc(){const v=localStorage.getItem(KEY);doc.value=(v&&v.trim())?v:SEED;fit();}
+let t=null;
+doc.addEventListener('input',()=>{
+  fit();
+  clearTimeout(t);
+  t=setTimeout(()=>{localStorage.setItem(KEY,doc.value);
+    saved.classList.add('on');setTimeout(()=>saved.classList.remove('on'),1200);},500);
+});
+window.addEventListener('storage',e=>{if(e.key===KEY&&document.activeElement!==doc)loadDoc();});
+loadDoc();
+if(!localStorage.getItem(KEY))localStorage.setItem(KEY,SEED);
+</script>
+</body>
+</html>

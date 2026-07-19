@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="/sync.js"></script>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WinterCon — Design Doc · Public Site</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root{--bg:#fbfaf7;--ink:#26282e;--quiet:#8f8c84;--hair:#e7e3da;
+        --navy:#2c4468;--green:#2e6b4f;--burgundy:#7d2c3a;--gold:#c9971f;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Helvetica Neue',Arial,sans-serif;}
+  #page{max-width:860px;padding:38px 52px 60px;}
+  #crumb{font-size:12px;letter-spacing:.14em;text-transform:uppercase;}
+  #crumb a{color:var(--quiet);text-decoration:none;}
+  #crumb a:hover{color:var(--navy);}
+  #titlerow{display:flex;align-items:baseline;gap:20px;}
+  h1{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+     font-size:40px;font-weight:600;margin:10px 0 6px;letter-spacing:.01em;}
+  #saved{margin-left:auto;font-size:12px;color:var(--green);opacity:0;transition:opacity .2s;}
+  #saved.on{opacity:1;}
+  #sub{font-family:'Caveat',cursive;font-size:27px;color:var(--burgundy);margin:0;transform:rotate(-1.2deg);display:inline-block;}
+  #mastrule{margin-top:16px;border-top:1px solid var(--ink);border-bottom:3px double var(--hair);height:5px;}
+  #doc{width:100%;min-height:75vh;margin-top:22px;font:15px/1.75 'Helvetica Neue',Arial,sans-serif;
+       color:var(--ink);border:none;background:transparent;resize:none;outline:none;padding:0 2px;}
+  @media(max-width:700px){ #page{padding:26px 22px 50px;} }
+</style>
+</head>
+<body>
+<div id="page">
+  <div id="crumb"><a href="index.html">WinterCon</a> <span style="color:var(--hair)">/</span> <span style="color:var(--quiet)">Design Doc</span></div>
+  <div id="titlerow">
+    <h1>Design Doc</h1>
+    <span id="saved">saved ✓</span>
+  </div>
+  <p id="sub">the public site</p>
+  <div id="mastrule"></div>
+  <textarea id="doc" spellcheck="false"></textarea>
+</div>
+
+<script>
+const KEY='wincon_design_public';
+const SEED=`DESIGN LANGUAGE — WINTERCON PUBLIC SITE (draft)
+
+This document is a draft — edit it here and it saves for everyone.
+
+AUDIENCE
+Attendees and their families: first-timers, students, parents, traveling players, cosplayers, tournament players. Many have never been to a convention.
+
+OVERALL GOAL
+(to define)
+
+VISUAL PERSONALITY
+(to define)
+
+TYPOGRAPHY
+(to define)
+
+COLOR
+(to define)
+
+CURRENT STATE (as built)
+Navy gradient headers · white tiles with colored left borders · Helvetica Neue · centered layouts. To be revisited against this document once it is written.
+
+SHARED RULES (carried from the organizing site)
+No pills. No pulldowns unless specifically requested. No over-explaining — easier to add than anticipate. Facts only, no filler opinions. Fast subtle motion, nothing bounces.
+
+AVOID
+(to define)`;
+
+const doc=document.getElementById('doc');
+const saved=document.getElementById('saved');
+function fit(){doc.style.height='auto';doc.style.height=Math.max(doc.scrollHeight,window.innerHeight*.7)+'px';}
+function loadDoc(){const v=localStorage.getItem(KEY);doc.value=(v&&v.trim())?v:SEED;fit();}
+let t=null;
+doc.addEventListener('input',()=>{
+  fit();
+  clearTimeout(t);
+  t=setTimeout(()=>{localStorage.setItem(KEY,doc.value);
+    saved.classList.add('on');setTimeout(()=>saved.classList.remove('on'),1200);},500);
+});
+window.addEventListener('storage',e=>{if(e.key===KEY&&document.activeElement!==doc)loadDoc();});
+loadDoc();
+if(!localStorage.getItem(KEY))localStorage.setItem(KEY,SEED);
+</script>
+</body>
+</html>
