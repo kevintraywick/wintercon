@@ -33,6 +33,9 @@
        padding:3px 10px;cursor:pointer;white-space:nowrap;}
   .own:hover{border-color:var(--navy);color:var(--navy);}
   .own.has{border:1px solid #dbe4f5;background:#eef3fc;color:var(--navy);font-weight:600;}
+  .vol{display:flex;align-items:center;gap:5px;font-size:11.5px;color:#8a8f98;cursor:pointer;white-space:nowrap;user-select:none;}
+  .vol input{accent-color:var(--done);width:15px;height:15px;cursor:pointer;}
+  .vol.on{color:var(--done);font-weight:600;}
   li.done .own{opacity:.55;}
   #addRow{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--line);background:#fafbfc;}
   #addRow input{flex:1;font-size:14.5px;padding:9px 12px;border:1px solid #ccd2db;border-radius:8px;}
@@ -88,6 +91,13 @@ function render(){
     c.onclick=()=>{it.done=!it.done;save(items);render();};
     const t=document.createElement('div');
     t.className='txt';t.textContent=it.txt;
+    const v=document.createElement('label');
+    v.className='vol'+(it.vol?' on':'');
+    v.title='Show this item on the public volunteer page';
+    const vc=document.createElement('input');
+    vc.type='checkbox';vc.checked=!!it.vol;
+    vc.onchange=()=>{it.vol=vc.checked;save(items);render();};
+    v.append(vc,document.createTextNode('volunteers'));
     const o=document.createElement('button');
     o.className='own'+(it.owner?' has':'');
     o.textContent=it.owner?it.owner:'＋ own this';
@@ -101,7 +111,7 @@ function render(){
     const d=document.createElement('button');
     d.className='del';d.innerHTML='✕';d.title='Remove';
     d.onclick=()=>{if(confirm('Remove "'+it.txt+'"?')){items=items.filter(x=>x.id!==it.id);save(items);render();}};
-    li.append(c,t,o,d);
+    li.append(c,t,v,o,d);
     ul.appendChild(li);
   });
 }
